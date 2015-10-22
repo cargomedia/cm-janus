@@ -1,0 +1,25 @@
+{
+  "name": "cm-janus",
+  "description": "",
+  "version": "0.0.1",
+  "author": "Cargomedia",
+  "license": "MIT",
+  "main": "",
+  "bin": {
+    "cm-janus": "./bin/cm-janus"
+  },
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:cargomedia/cm-janus.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cargomedia/cm-janus/issues"
+  },
+  "scripts": {
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
