@@ -18,7 +18,8 @@
   },
   "scripts": {},
   "dependencies": {
-    "express": "~4.13.3"
+    "express": "~4.13.3",
+    "config" : "~1.16.0"
   },
   "devDependencies": {}
 }
