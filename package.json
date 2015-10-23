@@ -16,10 +16,9 @@
   "bugs": {
     "url": "https://github.com/cargomedia/cm-janus/issues"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
+    "express": "~4.13.3"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }
