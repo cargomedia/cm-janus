@@ -4,61 +4,23 @@
   </head>
   <body>
     <video id="video" autoplay width="640" height="480"></video>
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="node_modules/rtcpeerconnection/rtcpeerconnection.bundle.js"></script>
     <script>
       $(document).ready(function() {
-        $.post('/video/subscribe', {streamId: 1}, function(data) {
-          alert(JSON.stringify(data));
-        });
-      });
-/*
-      window.onload = function() {
-        var pc;
         var video = document.getElementById('video');
-        $.ajax();
 
-        function start(isCaller) {
+        $.post('/video/subscribe', {streamId: 1}, function(data) {
           var config = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
           var constraints = {"optional": [{"DtlsSrtpKeyAgreement": true}]};
-          pc = new RTCPeerConnection(config, constraints);
-
-          // once remote stream arrives, show it in the remote video element
+          var pc = new RTCPeerConnection(config, constraints);
           pc.onaddstream = function(evt) {
+            console.log('#### onaddstream');
             video.src = URL.createObjectURL(evt.stream);
           };
-
-          // get the local stream, show it in the local video element and send it
-          navigator.getUserMedia({"audio": true, "video": true}, function(stream) {
-            selfView.src = URL.createObjectURL(stream);
-            pc.addStream(stream);
-
-            if (isCaller) {
-              pc.createOffer(gotDescription);
-            } else {
-              pc.createAnswer(pc.remoteDescription, gotDescription);
-            }
-
-            function gotDescription(desc) {
-              pc.setLocalDescription(desc);
-              signalingChannel.send(JSON.stringify({"sdp": desc}));
-            }
-          });
-        }
-
-      };
-
-      signalingChannel.onmessage = function(evt) {
-        if (!pc) {
-          start(false);
-        }
-
-        var signal = JSON.parse(evt.data);
-        if (signal.sdp) {
-          pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-        }
-      };
-*/
-
+          pc.setRemoteDescription(new RTCSessionDescription(data.jsep.sdp));
+        });
+      });
     </script>
   </body>
 </html>
