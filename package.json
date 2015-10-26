@@ -18,7 +18,11 @@
   },
   "scripts": {},
   "dependencies": {
-    "express": "~4.13.3"
+    "bluebird": "~2.10.2",
+    "body-parser": "~1.14.1",
+    "express": "~4.13.3",
+    "underscore": "~1.8.3",
+    "ws": "~0.8.0"
   },
   "devDependencies": {}
 }
