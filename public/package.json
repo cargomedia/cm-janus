@@ -1,0 +1,14 @@
+{
+  "name": "cm-janus-public-client",
+  "description": "",
+  "version": "0.0.1",
+  "author": "Cargomedia",
+  "license": "MIT",
+  "main": "",
+  "keywords": [],
+  "scripts": {},
+  "dependencies": {
+    "jquery": "~2.1",
+    "rtcpeerconnection": "~3.1"
+  }
+}

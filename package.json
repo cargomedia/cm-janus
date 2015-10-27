@@ -16,10 +16,15 @@
   "bugs": {
     "url": "https://github.com/cargomedia/cm-janus/issues"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
+    "underscore": "~1.8.3",
+    "config": "~1.16.0",
+    "express": "~4.13.3",
+    "body-parser": "~1.14.1",
+    "minilog": "~2.0.8",
+    "bluebird": "~2.10.2",
+    "ws": "~0.8.0"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }
