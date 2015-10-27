@@ -3,23 +3,93 @@
     <title>Test</title>
   </head>
   <body>
-    <video id="video" autoplay width="640" height="480"></video>
+    <video id="video" autoplay width="320" height="240"></video>
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="node_modules/rtcpeerconnection/rtcpeerconnection.bundle.js"></script>
     <script>
       $(document).ready(function() {
         var video = document.getElementById('video');
+        var connection = new WebSocket('ws://localhost:8188');
+        connection.onopen = function() {
+          console.log('WebSocket open');
+          var message = {type: 'subscribe', streamId: 1};
+          connection.send(JSON.stringify(message)); // Send the message 'Ping' to the server
+        };
 
-        $.post('/video/subscribe', {streamId: 1}, function(data) {
-          var config = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
-          var constraints = {"optional": [{"DtlsSrtpKeyAgreement": true}]};
-          var pc = new RTCPeerConnection(config, constraints);
-          pc.onaddstream = function(evt) {
-            console.log('#### onaddstream');
-            video.src = URL.createObjectURL(evt.stream);
-          };
-          pc.setRemoteDescription(new RTCSessionDescription(data.jsep.sdp));
-        });
+        // Log errors
+        connection.onerror = function(error) {
+          console.log('WebSocket Error ' + error);
+        };
+
+        // Log messages from the server
+        connection.onmessage = function(e) {
+          var message = JSON.parse(e.data);
+          switch (message.type) {
+            case 'subscribe':
+              var peerConnection = new RTCPeerConnection({"iceServers": [
+                {"url": "stun:stun.l.google.com:19302"},
+                {"url": "stun:stunserver.com:12345"},
+                {"url": "turn:turnserver.com", "username": "user", "credential": "pass"}
+              ]});
+              peerConnection.onaddstream = function(evt) {
+                video.src = URL.createObjectURL(evt.stream);
+              };
+              peerConnection.onicecandidate = function (event) {
+                console.log('onicecandidate', arguments);
+                connection.send(JSON.stringify({type: 'icecandidate', candidate: event.candidate}));
+              };
+              peerConnection.oniceconnectionstatechange = function(evt) {
+                console.log("ICE connection state change: " + evt.target.iceConnectionState);
+              };
+              peerConnection.setRemoteDescription(new RTCSessionDescription(message.result));
+
+              peerConnection.createAnswer(function(offer) {
+                peerConnection.setLocalDescription(offer);
+                connection.send(JSON.stringify({type: 'answer', jsep: offer}));
+              });
+
+              break;
+          }
+        };
+
+        /*
+         $.post('/video/subscribe', {streamId: 1}, function(data) {
+         //          var config = {"iceServers": [{"url": "stun:stun.1.google.com:19302"}]};
+         //var constraints = {"optional": [{"DtlsSrtpKeyAgreement": true}]};
+         //          var peerConnection = new RTCPeerConnection(config/!*, constraints*!/);
+         var peerConnection = new RTCPeerConnection();
+         peerConnection.onaddstream = function(evt) {
+         video.srcObject = evt.stream;
+         //            video.src = URL.createObjectURL(evt.stream);
+         };
+
+         peerConnection.onicecandidate = function (event) {
+         console.log('sdkjfhsdkjfhdskj', arguments);
+         };
+         peerConnection.oniceconnectionstatechange = function(evt) {
+         console.log("ICE connection state change: " + evt.target.iceConnectionState);
+         };
+
+         peerConnection.setRemoteDescription(new RTCSessionDescription(data.jsep));
+
+         console.log("ICE connection state change: " + peerConnection.iceGatheringState);
+
+         peerConnection.createAnswer(function(offer) {
+         //            console.log(offer);
+         peerConnection.setLocalDescription(offer);
+         $.post('/video/start', {jsep: JSON.stringify(offer)}, function(data) {
+         //              console.log('@@@@@@@ ', data);
+         });
+         }, function(err) {
+         console.error(err)
+         }, {
+         'mandatory': {
+         'OfferToReceiveAudio': false,
+         'OfferToReceiveVideo': true
+         }
+         });
+         });
+         */
       });
     </script>
   </body>
