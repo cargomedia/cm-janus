@@ -22,6 +22,7 @@
     "body-parser": "^1.14.1",
     "config": "^1.16.0",
     "express": "^4.13.3",
+    "minilog": "^2.1.0",
     "underscore": "^1.8.3",
     "ws": "~0.8.0"
   },
