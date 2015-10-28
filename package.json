@@ -19,6 +19,8 @@
   "scripts": {},
   "dependencies": {
     "bluebird": "~3.0.0",
+    "body-parser": "^1.14.1",
+    "express": "^4.13.3",
     "underscore": "^1.8.3",
     "ws": "~0.8.0"
   },
