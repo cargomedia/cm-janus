@@ -7,6 +7,6 @@
     "apiKey" : "123fish"
   },
   "cmHttpClient": {
-    "cmUrl" : "http://www.fooboo.dev.cargomedia.ch"
+    "cmUrl" : "http://www.cm.dev"
   }
 }
