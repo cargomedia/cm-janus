@@ -3,11 +3,15 @@
 var Config = require('../lib/config');
 var minimist = require('minimist');
 
-var CMJanus = require('../lib/index.js');
-
 var argv = minimist(process.argv.slice(2));
 var configPath = argv.c || __dirname + '/config.yaml';
 var config = new Config(configPath);
+var configHash = config.asHash();
+
+var logger = require('../lib/logger.js');
+logger.configure(configHash['app']['logPath']);
+
+var CMJanus = require('../lib/index.js');
 
 var proxy = new CMJanus.JanusProxy('8188', 'ws://198.23.87.26:8188/janus');
 proxy.start();
