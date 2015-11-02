@@ -20,10 +20,12 @@
   "dependencies": {
     "bluebird": "~3.0.0",
     "body-parser": "^1.14.1",
-    "config": "^1.16.0",
     "express": "^4.13.3",
+    "js-yaml": "^3.4.3",
+    "jsonschema": "^1.0.2",
     "minilog": "^2.1.0",
     "node-uuid": "^1.4.3",
+    "minimist": "^1.2.0",
     "request-promise": "^1.0.2",
     "underscore": "^1.8.3",
     "ws": "~0.8.0"
