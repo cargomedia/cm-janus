@@ -6,11 +6,12 @@ var minimist = require('minimist');
 var argv = minimist(process.argv.slice(2));
 var configPath = argv.c || __dirname + '/config.yaml';
 config.load(configPath);
+var configHash = config.asHash();
 
 var CMJanus = require('../lib/index.js');
 
 var proxy = new CMJanus.JanusProxy('8188', 'ws://198.23.87.26:8188/janus');
 proxy.start();
 
-var apiServer = new CMJanus.HttpServer();
+var apiServer = new CMJanus.HttpServer(configHash['httpServer']['port'], configHash['httpServer']['apiKey']);
 apiServer.start();
