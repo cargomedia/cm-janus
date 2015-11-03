@@ -3,5 +3,5 @@ app:
 httpServer:
   port: 8888
   apiKey: '123fish'
-cmHttpClient:
-  cmUrl: 'http://www.cm.dev'
+cmApi:
+  baseUrl: 'http://www.cm.dev'
