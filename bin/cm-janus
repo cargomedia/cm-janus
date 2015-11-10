@@ -13,5 +13,5 @@ var CMJanus = require('../lib/index.js');
 var proxy = new CMJanus.JanusProxy(String(configHash['proxy']['listenPort']), configHash['proxy']['janusAddress']);
 proxy.start();
 
-var apiServer = new CMJanus.HttpServer(configHash['httpServer']['port'], configHash['app']['serverKey']);
+var apiServer = new CMJanus.HttpServer(configHash['httpServer']['port'], configHash['httpServer']['apiKey']);
 apiServer.start();
