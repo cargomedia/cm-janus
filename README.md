@@ -1,4 +1,4 @@
-cm-janus
+cm-janus [![Build Status](https://travis-ci.org/cargomedia/cm-janus.png?branch=master)](https://travis-ci.org/cargomedia/cm-janus)
 ========
 
 ## About
@@ -30,7 +30,7 @@ proxy:
   janusAddress: 'ws://198.23.87.26:8188/janus' # janus-gateway address for proxying WebSocket connections
 httpServer:
   port: 8888 # port for incoming http api requests
-  apiKey: '123fish' # token for authenticating incoming http request 
+  apiKey: '123fish' # token for authenticating incoming http request
 cmApi:
   baseUrl: 'http://www.cm.dev' # cm-application address
   apiKey: '123fish' # token for authentication, sent with each http request
