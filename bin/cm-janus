@@ -10,7 +10,7 @@ var configHash = config.asHash();
 
 var CMJanus = require('../lib/index.js');
 
-var proxy = new CMJanus.JanusProxy('8188', 'ws://198.23.87.26:8188/janus');
+var proxy = new CMJanus.JanusProxy(String(configHash['proxy']['listenPort']), configHash['proxy']['janusAddress']);
 proxy.start();
 
 var apiServer = new CMJanus.HttpServer(configHash['httpServer']['port'], configHash['app']['serverKey']);
