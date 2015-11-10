@@ -3,7 +3,7 @@ cm-janus
 
 ## About
 Bridge between cm-application and janus-gateway. Once running it should:
-- Provide WebSocket proxy for connections between [Janus javascript client](https://github.com/meetecho/janus-gateway/blob/master/html/janus.js) library and [janus-gateway](https://github.com/meetecho/janus-gateway) server.
+- Provide WebSocket proxy for connections between [Janus javascript client](https://github.com/meetecho/janus-gateway/blob/master/html/janus.js) and [janus-gateway](https://github.com/meetecho/janus-gateway) server.
 - Provide HTTP Server for accepting [cm-application](https://github.com/cargomedia/cm) requests.
 - Send cm-application api requests on certain events.
 
