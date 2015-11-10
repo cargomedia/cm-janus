@@ -9,4 +9,3 @@ proxy:
 cmApi:
   baseUrl: 'http://www.cm.dev'
   apiKey: '123fish'
-
