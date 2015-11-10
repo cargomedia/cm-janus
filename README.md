@@ -26,8 +26,8 @@ Config format:
 ```yaml
 logPath: 'log/app.log' # path to log file (relative to working dir)
 proxy:
-  listenPort: '8188' # port for incoming connections
-  janusAddress: 'ws://198.23.87.26:8188/janus' # janus-gateway address for proxying connections
+  listenPort: '8188' # port for incoming WebSocket connections
+  janusAddress: 'ws://198.23.87.26:8188/janus' # janus-gateway address for proxying WebSocket connections
 httpServer:
   port: 8888 # port for incoming http api requests
   apiKey: '123fish' # token for authenticating incoming http request 
