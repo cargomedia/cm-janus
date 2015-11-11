@@ -2,7 +2,7 @@ Vagrant.configure('2') do |config|
   config.ssh.forward_agent = true
   config.vm.box = 'cargomedia/debian-7-amd64-default'
 
-  config.vm.hostname = 'www.cm-janus.dev.cargomedia.ch'
+  config.vm.hostname = 'cm-janus.dev.cargomedia.ch'
 
   config.vm.network :private_network, ip: '10.10.10.15'
   config.vm.synced_folder '.', '/home/vagrant/cm-janus', :type => 'nfs'
