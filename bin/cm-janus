@@ -3,8 +3,6 @@ var minimist = require('minimist');
 var Config = require('../lib/config');
 var Application = require('../lib/index.js');
 
-var services = require('../lib/services');
-
 var argv = minimist(process.argv.slice(2));
 var configPath = argv.c || __dirname + '/config.yaml';
 var config = Config.createFromFile(configPath).asHash();
