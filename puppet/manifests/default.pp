@@ -1,6 +1,5 @@
 node default {
+  require 'apt::source::backports'
 
-  class {'apt':}
-  ->
   class {'nodejs':}
 }
