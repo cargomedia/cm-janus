@@ -1,5 +1,4 @@
-app:
-  logPath: 'log/app.log'
+logPath: 'log/app.log'
 httpServer:
   port: 8888
   apiKey: '123fish'
