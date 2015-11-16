@@ -63,7 +63,9 @@ describe('JobManager', function() {
             fs.accessSync(jobFilepath);
           }).to.throw();
 
-          done();
+          fs.rmdirAsync(tmpDirPath).then(function() {
+            done();
+          });
         }, 1000);//here we need to wait a bit to give time to jobHandler to work.
       });
     });
