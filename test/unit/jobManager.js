@@ -11,7 +11,7 @@ var app = new App(Config.createFromFile(configPath).asHash());
 app.registerServices();
 
 var JobManager = require('../../lib/job/job-manager');
-var TestJobHandler = require('./testJobHandler');
+var AbstractJobHandler = require('../../lib/job/handler/abstract');
 
 describe('JobManager', function() {
 
@@ -47,13 +47,14 @@ describe('JobManager', function() {
 
   it('test job handler call', function(done) {
     createTmpDir().then(function(tmpDirPath) {
-
-      var testJobHandler = new TestJobHandler();
-      sinon.spy(testJobHandler, 'handle');
+      var jobData = randomTestJobData();
+      var testJobHandler = new AbstractJobHandler();
+      testJobHandler.handle = sinon.stub().returns(Promise.resolve());
+      testJobHandler.getPlugin = sinon.stub().returns(jobData['plugin']);
+      testJobHandler.getEvent = sinon.stub().returns(jobData['event']);
 
       new JobManager(tmpDirPath, [testJobHandler]);
 
-      var jobData = randomTestJobData();
       createJobFile(tmpDirPath, jobData).then(function(jobFilepath) {
         setTimeout(function() {
 
