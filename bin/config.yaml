@@ -6,5 +6,5 @@ proxy:
   listenPort: 8188
   janusAddress: 'ws://198.23.87.26:8188/janus'
 cmApi:
-  baseUrl: 'http://www.cm.dev'
+  baseUrl: 'http://www.cm.dev/rpc/null'
   apiKey: '123fish'
