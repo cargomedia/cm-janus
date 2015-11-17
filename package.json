@@ -26,9 +26,10 @@
     "js-yaml": "^3.4.3",
     "jsonschema": "^1.0.2",
     "minilog": "^2.1.0",
-    "node-uuid": "^1.4.3",
     "minimist": "^1.2.0",
+    "node-uuid": "^1.4.3",
     "request-promise": "^1.0.2",
+    "sinon": "^1.17.2",
     "underscore": "^1.8.3",
     "ws": "~0.8.0"
   },
