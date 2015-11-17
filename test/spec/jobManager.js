@@ -3,12 +3,8 @@ var sinon = require('sinon');
 var path = require('path');
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require("fs"));
-var Config = require('../../lib/config');
 var App = require('../../lib/index');
-
-var configPath = path.join(__dirname, '/../config.yaml');
-var app = new App(Config.createFromFile(configPath).asHash());
-app.registerServices();
+new App({}).registerServices();
 
 var JobManager = require('../../lib/job/job-manager');
 var AbstractJobHandler = require('../../lib/job/handler/abstract');
