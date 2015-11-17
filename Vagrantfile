@@ -15,4 +15,12 @@ Vagrant.configure('2') do |config|
     puppet.module_path = 'puppet/modules'
     puppet.manifests_path = 'puppet/manifests'
   end
+
+  $script = <<EOF
+cd cm-janus
+npm -g install;
+echo "NODE_PATH=$NODE_PATH:/usr/lib/node_modules/cm-janus/node_modules/" >>/etc/environment
+EOF
+
+  config.vm.provision :shell, :inline => $script
 end
