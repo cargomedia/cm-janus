@@ -4,11 +4,8 @@ var WebSocketServer = require('../helpers/websocket').Server;
 var WebSocket = require('../helpers/websocket').Client;
 
 var path = require('path');
-var Config = require('../../lib/config');
 var App = require('../../lib/index');
-var configPath = path.join(__dirname, '/../config.yaml');
-var app = new App(Config.createFromFile(configPath).asHash());
-app.registerServices();
+new App({}).registerServices();
 
 var Connection = require('../../lib/connection');
 
