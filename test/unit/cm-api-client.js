@@ -18,9 +18,7 @@ describe('cm-api-client', function() {
   it('call isValidUser', function() {
     var cmHttpClient = new CMApiClient('http://cm.dev/', 'foo');
     var userData = {foo: 'bar'};
-    var successStub = sinon.stub(cmHttpClient, '_request', function() {
-      return Promise.resolve(true);
-    });
+    var successStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(true));
 
     cmHttpClient.isValidUser(userData);
 
@@ -28,9 +26,7 @@ describe('cm-api-client', function() {
     assert.isTrue(successStub.alwaysCalledWithExactly('isValidUser', [userData]));
 
     successStub.restore();
-    var failStub = sinon.stub(cmHttpClient, '_request', function() {
-      return Promise.resolve(false);
-    });
+    var failStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(false));
     cmHttpClient.isValidUser(userData).catch(function(err) {
       failStub.threw(err);
     });
