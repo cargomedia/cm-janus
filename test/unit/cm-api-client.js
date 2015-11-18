@@ -1,8 +1,9 @@
 var expect = require('chai').expect;
 var nock = require('nock');
 
-var App = require('../../lib/index');
-new App({}).registerServices();
+var Logger = require('../../lib/logger');
+var serviceLocator = require('../../lib/service-locator');
+serviceLocator.register('logger', new Logger());
 
 var CmApiClient = require('../../lib/cm-api-client');
 
