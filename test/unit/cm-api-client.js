@@ -53,7 +53,7 @@ describe('CmApiClient Unit tests', function() {
     });
   });
 
-  it.only('isValidUser', function(done) {
+  it('isValidUser', function(done) {
     var url = 'http://localhost:8080';
     var action = 'isValidUser';
     var apiKey = 'test';
