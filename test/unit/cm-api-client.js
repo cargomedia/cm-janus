@@ -5,6 +5,8 @@ var sinon = require('sinon');
 
 describe('cm-api-client', function() {
 
+  this.timeout(100);
+
   it('is created properly', function() {
     var baseUrl = 'http://cm.dev/';
     var apiKey = 'foo';
