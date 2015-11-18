@@ -1,11 +1,10 @@
 var expect = require('chai').expect;
-var Promise = require('bluebird');
 var WebSocketServer = require('../helpers/websocket').Server;
 var WebSocket = require('../helpers/websocket').Client;
 
-var path = require('path');
-var App = require('../../lib/index');
-new App({}).registerServices();
+var Logger = require('../../lib/logger');
+var serviceLocator = require('../../lib/service-locator');
+serviceLocator.register('logger', new Logger());
 
 var Connection = require('../../lib/connection');
 
