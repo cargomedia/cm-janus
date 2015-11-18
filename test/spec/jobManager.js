@@ -3,11 +3,12 @@ var sinon = require('sinon');
 var path = require('path');
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require("fs"));
-var App = require('../../lib/index');
-new App({}).registerServices();
 
 var JobManager = require('../../lib/job/job-manager');
 var AbstractJobHandler = require('../../lib/job/handler/abstract');
+var Logger = require('../../lib/logger');
+var serviceLocator = require('../../lib/service-locator');
+serviceLocator.register('logger', new Logger());
 
 describe('JobManager', function() {
 
