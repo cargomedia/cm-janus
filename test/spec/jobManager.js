@@ -8,7 +8,9 @@ var JobManager = require('../../lib/job/job-manager');
 var AbstractJobHandler = require('../../lib/job/handler/abstract');
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
-serviceLocator.register('logger', new Logger());
+serviceLocator.register('logger', function() {
+  return new Logger();
+});
 
 describe('JobManager', function() {
 
