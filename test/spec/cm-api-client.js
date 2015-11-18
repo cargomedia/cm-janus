@@ -1,4 +1,4 @@
-var expect = require('chai').expect;
+var assert = require('chai').assert;
 var nock = require('nock');
 
 var Logger = require('../../lib/logger');
@@ -14,8 +14,8 @@ describe('CmApiClient Unit tests', function() {
   function mockRequest(url, action, apiKey, params) {
     nock(url)
       .post('/', function(body) {
-        expect(body['method']).to.equal('CM_Janus_RpcEndpoints.' + action);
-        expect(body['params']).to.eql([apiKey].concat(params));
+        assert.equal(body['method'], 'CM_Janus_RpcEndpoints.' + action);
+        assert.deepEqual(body['params'], [apiKey].concat(params));
         return true;
       })
       .reply(200, {
@@ -33,7 +33,7 @@ describe('CmApiClient Unit tests', function() {
 
     var client = new CmApiClient(url, apiKey);
     client.publish.apply(client, params).then(function(result) {
-      expect(result).to.equal(true);
+      assert.isTrue(result);
       done();
     });
   });
@@ -48,7 +48,7 @@ describe('CmApiClient Unit tests', function() {
 
     var client = new CmApiClient(url, apiKey);
     client.subscribe.apply(client, params).then(function(result) {
-      expect(result).to.equal(true);
+      assert.isTrue(result);
       done();
     });
   });
