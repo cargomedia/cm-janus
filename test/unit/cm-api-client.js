@@ -96,8 +96,28 @@ describe('cm-api-client', function() {
         assert.isTrue(loggerSpy.getCall(3).calledWith('cm-api', 'response', 'bodyErr'));
 
         assert.isTrue(requestPromiseMock.calledOnce);
-        requestPromiseMock.restore();
       });
+
+      requestPromiseMock.restore();
+    });
+
+    it('works with completely failed request', function() {
+      var requestPromiseMock = sinon.stub(cmHttpClient, '_httpClient').returns(
+        function() {
+          return Promise.reject(new Error('request failed'));
+        }
+      );
+
+      cmHttpClient._request(action, sentData).catch(function(err) {
+        assert.instanceOf(err, Error);
+        assert.strictEqual(err.message, 'cm-api error: request failed');
+        assert.strictEqual(loggerSpy.callCount, 5);
+        assert.isTrue(loggerSpy.getCall(4).calledWith('cm-api', 'request', baseUri));
+
+        assert.isTrue(requestPromiseMock.calledOnce);
+      });
+
+      requestPromiseMock.restore();
     });
 
   });
