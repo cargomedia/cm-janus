@@ -36,7 +36,7 @@ describe('cm-api-client', function() {
     var action = 'foo';
     var sentData = ['bar', 'baz'];
 
-    it('works with successful response', function() {
+    it('works with successful response', function(done) {
       var requestPromiseMock = sinon.stub(cmHttpClient, '_httpClient').returns(
         function(options) {
           assert.deepEqual(options, {
@@ -57,14 +57,13 @@ describe('cm-api-client', function() {
         assert.isTrue(loggerSpy.calledTwice);
         assert.isTrue(loggerSpy.getCall(0).calledWith('cm-api', 'request', baseUri));
         assert.isTrue(loggerSpy.getCall(1).calledWith('cm-api', 'response', 'body'));
-
         assert.isTrue(requestPromiseMock.calledOnce);
+        requestPromiseMock.restore();
+        done();
       });
-
-      requestPromiseMock.restore();
     });
 
-    it('works with response with error', function() {
+    it('works with response with error', function(done) {
       var requestPromiseMock = sinon.stub(cmHttpClient, '_httpClient').returns(
         function() {
           return Promise.resolve({body: 'bodyErr', error: {msg: 'disaster'}});
@@ -77,14 +76,13 @@ describe('cm-api-client', function() {
         assert.strictEqual(loggerSpy.callCount, 4);
         assert.isTrue(loggerSpy.getCall(2).calledWith('cm-api', 'request', baseUri));
         assert.isTrue(loggerSpy.getCall(3).calledWith('cm-api', 'response', 'bodyErr'));
-
         assert.isTrue(requestPromiseMock.calledOnce);
+        requestPromiseMock.restore();
+        done();
       });
-
-      requestPromiseMock.restore();
     });
 
-    it('works with completely failed request', function() {
+    it('works with completely failed request', function(done) {
       var requestPromiseMock = sinon.stub(cmHttpClient, '_httpClient').returns(
         function() {
           return Promise.reject(new Error('request failed'));
@@ -96,11 +94,10 @@ describe('cm-api-client', function() {
         assert.strictEqual(err.message, 'cm-api error: request failed');
         assert.strictEqual(loggerSpy.callCount, 5);
         assert.isTrue(loggerSpy.getCall(4).calledWith('cm-api', 'request', baseUri));
-
         assert.isTrue(requestPromiseMock.calledOnce);
+        requestPromiseMock.restore();
+        done();
       });
-
-      requestPromiseMock.restore();
     });
   });
 
@@ -115,12 +112,13 @@ describe('cm-api-client', function() {
       successStub.restore();
     });
 
-    it('works when returns false', function() {
+    it('works when returns false', function(done) {
       var failStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(false));
       cmHttpClient.isValidUser(userData).catch(function(err) {
         assert.instanceOf(err, Error);
         assert.strictEqual(err.message, 'Not valid user');
         assert.isTrue(failStub.withArgs('isValidUser', [userData]).calledOnce);
+        done();
       });
     });
   });
