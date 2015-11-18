@@ -2,8 +2,9 @@ var expect = require('chai').expect;
 var WebSocketServer = require('../helpers/websocket').Server;
 var WebSocket = require('../helpers/websocket').Client;
 
-var App = require('../../lib/index');
-new App({}).registerServices();
+var Logger = require('../../lib/logger');
+var serviceLocator = require('../../lib/service-locator');
+serviceLocator.register('logger', new Logger());
 
 var Connection = require('../../lib/connection');
 
