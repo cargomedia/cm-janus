@@ -118,9 +118,10 @@ describe('cm-api-client', function() {
     it('works when returns false', function() {
       var failStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(false));
       cmHttpClient.isValidUser(userData).catch(function(err) {
-        failStub.threw(err);
+        assert.instanceOf(err, Error);
+        assert.strictEqual(err.message, 'Not valid user');
+        assert.isTrue(failStub.withArgs('isValidUser', [userData]).calledOnce);
       });
-      assert.isTrue(failStub.withArgs('isValidUser', [userData]).calledOnce);
     });
   });
 
