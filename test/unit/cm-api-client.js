@@ -58,9 +58,9 @@ describe('cm-api-client', function() {
         assert.isTrue(loggerSpy.getCall(0).calledWith('cm-api', 'request', baseUri));
         assert.isTrue(loggerSpy.getCall(1).calledWith('cm-api', 'response', 'body'));
         assert.isTrue(requestPromiseMock.calledOnce);
-        requestPromiseMock.restore();
         done();
       });
+      requestPromiseMock.restore();
     });
 
     it('works with response with error', function(done) {
@@ -77,9 +77,9 @@ describe('cm-api-client', function() {
         assert.isTrue(loggerSpy.getCall(2).calledWith('cm-api', 'request', baseUri));
         assert.isTrue(loggerSpy.getCall(3).calledWith('cm-api', 'response', 'bodyErr'));
         assert.isTrue(requestPromiseMock.calledOnce);
-        requestPromiseMock.restore();
         done();
       });
+      requestPromiseMock.restore();
     });
 
     it('works with completely failed request', function(done) {
@@ -95,9 +95,9 @@ describe('cm-api-client', function() {
         assert.strictEqual(loggerSpy.callCount, 5);
         assert.isTrue(loggerSpy.getCall(4).calledWith('cm-api', 'request', baseUri));
         assert.isTrue(requestPromiseMock.calledOnce);
-        requestPromiseMock.restore();
         done();
       });
+      requestPromiseMock.restore();
     });
   });
 
