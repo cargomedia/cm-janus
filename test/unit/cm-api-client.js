@@ -4,6 +4,7 @@ var Promise = require('bluebird');
 var sinon = require('sinon');
 
 describe('cm-api-client', function() {
+
   it('is created properly', function() {
     var baseUrl = 'http://cm.dev/';
     var apiKey = 'foo';
@@ -12,26 +13,6 @@ describe('cm-api-client', function() {
     assert.instanceOf(cmHttpClient, CMApiClient, 'has proper type');
     assert.strictEqual(cmHttpClient.baseUrl, baseUrl, 'has proper baseUrl');
     assert.strictEqual(cmHttpClient.apiKey, apiKey, 'has proper apiKey');
-  });
-
-  describe('isValidUser()', function() {
-    var cmHttpClient = new CMApiClient('http://cm.dev/', 'foo');
-    var userData = {foo: 'bar'};
-
-    it('works when returns true', function() {
-      var successStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(true));
-      cmHttpClient.isValidUser(userData);
-      assert.isTrue(successStub.withArgs('isValidUser', [userData]).calledOnce);
-      successStub.restore();
-    });
-
-    it('works when returns false', function() {
-      var failStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(false));
-      cmHttpClient.isValidUser(userData).catch(function(err) {
-        failStub.threw(err);
-      });
-      assert.isTrue(failStub.withArgs('isValidUser', [userData]).calledOnce);
-    });
   });
 
   describe('_request()', function() {
@@ -119,6 +100,68 @@ describe('cm-api-client', function() {
 
       requestPromiseMock.restore();
     });
+  });
 
+  describe('isValidUser()', function() {
+    var cmHttpClient = new CMApiClient('http://cm.dev/', 'foo');
+    var userData = {foo: 'bar'};
+
+    it('works when returns true', function() {
+      var successStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(true));
+      cmHttpClient.isValidUser(userData);
+      assert.isTrue(successStub.withArgs('isValidUser', [userData]).calledOnce);
+      successStub.restore();
+    });
+
+    it('works when returns false', function() {
+      var failStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(false));
+      cmHttpClient.isValidUser(userData).catch(function(err) {
+        failStub.threw(err);
+      });
+      assert.isTrue(failStub.withArgs('isValidUser', [userData]).calledOnce);
+    });
+  });
+
+  describe('publish()', function() {
+    var cmHttpClient = new CMApiClient('http://cm.dev/', 'apiKey');
+    var streamChannelKey = 'scKey';
+    var streamKey = 'stKey';
+    var start = 123;
+    var userData = {foo: 'bar'};
+
+    it('passes params to request correctly', function() {
+      var requestStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(true));
+      cmHttpClient.publish(streamChannelKey, streamKey, start, userData);
+      assert.isTrue(requestStub.withArgs('publish', [streamChannelKey, streamKey, start, userData]).calledOnce);
+      requestStub.restore();
+    });
+  });
+
+  describe('subscribe()', function() {
+    var cmHttpClient = new CMApiClient('http://cm.dev/', 'apiKey');
+    var streamChannelKey = 'scKey';
+    var streamKey = 'stKey';
+    var start = 123;
+    var userData = {foo: 'bar'};
+
+    it('passes params to request correctly', function() {
+      var requestStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(true));
+      cmHttpClient.subscribe(streamChannelKey, streamKey, start, userData);
+      assert.isTrue(requestStub.withArgs('subscribe', [streamChannelKey, streamKey, start, userData]).calledOnce);
+      requestStub.restore();
+    });
+  });
+
+  describe('removeStream()', function() {
+    var cmHttpClient = new CMApiClient('http://cm.dev/', 'apiKey');
+    var streamChannelKey = 'scKey';
+    var streamKey = 'stKey';
+
+    it('passes params to request correctly', function() {
+      var requestStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(true));
+      cmHttpClient.removeStream(streamChannelKey, streamKey);
+      assert.isTrue(requestStub.withArgs('removeStream', [streamChannelKey, streamKey]).calledOnce);
+      requestStub.restore();
+    });
   });
 });
