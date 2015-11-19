@@ -11,9 +11,6 @@ var serviceLocator = require('../../lib/service-locator');
 serviceLocator.register('logger', function() {
   return new Logger();
 });
-serviceLocator.register('logger', function() {
-  return Logger();
-});
 
 describe('JobManager', function() {
 
