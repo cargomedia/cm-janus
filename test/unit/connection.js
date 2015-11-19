@@ -3,10 +3,7 @@ var WebSocketServer = require('../helpers/websocket').Server;
 var WebSocket = require('../helpers/websocket').Client;
 
 var Logger = require('../../lib/logger');
-var serviceLocator = require('../../lib/service-locator');
-serviceLocator.register('logger', function() {
-  return new Logger();
-});
+var ServiceLocator = require('../../lib/service-locator');
 
 var Connection = require('../../lib/connection');
 
@@ -14,10 +11,15 @@ describe('Connection Unit tests', function() {
 
   this.timeout(2000);
 
+  var serviceLocator = new ServiceLocator();
+  serviceLocator.register('logger', function() {
+    return new Logger();
+  });
+
   beforeEach(function() {
     this.webSocketServer = new WebSocketServer('ws://localhost:8080');
     this.webSocket = new WebSocket('ws://localhost:8080');
-    this.connection = new Connection('test', this.webSocket);
+    this.connection = new Connection(serviceLocator, 'test', this.webSocket);
     this.sampleMessage = {test: 'test'};
   });
 

@@ -1,10 +1,12 @@
 var assert = require('chai').assert;
-var serviceLocator = require('../../lib/service-locator');
+var ServiceLocator = require('../../lib/service-locator');
 var sinon = require('sinon');
 
 describe('serviceLocator', function() {
 
   it('registers/gets as a function', function() {
+    var serviceLocator = new ServiceLocator();
+
     var serviceKeyFunction = 'fun';
     var serviceValueFunction = 'foo';
     var serviceFunction = function() {
@@ -28,6 +30,8 @@ describe('serviceLocator', function() {
   });
 
   it('registers/gets as a value', function() {
+    var serviceLocator = new ServiceLocator();
+
     var serviceValueValue = 'bar';
     var serviceKeyValue = 'val';
 

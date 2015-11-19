@@ -1,17 +1,18 @@
 var assert = require('chai').assert;
 var nock = require('nock');
 
+var ServiceLocator = require('../../lib/service-locator');
 var Logger = require('../../lib/logger');
-var serviceLocator = require('../../lib/service-locator');
-serviceLocator.register('logger', function() {
-  return new Logger();
-});
-
 var CmApiClient = require('../../lib/cm-api-client');
 
 describe('CmApiClient Unit tests', function() {
 
   this.timeout(2000);
+
+  var serviceLocator = new ServiceLocator();
+  serviceLocator.register('logger', function() {
+    return new Logger();
+  });
 
   function mockRequest(url, action, apiKey, params) {
     nock(url)
@@ -33,7 +34,7 @@ describe('CmApiClient Unit tests', function() {
 
     mockRequest(url, action, apiKey, params);
 
-    var client = new CmApiClient(url, apiKey);
+    var client = new CmApiClient(serviceLocator, url, apiKey);
     client.publish.apply(client, params).then(function(result) {
       assert.isTrue(result);
       done();
@@ -48,7 +49,7 @@ describe('CmApiClient Unit tests', function() {
 
     mockRequest(url, action, apiKey, params);
 
-    var client = new CmApiClient(url, apiKey);
+    var client = new CmApiClient(serviceLocator, url, apiKey);
     client.subscribe.apply(client, params).then(function(result) {
       assert.isTrue(result);
       done();
@@ -63,7 +64,7 @@ describe('CmApiClient Unit tests', function() {
 
     mockRequest(url, action, apiKey, params);
 
-    var client = new CmApiClient(url, apiKey);
+    var client = new CmApiClient(serviceLocator, url, apiKey);
     client.isValidUser.apply(client, params).then(function() {
       done();
     }).catch(function(error) {
