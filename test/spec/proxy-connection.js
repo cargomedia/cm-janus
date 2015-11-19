@@ -77,6 +77,8 @@ describe('ProxyConnection', function() {
     var pluginStub = {id: 'id', stream: {id: 'streamId'}};
     var janusConnection = {
       send: function(message) {
+        assert.equal(message['janus'], 'message');
+        assert.equal(message['body']['request'], 'stop');
         assert.equal(message['handle_id'], pluginStub.id);
         done();
       }
