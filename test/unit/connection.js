@@ -4,9 +4,7 @@ var WebSocket = require('../helpers/websocket').Client;
 
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
-serviceLocator.register('logger', function() {
-  return new Logger();
-});
+serviceLocator.register('logger', new Logger());
 
 var Connection = require('../../lib/connection');
 
