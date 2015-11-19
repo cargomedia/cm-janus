@@ -3,13 +3,10 @@ var serviceLocator = require('../../lib/service-locator');
 var sinon = require('sinon');
 
 describe('serviceLocator', function() {
-  var serviceValueFunction = 'foo';
-  var serviceValueValue = 'bar';
-
-  var serviceKeyFunction = 'fun';
-  var serviceKeyValue = 'val';
 
   it('registers/gets as a function', function() {
+    var serviceKeyFunction = 'fun';
+    var serviceValueFunction = 'foo';
     var serviceFunction = function() {
       return serviceValueFunction;
     };
@@ -24,20 +21,22 @@ describe('serviceLocator', function() {
     assert.strictEqual(serviceLocator.instances[serviceKeyFunction], serviceValueFunction);
 
     assert.strictEqual(serviceLocator.get(serviceKeyFunction), serviceValueFunction);
-    assert.strictEqual(serviceSpy.callCount, 1);
+    assert.isTrue(serviceSpy.calledOnce);
+
+    delete serviceLocator.instances[serviceKeyFunction];
+    delete serviceLocator.serviceRegistrars[serviceKeyFunction];
   });
 
   it('registers/gets as a value', function() {
+    var serviceValueValue = 'bar';
+    var serviceKeyValue = 'val';
+
     serviceLocator.register(serviceKeyValue, serviceValueValue);
 
     assert.strictEqual(serviceLocator.instances[serviceKeyValue], serviceValueValue);
     assert.strictEqual(serviceLocator.serviceRegistrars[serviceKeyValue], undefined);
     assert.strictEqual(serviceLocator.get(serviceKeyValue), serviceValueValue);
-  });
 
-  after(function() {
-    delete serviceLocator.serviceRegistrars[serviceKeyFunction];
-    delete serviceLocator.instances[serviceKeyFunction];
     delete serviceLocator.instances[serviceKeyValue];
   });
 
