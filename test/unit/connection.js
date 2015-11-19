@@ -1,10 +1,12 @@
-var expect = require('chai').expect;
+var assert = require('chai').assert;
 var WebSocketServer = require('../helpers/websocket').Server;
 var WebSocket = require('../helpers/websocket').Client;
 
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
-serviceLocator.register('logger', new Logger());
+serviceLocator.register('logger', function() {
+  return new Logger();
+});
 
 var Connection = require('../../lib/connection');
 
@@ -27,7 +29,7 @@ describe('Connection Unit tests', function() {
   it('send', function(done) {
     var self = this;
     this.webSocketServer.on('message', function(message) {
-      expect(message).to.equal(JSON.stringify(self.sampleMessage));
+      assert.strictEqual(message, JSON.stringify(self.sampleMessage));
       done();
     });
     this.connection.send(this.sampleMessage);
@@ -36,7 +38,7 @@ describe('Connection Unit tests', function() {
   it('receive', function(done) {
     var self = this;
     this.connection.on('message', function(message) {
-      expect(message).to.deep.equal(self.sampleMessage);
+      assert.deepEqual(message, self.sampleMessage);
       done();
     });
     this.webSocketServer.on('connection', function() {
