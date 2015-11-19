@@ -1,5 +1,6 @@
 var assert = require('chai').assert;
 var serviceLocator = require('../../lib/service-locator');
+var sinon = require('sinon');
 
 describe('serviceLocator', function() {
   var serviceValueFunction = 'foo';
@@ -9,21 +10,21 @@ describe('serviceLocator', function() {
   var serviceKeyValue = 'val';
 
   it('registers/gets as a function', function() {
-    var callCounter = 0;
     var serviceFunction = function() {
-      callCounter++;
       return serviceValueFunction;
     };
-    serviceLocator.register(serviceKeyFunction, serviceFunction);
+    var serviceSpy = sinon.spy(serviceFunction);
+
+    serviceLocator.register(serviceKeyFunction, serviceSpy);
 
     assert.strictEqual(serviceLocator.instances[serviceKeyFunction], undefined);
-    assert.strictEqual(serviceLocator.serviceRegistrars[serviceKeyFunction], serviceFunction);
+    assert.strictEqual(serviceLocator.serviceRegistrars[serviceKeyFunction], serviceSpy);
 
     assert.strictEqual(serviceLocator.get(serviceKeyFunction), serviceValueFunction);
     assert.strictEqual(serviceLocator.instances[serviceKeyFunction], serviceValueFunction);
 
     assert.strictEqual(serviceLocator.get(serviceKeyFunction), serviceValueFunction);
-    assert.strictEqual(callCounter, 1);
+    assert.strictEqual(serviceSpy.callCount, 1);
   });
 
   it('registers/gets as a value', function() {
