@@ -33,12 +33,12 @@ describe('serviceLocator', function() {
   });
 
   it('gets service from function', function() {
-    assert.strictEqual(serviceLocator.get(funKey, serviceFunction), serviceFunctionVal);
+    assert.strictEqual(serviceLocator.get(funKey), serviceFunctionVal);
     assert.strictEqual(serviceLocator.instances[funKey], serviceFunctionVal);
   });
 
   it('gets function service lazily', function() {
-    assert.strictEqual(serviceLocator.get(funKey, serviceFunction), serviceFunctionVal);
+    assert.strictEqual(serviceLocator.get(funKey), serviceFunctionVal);
     assert.strictEqual(callCounter, 1);
   });
 });
