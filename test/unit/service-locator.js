@@ -2,43 +2,44 @@ var assert = require('chai').assert;
 var serviceLocator = require('../../lib/service-locator');
 
 describe('serviceLocator', function() {
-  var serviceFunctionVal = 'foo';
-  var callCounter = 0;
+  var serviceValueFunction = 'foo';
+  var serviceValueValue = 'bar';
 
+  var serviceKeyFunction = 'fun';
+  var serviceKeyValue = 'val';
+
+  var callCounter = 0;
   var serviceFunction = function() {
     callCounter++;
-    return serviceFunctionVal;
+    return serviceValueFunction;
   };
-  var serviceValue = 'bar';
-
-  var funKey = 'fun';
-  var valKey = 'val';
 
   it('registers function', function() {
-    serviceLocator.register(funKey, serviceFunction);
+    serviceLocator.register(serviceKeyFunction, serviceFunction);
 
-    assert.strictEqual(serviceLocator.instances[funKey], undefined);
-    assert.strictEqual(serviceLocator.serviceRegistrars[funKey], serviceFunction);
+    assert.strictEqual(serviceLocator.instances[serviceKeyFunction], undefined);
+    assert.strictEqual(serviceLocator.serviceRegistrars[serviceKeyFunction], serviceFunction);
   });
 
   it('registers value', function() {
-    serviceLocator.register(valKey, serviceValue);
+    serviceLocator.register(serviceKeyValue, serviceValueValue);
 
-    assert.strictEqual(serviceLocator.instances[valKey], serviceValue);
-    assert.strictEqual(serviceLocator.serviceRegistrars[valKey], undefined);
+    assert.strictEqual(serviceLocator.instances[serviceKeyValue], serviceValueValue);
+    assert.strictEqual(serviceLocator.serviceRegistrars[serviceKeyValue], undefined);
   });
 
   it('gets service from value', function() {
-    assert.strictEqual(serviceLocator.get(valKey), serviceValue);
+    assert.strictEqual(serviceLocator.get(serviceKeyValue), serviceValueValue);
   });
 
   it('gets service from function', function() {
-    assert.strictEqual(serviceLocator.get(funKey), serviceFunctionVal);
-    assert.strictEqual(serviceLocator.instances[funKey], serviceFunctionVal);
+    assert.strictEqual(serviceLocator.get(serviceKeyFunction), serviceValueFunction);
+    assert.strictEqual(serviceLocator.instances[serviceKeyFunction], serviceValueFunction);
   });
 
   it('gets function service lazily', function() {
-    assert.strictEqual(serviceLocator.get(funKey), serviceFunctionVal);
+    assert.strictEqual(serviceLocator.get(serviceKeyFunction), serviceValueFunction);
     assert.strictEqual(callCounter, 1);
   });
+
 });
