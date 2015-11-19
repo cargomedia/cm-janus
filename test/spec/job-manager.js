@@ -7,10 +7,7 @@ var fs = Promise.promisifyAll(require("fs"));
 var JobManager = require('../../lib/job/job-manager');
 var AbstractJobHandler = require('../../lib/job/handler/abstract');
 var Logger = require('../../lib/logger');
-var serviceLocator = require('../../lib/service-locator');
-serviceLocator.register('logger', function() {
-  return new Logger();
-});
+var ServiceLocator = require('../../lib/service-locator');
 
 describe('JobManager', function() {
 
@@ -45,6 +42,12 @@ describe('JobManager', function() {
   }
 
   it('test job handler call', function(done) {
+
+    var serviceLocator = new ServiceLocator();
+    serviceLocator.register('logger', function() {
+      return new Logger();
+    });
+
     createTmpDir().then(function(tmpDirPath) {
       var jobData = randomTestJobData();
       var testJobHandler = new AbstractJobHandler();
@@ -52,7 +55,7 @@ describe('JobManager', function() {
       testJobHandler.getPlugin = sinon.stub().returns(jobData['plugin']);
       testJobHandler.getEvent = sinon.stub().returns(jobData['event']);
 
-      new JobManager(tmpDirPath, [testJobHandler]);
+      new JobManager(serviceLocator, tmpDirPath, [testJobHandler]);
 
       createJobFile(tmpDirPath, jobData).then(function(jobFilepath) {
         setTimeout(function() {
