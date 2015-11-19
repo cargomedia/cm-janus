@@ -1,4 +1,4 @@
-var expect = require('chai').expect;
+var assert = require('chai').assert;
 var sinon = require('sinon');
 var path = require('path');
 var Promise = require('bluebird');
@@ -8,7 +8,9 @@ var JobManager = require('../../lib/job/job-manager');
 var AbstractJobHandler = require('../../lib/job/handler/abstract');
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
-serviceLocator.register('logger', new Logger());
+serviceLocator.register('logger', function() {
+  return new Logger();
+});
 
 describe('JobManager', function() {
 
@@ -54,12 +56,12 @@ describe('JobManager', function() {
 
       createJobFile(tmpDirPath, jobData).then(function(jobFilepath) {
         setTimeout(function() {
+          assert.isTrue(testJobHandler.handle.calledOnce);
+          assert.isTrue(testJobHandler.handle.alwaysCalledWithExactly(jobData['data']));
 
-          expect(testJobHandler.handle.calledOnce).to.be.ok;
-          expect(testJobHandler.handle.withArgs(jobData['data'])).to.be.ok;
-          expect(function() {
+          assert.throws(function() {
             fs.accessSync(jobFilepath);
-          }).to.throw();
+          });
 
           fs.rmdirAsync(tmpDirPath).then(function() {
             done();
