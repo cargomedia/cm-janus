@@ -3,7 +3,9 @@ var nock = require('nock');
 
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
-serviceLocator.register('logger', new Logger());
+serviceLocator.register('logger', function() {
+  return new Logger();
+});
 
 var CmApiClient = require('../../lib/cm-api-client');
 
