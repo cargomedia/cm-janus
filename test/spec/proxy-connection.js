@@ -17,6 +17,53 @@ serviceLocator.register('streams', function() {
 
 describe('ProxyConnection', function() {
 
+  it('message processing. onCreate.', function() {
+    var proxy = new ProxyConnection();
+    var onCreateStub = sinon.stub(proxy, 'onCreate', function() {
+      return Promise.resolve();
+    });
+    var createRequest = {
+      janus: 'create',
+      token: 'token',
+      transaction: proxy._generateTransactionId()
+    };
+    proxy.processMessage(createRequest);
+
+    assert(onCreateStub.calledOnce);
+    assert(onCreateStub.calledWith(createRequest));
+  });
+
+  it('message processing. onDestroy.', function() {
+    var proxy = new ProxyConnection();
+    var onDestroyStub = sinon.stub(proxy, 'onDestroy', function() {
+      return Promise.resolve();
+    });
+    var destroyRequest = {
+      janus: 'destroy',
+      transaction: proxy._generateTransactionId()
+    };
+    proxy.processMessage(destroyRequest);
+
+    assert(onDestroyStub.calledOnce);
+    assert(onDestroyStub.calledWith(destroyRequest));
+  });
+
+  it('message processing. onAttach.', function() {
+    var proxy = new ProxyConnection();
+
+    var onAttachStub = sinon.stub(proxy, 'onAttach', function() {
+      return Promise.resolve();
+    });
+    var attachRequest = {
+      janus: 'attach',
+      plugin: 'plugin',
+      transaction: proxy._generateTransactionId()
+    };
+    proxy.processMessage(attachRequest);
+    assert(onAttachStub.calledOnce);
+    assert(onAttachStub.calledWith(attachRequest));
+  });
+
   it('create/destroy session', function() {
     ////////////////// create ////////////////////////
     var proxy = new ProxyConnection();
