@@ -1,17 +1,24 @@
 var assert = require('chai').assert;
 var nock = require('nock');
-
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
-serviceLocator.register('logger', function() {
-  return new Logger();
-});
 
 var CmApiClient = require('../../lib/cm-api-client');
 
 describe('CmApiClient Unit tests', function() {
 
   this.timeout(2000);
+
+  before(function() {
+    serviceLocator.reset();
+    serviceLocator.register('logger', function() {
+      return new Logger();
+    });
+  });
+
+  after(function() {
+    serviceLocator.reset();
+  });
 
   function mockRequest(url, action, apiKey, params) {
     nock(url)
