@@ -18,9 +18,9 @@ assert.equalArray = function(array1, array2) {
 describe('streams', function() {
 
   it('add', function() {
-    var stream1 = sinon.stub();
+    var stream1 = sinon.createStubInstance(Stream);
     stream1.id = 'foo';
-    var stream2 = sinon.stub();
+    var stream2 = sinon.createStubInstance(Stream);
     stream2.id = 'bar';
 
     var streams = new Streams();
@@ -39,7 +39,7 @@ describe('streams', function() {
   });
 
   it('remove', function() {
-    var stream = sinon.stub();
+    var stream = sinon.createStubInstance(Stream);
     stream.id = 'foo';
 
     var streams = new Streams();
@@ -56,7 +56,7 @@ describe('streams', function() {
 
   it('find', function() {
     var streams = new Streams();
-    var stream = sinon.stub();
+    var stream = sinon.createStubInstance(Stream);
     stream.id = 'foo';
     streams.list[stream.id] = stream;
     assert.strictEqual(streams.find('foo'), stream);
@@ -65,15 +65,15 @@ describe('streams', function() {
 
   it('findAllByConnection', function() {
     var streams = new Streams();
-    var connection1 = sinon.mock(ProxyConnection);
-    var connection2 = sinon.mock(ProxyConnection);
-    var connection3 = sinon.mock(ProxyConnection);
+    var connection1 = sinon.createStubInstance(ProxyConnection);
+    var connection2 = sinon.createStubInstance(ProxyConnection);
+    var connection3 = sinon.createStubInstance(ProxyConnection);
 
-    var stream1 = sinon.mock(Stream);
+    var stream1 = sinon.createStubInstance(Stream);
     stream1.proxyConnection = connection1;
-    var stream2 = sinon.mock(Stream);
+    var stream2 = sinon.createStubInstance(Stream);
     stream2.proxyConnection = connection3;
-    var stream3 = sinon.mock(Stream);
+    var stream3 = sinon.createStubInstance(Stream);
     stream3.proxyConnection = connection1;
     streams.list = {
       foo: stream1,
