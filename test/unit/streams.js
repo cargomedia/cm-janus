@@ -5,17 +5,6 @@ var ProxyConnection = require('../../lib/proxy-connection');
 var sinon = require('sinon');
 var _ = require('underscore');
 
-assert.throws = function(callback, exceptionType) {
-  exceptionType = exceptionType || Error;
-  var exception;
-  try {
-    callback();
-  } catch (e) {
-    exception = e;
-  }
-  assert.instanceOf(exception, exceptionType);
-};
-
 assert.equalArray = function(array1, array2) {
   assert.instanceOf(array1, Array);
   assert.instanceOf(array2, Array);
