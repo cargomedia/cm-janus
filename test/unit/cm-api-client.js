@@ -28,8 +28,6 @@ describe('cm-api-client', function() {
       }
     };
 
-    var loggerSpy = sinon.spy(logger, 'info');
-
     var action = 'foo';
     var sentData = ['bar', 'baz'];
 
@@ -62,9 +60,6 @@ describe('cm-api-client', function() {
 
       cmHttpClient._request(action, sentData).then(function(res) {
         assert.strictEqual(res, 'quux');
-        assert.isTrue(loggerSpy.calledTwice);
-        assert.isTrue(loggerSpy.getCall(0).calledWith('cm-api', 'request', baseUri));
-        assert.isTrue(loggerSpy.getCall(1).calledWith('cm-api', 'response', 'body'));
         assert.isTrue(requestPromiseMock.calledOnce);
         done();
       });
@@ -81,9 +76,6 @@ describe('cm-api-client', function() {
       cmHttpClient._request(action, sentData).catch(function(err) {
         assert.instanceOf(err, Error);
         assert.strictEqual(err.message, 'cm-api error: disaster');
-        assert.strictEqual(loggerSpy.callCount, 4);
-        assert.isTrue(loggerSpy.getCall(2).calledWith('cm-api', 'request', baseUri));
-        assert.isTrue(loggerSpy.getCall(3).calledWith('cm-api', 'response', 'bodyErr'));
         assert.isTrue(requestPromiseMock.calledOnce);
         done();
       });
@@ -100,8 +92,6 @@ describe('cm-api-client', function() {
       cmHttpClient._request(action, sentData).catch(function(err) {
         assert.instanceOf(err, Error);
         assert.strictEqual(err.message, 'cm-api error: request failed');
-        assert.strictEqual(loggerSpy.callCount, 5);
-        assert.isTrue(loggerSpy.getCall(4).calledWith('cm-api', 'request', baseUri));
         assert.isTrue(requestPromiseMock.calledOnce);
         done();
       });
