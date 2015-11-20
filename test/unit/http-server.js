@@ -8,16 +8,36 @@ var requestPromise = require('request-promise');
 describe('Http Server', function() {
   var port = 8811;
   var apiKey = 'fooKey';
+  var streamList = [
+    {id: 1, channelName: 'foo'},
+    {id: 20, channelName: 'bar'}
+  ];
 
-  function getOptions(path, apiKey, data) {
+  function getOptions(method, path, apiKey, data) {
     return {
-      method: 'POST',
+      method: method,
       uri: 'http://localhost:' + '8811' + '/' + path,
       params: data,
       headers: {'Server-Key': apiKey},
       json: true
     };
   }
+
+  before(function() {
+    serviceLocator.reset();
+    serviceLocator.register('logger', function() {
+      return new Logger();
+    });
+    serviceLocator.register('streams', function() {
+      return {
+        list: streamList
+      }
+    });
+  });
+
+  after(function() {
+    serviceLocator.reset();
+  });
 
   it('is created properly and starts', function(done) {
 
@@ -42,9 +62,15 @@ describe('Http Server', function() {
     }).then(function() {
       var requests = [];
 
-      requests['authFail'] = requestPromise(getOptions('stopStream', 'wrongKey', {})).catch(function(err) {
+      requests['authFail'] = requestPromise(getOptions('POST', 'stopStream', 'wrongKey', {})).catch(function(err) {
         assert.instanceOf(err, Error);
         assert.strictEqual(err['statusCode'], 403);
+      });
+
+      requests['status'] = requestPromise(getOptions('GET', 'status', apiKey, {})).then(function(res) {
+        assert.isArray(res);
+        assert.lengthOf(res, 2);
+        assert.deepEqual(res, streamList);
       });
 
       Promise.all(requests).finally(function() {
