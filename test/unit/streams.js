@@ -36,6 +36,10 @@ describe('streams', function() {
     streams.add(stream2);
     assert.strictEqual(_.size(streams.list), 2);
     assert.equal(streams.list['bar'], stream2);
+
+    assert.throws(function() {
+      streams.add(sinon.stub());
+    });
   });
 
   it('remove', function() {
@@ -83,6 +87,10 @@ describe('streams', function() {
     assert.equalArray(streams.findAllByConnection(connection1), [stream1, stream3]);
     assert.equalArray(streams.findAllByConnection(connection2), []);
     assert.equalArray(streams.findAllByConnection(connection3), [stream2]);
+
+    assert.throws(function() {
+      streams.findAllByConnection(sinon.stub());
+    });
   });
 
 });
