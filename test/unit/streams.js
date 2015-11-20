@@ -5,34 +5,73 @@ var ProxyConnection = require('../../lib/proxy-connection');
 var sinon = require('sinon');
 var _ = require('underscore');
 
+assert.throws = function(callback, exceptionType) {
+  exceptionType = exceptionType || Error;
+  var exception;
+  try {
+    callback();
+  } catch (e) {
+    exception = e;
+  }
+  assert.instanceOf(exception, exceptionType);
+};
+
+assert.equalArray = function(array1, array2) {
+  assert.instanceOf(array1, Array);
+  assert.instanceOf(array2, Array);
+  assert.strictEqual(array1.length, array2.length, 'Arrays must have the same length');
+  return _.each(array1, function(element, index) {
+    assert.strictEqual(element, array2[index], 'array1[' + index + '] doesnt match array2[' + index + ']');
+  });
+};
+
 
 describe('streams', function() {
 
   it('add', function() {
-    var streams = new Streams();
-    var stream = new Stream('foo', 'bar', sinon.mock(ProxyConnection));
+    var stream1 = sinon.stub();
+    stream1.id = 'foo';
+    var stream2 = sinon.stub();
+    stream2.id = 'bar';
 
+    var streams = new Streams();
     assert.strictEqual(_.size(streams.list), 0);
-    streams.add(stream);
+    streams.add(stream1);
 
     assert.strictEqual(_.size(streams.list), 1);
-    assert.equal(streams.list['foo'], stream);
+    assert.equal(streams.list['foo'], stream1);
+
+    streams.add(stream1);
+    assert.strictEqual(_.size(streams.list), 1);
+
+    streams.add(stream2);
+    assert.strictEqual(_.size(streams.list), 2);
+    assert.equal(streams.list['bar'], stream2);
   });
 
   it('remove', function() {
+    var stream = sinon.stub();
+    stream.id = 'foo';
+
     var streams = new Streams();
-    var stream = new Stream('foo', 'bar', sinon.mock(ProxyConnection));
-    streams.list = {foo: stream};
+    streams.list[stream.id] = stream;
     assert.strictEqual(_.size(streams.list), 1);
+
     streams.remove(stream);
     assert.strictEqual(_.size(streams.list), 0);
+
+    assert.throws(function() {
+      streams.remove(stream);
+    });
   });
 
   it('find', function() {
     var streams = new Streams();
-    var stream = new Stream('foo', 'bar', sinon.mock(ProxyConnection));
-    streams.list = {foo: stream};
+    var stream = sinon.stub();
+    stream.id = 'foo';
+    streams.list[stream.id] = stream;
     assert.strictEqual(streams.find('foo'), stream);
+    assert.strictEqual(streams.find('bar'), null);
   });
 
   it('findAllByConnection', function() {
@@ -52,18 +91,9 @@ describe('streams', function() {
       bar: stream2,
       zoo: stream3
     };
-
-    var equalArray = function(array1, array2) {
-      assert.instanceOf(array1, Array);
-      assert.instanceOf(array2, Array);
-      assert.strictEqual(array1.length, array2.length, 'Arrays must have the same length');
-      return _.each(array1, function(element, index) {
-        assert.strictEqual(element, array2[index], 'array1[' + index + '] doesnt match array2[' + index + ']');
-      });
-    };
-    equalArray(streams.findAllByConnection(connection1), [stream1, stream3]);
-    equalArray(streams.findAllByConnection(connection2), []);
-    equalArray(streams.findAllByConnection(connection3), [stream2]);
+    assert.equalArray(streams.findAllByConnection(connection1), [stream1, stream3]);
+    assert.equalArray(streams.findAllByConnection(connection2), []);
+    assert.equalArray(streams.findAllByConnection(connection3), [stream2]);
   });
 
 });
