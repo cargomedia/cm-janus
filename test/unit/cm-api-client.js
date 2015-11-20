@@ -29,12 +29,20 @@ describe('cm-api-client', function() {
     };
 
     var loggerSpy = sinon.spy(logger, 'info');
-    serviceLocator.register('logger', function() {
-      return logger;
-    });
 
     var action = 'foo';
     var sentData = ['bar', 'baz'];
+
+    before(function() {
+      serviceLocator.reset();
+      serviceLocator.register('logger', function() {
+        return logger;
+      });
+    });
+
+    after(function() {
+      serviceLocator.reset();
+    });
 
     it('works with successful response', function(done) {
       var requestPromiseMock = sinon.stub(cmHttpClient, '_httpClient').returns(
