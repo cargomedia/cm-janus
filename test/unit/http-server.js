@@ -20,9 +20,17 @@ describe('Http Server', function() {
     stopStream: function(streamId) {
     }
   };
-  var stopStreamStub = sinon.stub(proxyConnection, 'stopStream');
-  stopStreamStub.withArgs('1').returns(Promise.resolve());
-  stopStreamStub.withArgs('2').returns(Promise.reject());
+  var stopStreamStub = sinon.stub(proxyConnection, 'stopStream', function(streamId) {
+    if (streamId == '1') {
+      return Promise.resolve();
+    }
+    else if (streamId == '2') {
+      return Promise.reject();
+    }
+    else {
+      throw new Error('Wrong stub call');
+    }
+  });
 
   //mocked Streams
   var streams = {
@@ -64,7 +72,7 @@ describe('Http Server', function() {
     serviceLocator.reset();
   });
 
-  it('is created properly and starts', function(done) {
+  it('is created properly, starts and respondes well', function(done) {
 
     var httpServer = new HttpServer(port, apiKey);
 
@@ -99,6 +107,13 @@ describe('Http Server', function() {
       requests['stopStreamOK'] = requestPromise(getOptions('POST', 'stopStream', apiKey, {streamId: 1})).then(function(res) {
         assert.deepEqual(res, {success: 'Stream stopped'});
         assert.isTrue(findSpy.withArgs('1').calledOnce);
+        assert.isTrue(stopStreamStub.withArgs('1').calledOnce);
+      });
+
+      requests['stopStreamFail'] = requestPromise(getOptions('POST', 'stopStream', apiKey, {streamId: 2})).then(function(res) {
+        assert.deepEqual(res, {error: 'Stream stop failed'});
+        assert.isTrue(findSpy.withArgs('2').calledOnce);
+        assert.isTrue(stopStreamStub.withArgs('2').calledOnce);
       });
 
       Promise.all(requests).finally(function() {
