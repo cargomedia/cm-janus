@@ -15,23 +15,24 @@ describe('Http Server', function() {
     {id: 2, channelName: 'bar'},
     {id: 20, channelName: 'baz'}
   ];
+
   var proxyConnection = {
-    stopStream: function() {
+    stopStream: function(streamId) {
     }
   };
-  var stream = {
-    proxyConnection: proxyConnection
-  };
   var stopStreamStub = sinon.stub(proxyConnection, 'stopStream');
-  stopStreamStub.withArgs(1).returns(Promise.resolve());
-  stopStreamStub.withArgs(2).returns(Promise.reject());
+  stopStreamStub.withArgs('1').returns(Promise.resolve());
+  stopStreamStub.withArgs('2').returns(Promise.reject());
 
   //mocked Streams
   var streams = {
     list: streamList,
     find: function(streamId) {
       if (['1', '2'].indexOf(streamId) != -1) {
-        return stream;
+        return {
+          proxyConnection: proxyConnection,
+          id: streamId
+        };
       }
       return null;
     }
@@ -91,8 +92,13 @@ describe('Http Server', function() {
       });
 
       requests['stopStreamNotFound'] = requestPromise(getOptions('POST', 'stopStream', apiKey, {streamId: 222})).then(function(res) {
-        assert.isTrue(findSpy.calledOnce);
         assert.deepEqual(res, {error: 'Unknown stream: 222'});
+        assert.isTrue(findSpy.withArgs('222').calledOnce);
+      });
+
+      requests['stopStreamOK'] = requestPromise(getOptions('POST', 'stopStream', apiKey, {streamId: 1})).then(function(res) {
+        assert.deepEqual(res, {success: 'Stream stopped'});
+        assert.isTrue(findSpy.withArgs('1').calledOnce);
       });
 
       Promise.all(requests).finally(function() {
