@@ -119,6 +119,8 @@ describe('Http Server', function() {
       });
 
       Promise.all(_.values(requests)).then(function() {
+        assert.strictEqual(findSpy.callCount, 3);
+        assert.strictEqual(stopStreamStub.callCount, 2);
         done();
       });
     });
