@@ -3,6 +3,7 @@ var assert = require('chai').assert;
 var sinon = require('sinon');
 var EventEmitter = require('events');
 require('../helpers/global-error-handler');
+var JanusError = require('../../lib/janus-error');
 var ProxyConnection = require('../../lib/proxy-connection');
 var PluginStreaming = require('../../lib/plugin/streaming');
 var Logger = require('../../lib/logger');
@@ -130,6 +131,23 @@ describe('ProxyConnection', function() {
       proxy.processMessage(attachResponse).then(function() {
         assert(proxy.getPlugin(attachResponse.data.id) instanceof PluginStreaming);
       });
+    });
+  });
+
+  it.only('Attach illegal plugin', function() {
+    var browserConnection = {send: sinon.stub()};
+    var proxy = new ProxyConnection(browserConnection, null);
+    var pluginName = 'unknown';
+    var attachRequest = {
+      janus: 'attach',
+      plugin: pluginName,
+      transaction: proxy._generateTransactionId()
+    };
+
+    proxy.processMessage(attachRequest).catch(function(error) {
+      assert(browserConnection.send.calledOnce);
+      var expected = new JanusError.IllegalPlugin(null).response.error.code;
+      assert.equal(error.response.error.code, expected);
     });
   });
 
