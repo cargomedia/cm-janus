@@ -1,5 +1,6 @@
 var assert = require('chai').assert;
 var nock = require('nock');
+require('../helpers/global-error-handler');
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
 

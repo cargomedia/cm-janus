@@ -1,4 +1,5 @@
 var assert = require('chai').assert;
+require('../helpers/global-error-handler');
 var Auth = require('../../lib/auth');
 var Promise = require('bluebird');
 

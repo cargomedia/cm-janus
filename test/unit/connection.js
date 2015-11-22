@@ -1,4 +1,5 @@
 var assert = require('chai').assert;
+require('../helpers/global-error-handler');
 var WebSocketServer = require('../helpers/websocket').Server;
 var WebSocket = require('../helpers/websocket').Client;
 var Logger = require('../../lib/logger');

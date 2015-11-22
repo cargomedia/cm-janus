@@ -1,5 +1,6 @@
 var assert = require('chai').assert;
 var sinon = require('sinon');
+require('../helpers/global-error-handler');
 var path = require('path');
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require("fs"));

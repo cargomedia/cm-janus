@@ -1,4 +1,5 @@
 var assert = require('chai').assert;
+require('../helpers/global-error-handler');
 var CMApiClient = require('../../lib/cm-api-client');
 var Promise = require('bluebird');
 var sinon = require('sinon');
