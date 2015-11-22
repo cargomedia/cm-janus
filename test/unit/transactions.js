@@ -12,6 +12,9 @@ describe('Transactions', function() {
     assert.throw(function() {
       transactions.add('foo', new Function);
     });
+    assert.throw(function() {
+      transactions.add('bar', 'bar');
+    });
   });
 
   it('find', function() {
