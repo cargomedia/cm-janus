@@ -1,7 +1,7 @@
 {
   "name": "cm-janus",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "author": "Cargomedia",
   "license": "MIT",
   "main": "",
@@ -16,19 +16,28 @@
   "bugs": {
     "url": "https://github.com/cargomedia/cm-janus/issues"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "$(npm bin)/mocha"
+  },
   "dependencies": {
     "bluebird": "~3.0.0",
     "body-parser": "^1.14.1",
     "express": "^4.13.3",
+    "inotify": "^1.4.0",
     "js-yaml": "^3.4.3",
     "jsonschema": "^1.0.2",
     "minilog": "^2.1.0",
-    "node-uuid": "^1.4.3",
     "minimist": "^1.2.0",
+    "node-uuid": "^1.4.3",
     "request-promise": "^1.0.2",
     "underscore": "^1.8.3",
     "ws": "~0.8.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "chai": "~1.9.1",
+    "mocha": "~1.21.4",
+    "mock-socket": "^0.8.2",
+    "nock": "^3.0.0",
+    "sinon": "^1.17.2"
+  }
 }

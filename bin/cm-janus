@@ -1,17 +1,13 @@
 #!/usr/bin/env node
-
-var config = require('../lib/config');
 var minimist = require('minimist');
+var Config = require('../lib/config');
+var Application = require('../lib/index.js');
 
 var argv = minimist(process.argv.slice(2));
 var configPath = argv.c || __dirname + '/config.yaml';
-config.load(configPath);
-var configHash = config.asHash();
+var config = Config.createFromFile(configPath).asHash();
 
-var CMJanus = require('../lib/index.js');
+var application = new Application(config);
+application.registerServices();
+application.start();
 
-var proxy = new CMJanus.JanusProxy('8188', 'ws://198.23.87.26:8188/janus');
-proxy.start();
-
-var apiServer = new CMJanus.HttpServer(configHash['httpServer']['port'], configHash['app']['serverKey']);
-apiServer.start();
