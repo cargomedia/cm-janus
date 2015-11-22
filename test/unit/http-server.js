@@ -92,9 +92,6 @@ describe('Http Server', function() {
       });
 
       requests['statusOK'] = requestPromise(getOptions('GET', 'status', apiKey, {})).then(function(res) {
-        //TODO do we need 'isArray' and 'lengthOf' if we use 'deepEqual' after them? Will deepEqual succeed if res is not array or has length not equal to 3?
-        assert.isArray(res);
-        assert.lengthOf(res, 3);
         assert.deepEqual(res, streamList);
       });
 
@@ -106,19 +103,19 @@ describe('Http Server', function() {
 
       requests['stopStreamNotFound'] = requestPromise(getOptions('POST', 'stopStream', apiKey, {streamId: 222})).then(function(res) {
         assert.deepEqual(res, {error: 'Unknown stream: 222'});
-        assert.isTrue(findSpy.calledWith('222').calledOnce);
+        assert.isTrue(findSpy.withArgs('222').calledOnce);
       });
 
       requests['stopStreamOK'] = requestPromise(getOptions('POST', 'stopStream', apiKey, {streamId: 1})).then(function(res) {
         assert.deepEqual(res, {success: 'Stream stopped'});
-        assert.isTrue(findSpy.calledWith('1').calledOnce);
-        assert.isTrue(stopStreamStub.calledWith('1').calledOnce);
+        assert.isTrue(findSpy.withArgs('1').calledOnce);
+        assert.isTrue(stopStreamStub.withArgs('1').calledOnce);
       });
 
       requests['stopStreamFail'] = requestPromise(getOptions('POST', 'stopStream', apiKey, {streamId: 2})).then(function(res) {
         assert.deepEqual(res, {error: 'Stream stop failed'});
-        assert.isTrue(findSpy.calledWith('2').calledOnce);
-        assert.isTrue(stopStreamStub.calledWith('2').calledOnce);
+        assert.isTrue(findSpy.withArgs('2').calledOnce);
+        assert.isTrue(stopStreamStub.withArgs('2').calledOnce);
       });
 
       Promise.all(_.values(requests)).then(function() {
@@ -129,7 +126,7 @@ describe('Http Server', function() {
 
   it('fails without apiKey', function() {
     assert.throw(function() {
-      new HttpServer(8811);
+      new HttpServer(port);
     }, /apiKey is not defined/);
   });
 });
