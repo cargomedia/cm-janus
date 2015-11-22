@@ -53,7 +53,8 @@ describe('JobManager', function() {
       testJobHandler.getPlugin = sinon.stub().returns(jobData['plugin']);
       testJobHandler.getEvent = sinon.stub().returns(jobData['event']);
 
-      new JobManager(tmpDirPath, [testJobHandler]);
+      var manager = new JobManager(tmpDirPath, [testJobHandler]);
+      manager.start();
 
       createJobFile(tmpDirPath, jobData).then(function(jobFilepath) {
         setTimeout(function() {
