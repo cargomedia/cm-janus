@@ -27,10 +27,10 @@ describe('ProxyConnection', function() {
       token: 'token',
       transaction: proxy._generateTransactionId()
     };
-    proxy.processMessage(createRequest);
-
-    assert(onCreateStub.calledOnce);
-    assert(onCreateStub.calledWith(createRequest));
+    proxy.processMessage(createRequest).then(function() {
+      assert(onCreateStub.calledOnce);
+      assert(onCreateStub.calledWith(createRequest));
+    });
   });
 
   it('message processing. onDestroy.', function() {
@@ -42,10 +42,10 @@ describe('ProxyConnection', function() {
       janus: 'destroy',
       transaction: proxy._generateTransactionId()
     };
-    proxy.processMessage(destroyRequest);
-
-    assert(onDestroyStub.calledOnce);
-    assert(onDestroyStub.calledWith(destroyRequest));
+    proxy.processMessage(destroyRequest).then(function() {
+      assert(onDestroyStub.calledOnce);
+      assert(onDestroyStub.calledWith(destroyRequest));
+    });
   });
 
   it('message processing. onAttach.', function() {
@@ -59,12 +59,13 @@ describe('ProxyConnection', function() {
       plugin: 'plugin',
       transaction: proxy._generateTransactionId()
     };
-    proxy.processMessage(attachRequest);
-    assert(onAttachStub.calledOnce);
-    assert(onAttachStub.calledWith(attachRequest));
+    proxy.processMessage(attachRequest).then(function() {
+      assert(onAttachStub.calledOnce);
+      assert(onAttachStub.calledWith(attachRequest));
+    });
   });
 
-  it('create/destroy session', function() {
+  it('create/destroy session', function(done) {
     ////////////////// create ////////////////////////
     var proxy = new ProxyConnection();
 
@@ -78,26 +79,30 @@ describe('ProxyConnection', function() {
       data: {id: 'id'},
       transaction: createRequest.transaction
     };
-    proxy.processMessage(createRequest);
-    proxy.processMessage(createResponse);
+    proxy.processMessage(createRequest).then(function() {
+      proxy.processMessage(createResponse).then(function() {
+        assert.equal(proxy.sessionId, createResponse.data.id);
+        assert.equal(proxy.sessionData, createRequest.token);
 
-    assert.equal(proxy.sessionId, createResponse.data.id);
-    assert.equal(proxy.sessionData, createRequest.token);
+        ////////////////// destroy ////////////////////////
+        sinon.stub(proxy, 'close');
+        var destroyRequest = {
+          janus: 'destroy',
+          transaction: proxy._generateTransactionId()
+        };
+        var destroyResponse = {
+          transaction: destroyRequest.transaction
+        };
 
-    ////////////////// destroy ////////////////////////
-    sinon.stub(proxy, 'close');
-    var destroyRequest = {
-      janus: 'destroy',
-      transaction: proxy._generateTransactionId()
-    };
-    var destroyResponse = {
-      transaction: destroyRequest.transaction
-    };
-
-    assert(!proxy.close.calledOnce);
-    proxy.processMessage(destroyRequest);
-    proxy.processMessage(destroyResponse);
-    assert(proxy.close.calledOnce);
+        assert(!proxy.close.calledOnce);
+        proxy.processMessage(destroyRequest).then(function() {
+          proxy.processMessage(destroyResponse).then(function() {
+            assert(proxy.close.calledOnce);
+            done();
+          });
+        });
+      })
+    });
   });
 
   it('Attach plugin', function() {
@@ -114,10 +119,11 @@ describe('ProxyConnection', function() {
       transaction: attachRequest.transaction
     };
 
-    proxy.processMessage(attachRequest);
-    proxy.processMessage(attachResponse);
-
-    assert(proxy.getPlugin(attachResponse.data.id) instanceof PluginStreaming);
+    proxy.processMessage(attachRequest).then(function() {
+      proxy.processMessage(attachResponse).then(function() {
+        assert(proxy.getPlugin(attachResponse.data.id) instanceof PluginStreaming);
+      });
+    });
   });
 
   it('stop stream', function(done) {
