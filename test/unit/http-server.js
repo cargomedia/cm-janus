@@ -87,7 +87,6 @@ describe('Http Server', function() {
 
       requests['statusAuthFail'] = requestPromise(getOptions('GET', 'status', 'wrongKey', {})).catch(function(err) {
         assert.instanceOf(err, Error);
-        //TODO use Unauthorized error for status code from janus-error.js.
         assert.strictEqual(err['statusCode'], 403);
       });
 
@@ -97,7 +96,6 @@ describe('Http Server', function() {
 
       requests['stopStreamAuthFail'] = requestPromise(getOptions('POST', 'stopStream', 'wrongKey', {})).catch(function(err) {
         assert.instanceOf(err, Error);
-        //TODO use Unauthorized error for status code from janus-error.js.
         assert.strictEqual(err['statusCode'], 403);
       });
 
