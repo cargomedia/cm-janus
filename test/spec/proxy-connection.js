@@ -2,20 +2,27 @@ var _ = require('underscore');
 var assert = require('chai').assert;
 var sinon = require('sinon');
 var EventEmitter = require('events');
+require('../helpers/global-error-handler');
 var ProxyConnection = require('../../lib/proxy-connection');
 var PluginStreaming = require('../../lib/plugin/streaming');
-
-
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
-serviceLocator.register('logger', function() {
-  return new Logger();
-});
-serviceLocator.register('streams', function() {
-  return new EventEmitter;
-});
 
 describe('ProxyConnection', function() {
+
+  before(function() {
+    serviceLocator.reset();
+    serviceLocator.register('logger', function() {
+      return new Logger();
+    });
+    serviceLocator.register('streams', function() {
+      return new EventEmitter;
+    });
+  });
+
+  after(function() {
+    serviceLocator.reset();
+  });
 
   it('message processing. onCreate.', function() {
     var proxy = new ProxyConnection();
