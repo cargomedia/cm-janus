@@ -1,6 +1,8 @@
 var assert = require('chai').assert;
 var sinon = require('sinon');
 var Promise = require('bluebird');
+var _ = require('underscore');
+require('../helpers/global-error-handler');
 var requestPromise = require('request-promise');
 
 var serviceLocator = require('../../lib/service-locator.js');
@@ -51,7 +53,7 @@ describe('Http Server', function() {
   function getOptions(method, path, apiKey, data) {
     return {
       method: method,
-      uri: 'http://localhost:' + '8811' + '/' + path,
+      uri: 'http://localhost:' + port + '/' + path,
       body: data,
       headers: {'Server-Key': apiKey},
       json: true
@@ -72,7 +74,7 @@ describe('Http Server', function() {
     serviceLocator.reset();
   });
 
-  it('is created properly, starts and respondes well', function(done) {
+  it('is created properly, starts and responds well', function(done) {
 
     var httpServer = new HttpServer(port, apiKey);
 
@@ -85,10 +87,12 @@ describe('Http Server', function() {
 
       requests['statusAuthFail'] = requestPromise(getOptions('GET', 'status', 'wrongKey', {})).catch(function(err) {
         assert.instanceOf(err, Error);
+        //TODO use Unauthorized error for status code from janus-error.js.
         assert.strictEqual(err['statusCode'], 403);
       });
 
       requests['statusOK'] = requestPromise(getOptions('GET', 'status', apiKey, {})).then(function(res) {
+        //TODO do we need 'isArray' and 'lengthOf' if we use 'deepEqual' after them? Will deepEqual succeed if res is not array or has length not equal to 3?
         assert.isArray(res);
         assert.lengthOf(res, 3);
         assert.deepEqual(res, streamList);
@@ -96,27 +100,28 @@ describe('Http Server', function() {
 
       requests['stopStreamAuthFail'] = requestPromise(getOptions('POST', 'stopStream', 'wrongKey', {})).catch(function(err) {
         assert.instanceOf(err, Error);
+        //TODO use Unauthorized error for status code from janus-error.js.
         assert.strictEqual(err['statusCode'], 403);
       });
 
       requests['stopStreamNotFound'] = requestPromise(getOptions('POST', 'stopStream', apiKey, {streamId: 222})).then(function(res) {
         assert.deepEqual(res, {error: 'Unknown stream: 222'});
-        assert.isTrue(findSpy.withArgs('222').calledOnce);
+        assert.isTrue(findSpy.calledWith('222').calledOnce);
       });
 
       requests['stopStreamOK'] = requestPromise(getOptions('POST', 'stopStream', apiKey, {streamId: 1})).then(function(res) {
         assert.deepEqual(res, {success: 'Stream stopped'});
-        assert.isTrue(findSpy.withArgs('1').calledOnce);
-        assert.isTrue(stopStreamStub.withArgs('1').calledOnce);
+        assert.isTrue(findSpy.calledWith('1').calledOnce);
+        assert.isTrue(stopStreamStub.calledWith('1').calledOnce);
       });
 
       requests['stopStreamFail'] = requestPromise(getOptions('POST', 'stopStream', apiKey, {streamId: 2})).then(function(res) {
         assert.deepEqual(res, {error: 'Stream stop failed'});
-        assert.isTrue(findSpy.withArgs('2').calledOnce);
-        assert.isTrue(stopStreamStub.withArgs('2').calledOnce);
+        assert.isTrue(findSpy.calledWith('2').calledOnce);
+        assert.isTrue(stopStreamStub.calledWith('2').calledOnce);
       });
 
-      Promise.all(requests).finally(function() {
+      Promise.all(_.values(requests)).then(function() {
         done();
       });
     });
