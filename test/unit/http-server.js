@@ -116,7 +116,7 @@ describe('Http Server', function() {
         assert.isTrue(stopStreamStub.withArgs('2').calledOnce);
       });
 
-      Promise.all(_.values(requests)).then(function() {
+      Promise.all(_.values(requests)).finally(function() {
         assert.strictEqual(findSpy.callCount, 3);
         assert.strictEqual(stopStreamStub.callCount, 2);
         done();
