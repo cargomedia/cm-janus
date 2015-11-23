@@ -1,7 +1,7 @@
 language: node_js
 node_js:
 - '0.12'
-script: npm run-script test-coveralls
+script: npm run-script test-codecov
 deploy:
   provider: npm
   email: tech@cargomedia.ch
