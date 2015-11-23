@@ -36,4 +36,6 @@ cmApi:
   apiKey: '123fish' # token for authentication, sent with each http request
 cmApplication:
   path: '/home/cm' # path to local cm application
+jobManager:
+  jobsPath: '/tmp/jobs' # place where job definitions are stored
 ```

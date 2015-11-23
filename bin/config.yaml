@@ -10,3 +10,5 @@ cmApi:
   apiKey: '123fish'
 cmApplication:
   path: '/home/cm'
+jobManager:
+  jobsPath: '/tmp'
