@@ -73,7 +73,7 @@ describe('ProxyConnection', function() {
     });
   });
 
-  it.only('create/destroy session', function(done) {
+  it('create/destroy session', function(done) {
     ////////////////// create ////////////////////////
     var proxy = new ProxyConnection();
 
