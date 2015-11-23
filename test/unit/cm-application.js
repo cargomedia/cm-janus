@@ -9,15 +9,17 @@ describe('CmApplication', function() {
 
   it('runCommand', function() {
     var cmApplication = new CmApplication('applicationRootPath');
-    var spawnSync = sinon.stub(cmApplication, '_spawnSync').withArgs('bin/cm', ['packageName', 'action', 'arg1', 'arg2'], {cwd: 'applicationRootPath'});
+    var spawnSync = sinon.stub(cmApplication, '_spawnSync');
 
-    spawnSync.onCall(0).returns({error: new Error('foo')});
+    spawnSync.onCall(0).returns({error: new Error('foo')})
     assert.throw(function() {
       cmApplication.runCommand('packageName', 'action', ['arg1', 'arg2']);
     }, Error);
 
     spawnSync.onCall(1).returns({output: 'bar'});
     assert.strictEqual(cmApplication.runCommand('packageName', 'action', ['arg1', 'arg2']), 'bar');
+
+    assert(spawnSync.withArgs('bin/cm', ['packageName', 'action', 'arg1', 'arg2'], {cwd: 'applicationRootPath'}).calledTwice)
   });
 
   it('importVideoStreamThumbnail', function() {
