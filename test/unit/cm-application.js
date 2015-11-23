@@ -25,14 +25,14 @@ describe('CmApplication', function() {
   it('importVideoStreamThumbnail', function() {
     var cmApplication = new CmApplication('applicationRootPath');
     var runCommand = sinon.stub(cmApplication, 'runCommand');
-    runCommand.withArgs('media-streams', 'import-video-thumbnail', ['streamChannelId', 'thumb']);
     cmApplication.importVideoStreamThumbnail('streamChannelId', 'thumb');
+    assert(runCommand.withArgs('media-streams', 'import-video-thumbnail', ['streamChannelId', 'thumb']).calledOnce);
   });
 
   it('importMediaStreamArchive', function() {
     var cmApplication = new CmApplication('applicationRootPath');
     var runCommand = sinon.stub(cmApplication, 'runCommand');
-    runCommand.withArgs('media-streams', 'import-archive', ['streamChannelId', 'archive']);
     cmApplication.importMediaStreamArchive('streamChannelId', 'archive');
+    assert(runCommand.withArgs('media-streams', 'import-archive', ['streamChannelId', 'archive']).calledOnce);
   });
 });
