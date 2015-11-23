@@ -18,13 +18,11 @@
   },
   "scripts": {
     "test": "$(npm bin)/mocha",
-    "test-coveralls": "node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "test-codecov": "$(npm bin)/istanbul cover $(npm bin)/_mocha -- -R spec && cat ./coverage/coverage.json | $(npm bin)/codecov"
   },
   "dependencies": {
     "bluebird": "~3.0.0",
     "body-parser": "^1.14.1",
-    "codecov.io": "^0.1.6",
     "express": "^4.13.3",
     "inotify": "^1.4.0",
     "js-yaml": "^3.4.3",
@@ -39,10 +37,8 @@
   "devDependencies": {
     "chai": "~1.9.1",
     "codecov.io": "^0.1.6",
-    "coveralls": "^2.11.4",
     "istanbul": "^0.4.0",
     "mocha": "~1.21.4",
-    "mocha-lcov-reporter": "^1.0.0",
     "mock-socket": "^0.8.2",
     "nock": "^3.0.0",
     "rimraf": "^2.4.4",
