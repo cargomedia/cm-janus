@@ -73,7 +73,7 @@ describe('ProxyConnection', function() {
     });
   });
 
-  it('create/destroy session', function(done) {
+  it.only('create/destroy session', function(done) {
     ////////////////// create ////////////////////////
     var proxy = new ProxyConnection();
 
@@ -102,7 +102,7 @@ describe('ProxyConnection', function() {
           transaction: destroyRequest.transaction
         };
 
-        assert(!proxy.close.calledOnce);
+        assert(!proxy.close.called);
         proxy.processMessage(destroyRequest).then(function() {
           proxy.processMessage(destroyResponse).then(function() {
             assert(proxy.close.calledOnce);
@@ -134,7 +134,7 @@ describe('ProxyConnection', function() {
     });
   });
 
-  it.only('Attach illegal plugin', function() {
+  it('Attach illegal plugin', function() {
     var browserConnection = {send: sinon.stub()};
     var proxy = new ProxyConnection(browserConnection, null);
     var pluginName = 'unknown';
