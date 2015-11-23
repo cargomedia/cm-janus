@@ -33,7 +33,7 @@ describe('ProxyConnection', function() {
     var createRequest = {
       janus: 'create',
       token: 'token',
-      transaction: proxy._generateTransactionId()
+      transaction: ProxyConnection.generateTransactionId()
     };
     proxy.processMessage(createRequest).then(function() {
       assert(onCreateStub.calledOnce);
@@ -48,7 +48,7 @@ describe('ProxyConnection', function() {
     });
     var destroyRequest = {
       janus: 'destroy',
-      transaction: proxy._generateTransactionId()
+      transaction: ProxyConnection.generateTransactionId()
     };
     proxy.processMessage(destroyRequest).then(function() {
       assert(onDestroyStub.calledOnce);
@@ -65,7 +65,7 @@ describe('ProxyConnection', function() {
     var attachRequest = {
       janus: 'attach',
       plugin: 'plugin',
-      transaction: proxy._generateTransactionId()
+      transaction: ProxyConnection.generateTransactionId()
     };
     proxy.processMessage(attachRequest).then(function() {
       assert(onAttachStub.calledOnce);
@@ -80,7 +80,7 @@ describe('ProxyConnection', function() {
     var createRequest = {
       janus: 'create',
       token: 'token',
-      transaction: proxy._generateTransactionId()
+      transaction: ProxyConnection.generateTransactionId()
     };
     var createResponse = {
       janus: 'success',
@@ -96,7 +96,7 @@ describe('ProxyConnection', function() {
         sinon.stub(proxy, 'close');
         var destroyRequest = {
           janus: 'destroy',
-          transaction: proxy._generateTransactionId()
+          transaction: ProxyConnection.generateTransactionId()
         };
         var destroyResponse = {
           transaction: destroyRequest.transaction
@@ -119,7 +119,7 @@ describe('ProxyConnection', function() {
     var attachRequest = {
       janus: 'attach',
       plugin: pluginName,
-      transaction: proxy._generateTransactionId()
+      transaction: ProxyConnection.generateTransactionId()
     };
     var attachResponse = {
       janus: 'success',
@@ -141,7 +141,7 @@ describe('ProxyConnection', function() {
     var attachRequest = {
       janus: 'attach',
       plugin: pluginName,
-      transaction: proxy._generateTransactionId()
+      transaction: ProxyConnection.generateTransactionId()
     };
 
     proxy.processMessage(attachRequest).catch(function(error) {
