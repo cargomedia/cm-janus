@@ -34,4 +34,6 @@ httpServer:
 cmApi:
   baseUrl: 'http://www.cm.dev' # cm-application address
   apiKey: '123fish' # token for authentication, sent with each http request
+cmApplication:
+  path: '/home/cm' # path to local cm application
 ```
