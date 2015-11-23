@@ -14,7 +14,8 @@ describe('Plugin registry', function() {
     util.inherits(CorrectPlugin, PluginAbstract);
     var registry = new PluginRegistry([CorrectPlugin]);
     var pluginId = 'id';
-    var plugin = registry.createPlugin(CorrectPlugin.TYPE, pluginId);
+    var pluginClass = registry.getPlugin(CorrectPlugin.TYPE);
+    var plugin = new pluginClass(pluginId, CorrectPlugin.TYPE, null);
     assert(plugin instanceof CorrectPlugin);
     assert.equal(plugin.id, 'id');
     assert.equal(plugin.type, CorrectPlugin.TYPE);
@@ -22,7 +23,8 @@ describe('Plugin registry', function() {
     registry = new PluginRegistry();
     registry.registerPlugin(CorrectPlugin);
     pluginId = 'id2';
-    plugin = registry.createPlugin(CorrectPlugin.TYPE, pluginId);
+    pluginClass = registry.getPlugin(CorrectPlugin.TYPE);
+    plugin = new pluginClass(pluginId, CorrectPlugin.TYPE, null);
     assert(plugin instanceof CorrectPlugin);
     assert.equal(plugin.id, pluginId);
     assert.equal(plugin.type, CorrectPlugin.TYPE);
@@ -52,15 +54,14 @@ describe('Plugin registry', function() {
     };
     UnregisteredPlugin.TYPE = 'unregistered';
     var registry = new PluginRegistry();
-    var pluginId = 'id';
 
     assert.throw(function() {
-      registry.createPlugin(UnregisteredPlugin.TYPE, pluginId);
+      registry.getPlugin(UnregisteredPlugin.TYPE);
     }, /Invalid/);
 
     registry.registerPlugin(RegisteredPlugin);
     assert.throw(function() {
-      registry.createPlugin(UnregisteredPlugin.TYPE, pluginId);
+      registry.getPlugin(UnregisteredPlugin.TYPE);
     }, /Invalid/);
   });
 
