@@ -1,6 +1,7 @@
 var assert = require('chai').assert;
 require('../helpers/global-error-handler');
 var Transactions = require('../../lib/transactions');
+var Promise = require('bluebird');
 
 describe('Transactions', function() {
 
@@ -27,19 +28,40 @@ describe('Transactions', function() {
     assert.strictEqual(transactions.find('bar'), null);
   });
 
-  it('execute', function() {
-    var transaction = new Function();
+  it('execute', function(done) {
+    var transaction = function() {
+      return new Promise.resolve();
+    };
     var transactions = new Transactions();
     transactions.add('foo', transaction);
     assert.notStrictEqual(transactions.find('foo'), null);
 
-    transactions.execute('foo', {janus: 'ack'});
+    transactions.execute('foo', {janus: 'ack'})
+      .then(function() {
+        assert.notStrictEqual(transactions.find('foo'), null);
+      })
+      .then(function() {
+        return transactions.execute('foo', {janus: 'event'});
+      })
+      .then(function() {
+        assert.strictEqual(transactions.find('foo'), null);
+        done();
+      })
+  });
+
+  it('execute with error', function(done) {
+    var transaction = function() {
+      return new Promise.resolve();
+    };
+    var transactions = new Transactions();
+    transactions.add('foo', transaction);
     assert.notStrictEqual(transactions.find('foo'), null);
 
-    transactions.execute('foo', {janus: 'event'});
-    assert.strictEqual(transactions.find('foo'), null);
-
-    transactions.execute('bar', null);
+    transactions.execute('foo', {janus: 'error'})
+      .then(function() {
+        assert.strictEqual(transactions.find('foo'), null);
+        done();
+      })
   });
 
   it('remove', function() {
