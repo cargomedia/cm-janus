@@ -5,7 +5,7 @@ var EventEmitter = require('events');
 require('../helpers/global-error-handler');
 var JanusError = require('../../lib/janus-error');
 var ProxyConnection = require('../../lib/proxy-connection');
-var PluginStreaming = require('../../lib/plugin/streaming');
+var PluginStreaming = require('../../lib/plugin/video');
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
 
