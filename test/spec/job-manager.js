@@ -4,6 +4,7 @@ require('../helpers/global-error-handler');
 var path = require('path');
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require("fs"));
+var rimraf = require('rimraf');
 
 var JobManager = require('../../lib/job/job-manager');
 var AbstractJobHandler = require('../../lib/job/handler/abstract');
@@ -15,12 +16,14 @@ serviceLocator.register('logger', function() {
 
 describe('JobManager', function() {
 
+  var globalTmpDir = path.join(__dirname, '/tmp');
+
   function randomString() {
     return Math.random().toString(36).substring(2, 10);
   }
 
-  function createTmpDir() {
-    var tmpDirPath = path.join(__dirname, randomString());
+  function createLocalTmpDir() {
+    var tmpDirPath = path.join(globalTmpDir, randomString());
     return fs.mkdirAsync(tmpDirPath).then(function() {
       return tmpDirPath;
     });
@@ -45,8 +48,20 @@ describe('JobManager', function() {
     };
   }
 
+  before(function(done) {
+    fs.mkdirAsync(globalTmpDir).then(function() {
+      done();
+    });
+  });
+
+  after(function(done) {
+    rimraf(globalTmpDir, function(err) {
+      done(err);
+    });
+  });
+
   it('test job handler call', function(done) {
-    createTmpDir().then(function(tmpDirPath) {
+    createLocalTmpDir().then(function(tmpDirPath) {
       var jobData = randomTestJobData();
       var testJobHandler = new AbstractJobHandler();
       testJobHandler.handle = sinon.stub().returns(Promise.resolve());
