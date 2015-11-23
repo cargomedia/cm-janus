@@ -6,7 +6,7 @@ var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require("fs"));
 var rimraf = require('rimraf');
 
-var JobManager = require('../../lib/job/job-manager');
+var JobManager = require('../../lib/job/manager');
 var AbstractJobHandler = require('../../lib/job/handler/abstract');
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
@@ -68,7 +68,8 @@ describe('JobManager', function() {
       testJobHandler.getPlugin = sinon.stub().returns(jobData['plugin']);
       testJobHandler.getEvent = sinon.stub().returns(jobData['event']);
 
-      new JobManager(tmpDirPath, [testJobHandler]);
+      var manager = new JobManager(tmpDirPath, [testJobHandler]);
+      manager.start();
 
       createJobFile(tmpDirPath, jobData).then(function(jobFilepath) {
         setTimeout(function() {
