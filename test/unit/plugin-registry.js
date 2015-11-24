@@ -14,18 +14,16 @@ describe('Plugin registry', function() {
     util.inherits(CorrectPlugin, PluginAbstract);
     var registry = new PluginRegistry([CorrectPlugin]);
     var pluginId = 'id';
-    var pluginClass = registry.getPlugin(CorrectPlugin.TYPE);
-    var plugin = new pluginClass(pluginId, CorrectPlugin.TYPE, null);
-    assert(plugin instanceof CorrectPlugin);
+    var plugin = registry.instantiatePlugin(pluginId, CorrectPlugin.TYPE, null);
+    assert.instanceOf(plugin, CorrectPlugin);
     assert.equal(plugin.id, 'id');
     assert.equal(plugin.type, CorrectPlugin.TYPE);
 
     registry = new PluginRegistry();
     registry.registerPlugin(CorrectPlugin);
     pluginId = 'id2';
-    pluginClass = registry.getPlugin(CorrectPlugin.TYPE);
-    plugin = new pluginClass(pluginId, CorrectPlugin.TYPE, null);
-    assert(plugin instanceof CorrectPlugin);
+    plugin = registry.instantiatePlugin(pluginId, CorrectPlugin.TYPE, null);
+    assert.instanceOf(plugin, CorrectPlugin);
     assert.equal(plugin.id, pluginId);
     assert.equal(plugin.type, CorrectPlugin.TYPE);
   });
