@@ -39,4 +39,4 @@ cmApplication:
 jobManager:
   jobsPath: '/tmp/jobs' # place where job definitions are stored
 ```
-gi p
+
