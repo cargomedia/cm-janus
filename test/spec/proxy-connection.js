@@ -5,7 +5,7 @@ var EventEmitter = require('events');
 require('../helpers/global-error-handler');
 var JanusError = require('../../lib/janus-error');
 var ProxyConnection = require('../../lib/proxy-connection');
-var PluginStreaming = require('../../lib/plugin/streaming');
+var PluginVideo = require('../../lib/plugin/video');
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
 
@@ -117,7 +117,7 @@ describe('ProxyConnection', function() {
     var proxy = new ProxyConnection();
     var attachRequest = {
       janus: 'attach',
-      plugin: PluginStreaming.TYPE,
+      plugin: PluginVideo.TYPE,
       transaction: ProxyConnection.generateTransactionId()
     };
     var attachResponse = {
@@ -128,7 +128,7 @@ describe('ProxyConnection', function() {
 
     proxy.processMessage(attachRequest).then(function() {
       proxy.processMessage(attachResponse).then(function() {
-        assert(proxy.getPlugin(attachResponse.data.id) instanceof PluginStreaming);
+        assert(proxy.getPlugin(attachResponse.data.id) instanceof PluginVideo);
       });
     });
   });
