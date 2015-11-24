@@ -30,6 +30,7 @@
     "minimist": "^1.2.0",
     "node-uuid": "^1.4.3",
     "request-promise": "^1.0.2",
+    "tmp": "0.0.28",
     "underscore": "^1.8.3",
     "ws": "~0.8.0"
   },
