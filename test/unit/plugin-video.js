@@ -108,7 +108,6 @@ describe('Video plugin', function() {
   });
 
   it('create stream', function(done) {
-    ////////////////// create ////////////////////////
     var proxyConnection = new ProxyConnection();
     var plugin = new PluginVideo('id', 'type', proxyConnection);
     proxyConnection.plugins[plugin.id] = plugin;
@@ -120,8 +119,8 @@ describe('Video plugin', function() {
       transaction: ProxyConnection.generateTransactionId()
     };
     var createResponse = {
-      janus: 'success',
-      data: {id: 'id'},
+      janus: 'event',
+      plugindata: {data: {status: 'preparing'}},
       handle_id: plugin.id,
       transaction: createRequest.transaction
     };
@@ -137,8 +136,35 @@ describe('Video plugin', function() {
     });
   });
 
+  it('create stream fail', function(done) {
+    var proxyConnection = new ProxyConnection();
+    var plugin = new PluginVideo('id', 'type', proxyConnection);
+    proxyConnection.plugins[plugin.id] = plugin;
+
+    var createRequest = {
+      janus: 'message',
+      body: {request: 'create', id: 'streamId'},
+      handle_id: plugin.id,
+      transaction: ProxyConnection.generateTransactionId()
+    };
+    var createResponse = {
+      janus: 'event',
+      plugindata: {data: {error: 'error'}},
+      handle_id: plugin.id,
+      transaction: createRequest.transaction
+    };
+
+    proxyConnection.processMessage(createRequest).then(function() {
+      proxyConnection.processMessage(createResponse).then(function() {
+        assert.isNull(plugin.stream);
+        var connectionStreams = serviceLocator.get('streams').findAllByConnection(proxyConnection);
+        assert.equal(connectionStreams.length, 0);
+        done();
+      });
+    });
+  });
+
   it('watch stream', function(done) {
-    ////////////////// create ////////////////////////
     var proxyConnection = new ProxyConnection();
     var plugin = new PluginVideo('id', 'type', proxyConnection);
     proxyConnection.plugins[plugin.id] = plugin;
@@ -151,6 +177,7 @@ describe('Video plugin', function() {
     };
     var watchResponse = {
       janus: 'event',
+      plugindata: {data: {status: 'preparing'}},
       sender: plugin.id,
       transaction: watchRequest.transaction
     };
@@ -165,8 +192,33 @@ describe('Video plugin', function() {
     });
   });
 
+  it('watch stream fail', function(done) {
+    var proxyConnection = new ProxyConnection();
+    var plugin = new PluginVideo('id', 'type', proxyConnection);
+    proxyConnection.plugins[plugin.id] = plugin;
+
+    var watchRequest = {
+      janus: 'message',
+      body: {request: 'watch', id: 'streamId'},
+      handle_id: plugin.id,
+      transaction: ProxyConnection.generateTransactionId()
+    };
+    var watchResponse = {
+      janus: 'event',
+      plugindata: {data: {error: 'error'}},
+      sender: plugin.id,
+      transaction: watchRequest.transaction
+    };
+
+    proxyConnection.processMessage(watchRequest).then(function() {
+      proxyConnection.processMessage(watchResponse).then(function() {
+        assert.isNull(plugin.stream);
+        done();
+      });
+    });
+  });
+
   it('webrtcup', function(done) {
-    ////////////////// create ////////////////////////
     var proxyConnection = new ProxyConnection();
     var plugin = new PluginVideo('id', 'type', proxyConnection);
     proxyConnection.plugins[plugin.id] = plugin;
