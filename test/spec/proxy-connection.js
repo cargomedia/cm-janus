@@ -115,10 +115,9 @@ describe('ProxyConnection', function() {
 
   it('Attach plugin', function() {
     var proxy = new ProxyConnection();
-    var pluginName = _.invert(ProxyConnection.pluginTypes)[PluginVideo];
     var attachRequest = {
       janus: 'attach',
-      plugin: pluginName,
+      plugin: PluginVideo.TYPE,
       transaction: ProxyConnection.generateTransactionId()
     };
     var attachResponse = {
@@ -134,7 +133,7 @@ describe('ProxyConnection', function() {
     });
   });
 
-  it('Attach illegal plugin', function() {
+  it('Attach illegal plugin', function(done) {
     var browserConnection = {send: sinon.stub()};
     var proxy = new ProxyConnection(browserConnection, null);
     var pluginName = 'unknown';
@@ -148,6 +147,7 @@ describe('ProxyConnection', function() {
       assert(browserConnection.send.calledOnce);
       var expected = new JanusError.IllegalPlugin(null).response.error.code;
       assert.equal(error.response.error.code, expected);
+      done();
     });
   });
 
