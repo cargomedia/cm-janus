@@ -12,7 +12,7 @@ var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
 var serviceLocator = require('../../lib/service-locator');
 
-describe.only('Video plugin', function() {
+describe('Video plugin', function() {
 
   this.timeout(2000);
 
