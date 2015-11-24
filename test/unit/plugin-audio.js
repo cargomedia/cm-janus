@@ -53,7 +53,7 @@ describe('Audio plugin', function() {
     };
     var joinResponse = {
       janus: 'event',
-      plugindata: {data: {id: joinRequest.body.id}},
+      plugindata: {data: {audioroom: 'joined'}},
       sender: plugin.id,
       transaction: joinRequest.transaction
     };
