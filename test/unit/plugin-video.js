@@ -1,7 +1,7 @@
 var _ = require('underscore');
 var assert = require('chai').assert;
 var sinon = require('sinon');
-var nock = require('nock');
+var Promise = require('bluebird');
 require('../helpers/global-error-handler');
 var ProxyConnection = require('../../lib/proxy-connection');
 var PluginVideo = require('../../lib/plugin/video');
@@ -20,19 +20,11 @@ describe('Video plugin', function() {
     serviceLocator.reset();
     serviceLocator.register('logger', new Logger());
     serviceLocator.register('cm-api-client', function() {
-      var baseUrl = 'http://localhost:8080';
-      var apiKey = 'apiKey';
-      var mockRequest = function() {
-        nock(baseUrl)
-          .post('/')
-          .reply(200, function() {
-            mockRequest();
-            return {success: {result: true}};
-          });
-      };
-      mockRequest();
-
-      return new CmApiClient(baseUrl, apiKey);
+      var cmApiClient = new CmApiClient('http://localhost:8080', 'apiKey');
+      sinon.stub(cmApiClient, '_request', function() {
+        return Promise.resolve(true);
+      });
+      return cmApiClient;
     });
   });
 
