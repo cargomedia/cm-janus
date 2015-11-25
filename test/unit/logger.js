@@ -72,7 +72,15 @@ describe('Logger', function() {
   it('error Error instance', function(done) {
     logger.error(new Error("Test error") , 'bar');
     stream.end(function() {
-      assert.strictEqual(fs.readFileSync(logFilePath, 'utf8'), 'test error [Error: Test error]\n');
+      assert.strictEqual(fs.readFileSync(logFilePath, 'utf8'), 'test error {"message":"Test error"} bar\n');
+      done();
+    });
+  });
+
+  it('error Error instance interpolated', function(done) {
+    logger.error('bar ' + new Error("Test error") );
+    stream.end(function() {
+      assert.strictEqual(fs.readFileSync(logFilePath, 'utf8'), 'test error bar Error: Test error\n');
       done();
     });
   });
