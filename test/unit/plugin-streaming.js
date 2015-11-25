@@ -81,7 +81,7 @@ describe('Streaming plugin', function() {
 
     var createRequest = {
       janus: 'message',
-      body: {request: 'create', id: 'streamId'},
+      body: {request: 'create', id: 'streamId', channelData: 'channelData'},
       handle_id: plugin.id,
       transaction: ProxyConnection.generateTransactionId()
     };

@@ -128,12 +128,12 @@ describe('CmApiClient unit tests', function() {
     var streamKey = 'stKey';
     var start = 123;
     var sessionData = '{"foo": "bar"}';
-    var data = 'data';
+    var channelData = 'channelData';
 
     it('passes params to request correctly', function() {
       var requestStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(true));
-      cmHttpClient.publish(streamChannelKey, streamKey, start, sessionData, data);
-      assert.isTrue(requestStub.withArgs('publish', [streamChannelKey, streamKey, start, sessionData, data]).calledOnce);
+      cmHttpClient.publish(streamChannelKey, streamKey, start, sessionData, channelData);
+      assert.isTrue(requestStub.withArgs('publish', [streamChannelKey, streamKey, start, sessionData, channelData]).calledOnce);
       requestStub.restore();
     });
   });

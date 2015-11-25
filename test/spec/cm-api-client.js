@@ -37,7 +37,7 @@ describe('CmApiClient spec tests', function() {
     var url = 'http://localhost:8080';
     var action = 'publish';
     var apiKey = 'test';
-    var params = ['streamChannelKey', 'streamKey', 0, 'sessionData', 'data'];
+    var params = ['streamChannelKey', 'streamKey', 0, 'sessionData', 'channelData'];
 
     mockRequest(url, action, apiKey, params);
 
