@@ -4,7 +4,7 @@ var CMApiClient = require('../../lib/cm-api-client');
 var Promise = require('bluebird');
 var sinon = require('sinon');
 
-describe('cm-api-client', function() {
+describe('CmApiClient unit tests', function() {
 
   this.timeout(1000);
 
@@ -127,12 +127,13 @@ describe('cm-api-client', function() {
     var streamChannelKey = 'scKey';
     var streamKey = 'stKey';
     var start = 123;
-    var userData = {foo: 'bar'};
+    var sessionData = '{"foo": "bar"}';
+    var data = 'data';
 
     it('passes params to request correctly', function() {
       var requestStub = sinon.stub(cmHttpClient, '_request').returns(Promise.resolve(true));
-      cmHttpClient.publish(streamChannelKey, streamKey, start, userData);
-      assert.isTrue(requestStub.withArgs('publish', [streamChannelKey, streamKey, start, userData]).calledOnce);
+      cmHttpClient.publish(streamChannelKey, streamKey, start, sessionData, data);
+      assert.isTrue(requestStub.withArgs('publish', [streamChannelKey, streamKey, start, sessionData, data]).calledOnce);
       requestStub.restore();
     });
   });

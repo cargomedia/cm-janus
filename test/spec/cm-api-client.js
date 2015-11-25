@@ -6,7 +6,7 @@ var serviceLocator = require('../../lib/service-locator');
 
 var CmApiClient = require('../../lib/cm-api-client');
 
-describe('CmApiClient Unit tests', function() {
+describe('CmApiClient spec tests', function() {
 
   this.timeout(2000);
 
@@ -37,7 +37,7 @@ describe('CmApiClient Unit tests', function() {
     var url = 'http://localhost:8080';
     var action = 'publish';
     var apiKey = 'test';
-    var params = ['streamChannelKey', 'streamKey', 0, 'data'];
+    var params = ['streamChannelKey', 'streamKey', 0, 'sessionData', 'data'];
 
     mockRequest(url, action, apiKey, params);
 
