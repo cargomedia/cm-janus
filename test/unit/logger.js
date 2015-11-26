@@ -8,9 +8,10 @@ var rimraf = require('rimraf');
 
 var Logger = require('../../lib/logger');
 
-var globalTmpDir = path.join(__dirname, '/tmp');
-
 describe('Logger', function() {
+
+  var globalTmpDir = path.join(__dirname, '/tmp');
+
   /**
    * @type {string}
    */
@@ -34,9 +35,7 @@ describe('Logger', function() {
   });
 
   after(function(done) {
-    rimraf(globalTmpDir, function(err) {
-      done(err);
-    });
+    rimraf(globalTmpDir, done);
   });
 
   beforeEach(function() {
