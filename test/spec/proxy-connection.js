@@ -1,6 +1,10 @@
 var _ = require('underscore');
-var assert = require('chai').assert;
-var expect = require('chai').expect;
+var chai = require('chai');
+var assert = chai.assert;
+var expect = chai.expect;
+var chaiAsPromised = require("chai-as-promised");
+chai.use(chaiAsPromised);
+
 var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
@@ -111,6 +115,27 @@ describe('ProxyConnection', function() {
       });
     });
   });
+
+  context('when processes session-related message', function() {
+    var message = {
+      janus: 'event',
+      sessionId: 'session-id'
+    };
+
+    it('should proxy message to session', function() {
+      var session = sinon.createStubInstance(Session);
+      session.processMessage.returns(Promise.resolve());
+      session.id = 'session-id';
+      connection.sessions.add(session);
+
+      connection.processMessage(message);
+      assert(session.processMessage.withArgs(message).calledOnce);
+    });
+
+    it('should reject on non-existing session', function() {
+      expect(connection.processMessage(message)).to.be.eventually.rejectedWith(JanusError.Error);
+    });
+});
 
   context('when closes', function() {
     var streams;

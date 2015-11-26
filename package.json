@@ -23,6 +23,7 @@
   "dependencies": {
     "bluebird": "~3.0.0",
     "body-parser": "^1.14.1",
+    "chai-as-promised": "^5.1.0",
     "express": "^4.13.3",
     "inotify": "^1.4.0",
     "js-yaml": "^3.4.3",
@@ -35,7 +36,7 @@
     "ws": "~0.8.0"
   },
   "devDependencies": {
-    "chai": "~1.9.1",
+    "chai": "~2.1.2",
     "codecov.io": "^0.1.6",
     "istanbul": "^0.4.0",
     "mocha": "~1.21.4",
