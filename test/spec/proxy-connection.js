@@ -1,5 +1,6 @@
 var _ = require('underscore');
 var assert = require('chai').assert;
+var expect = require('chai').expect;
 var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
@@ -9,208 +10,177 @@ var JanusError = require('../../lib/janus-error');
 var ProxyConnection = require('../../lib/proxy-connection');
 var BrowserConnection = require('../../lib/browser-connection');
 var JanusConnection = require('../../lib/janus-connection');
+var Transactions = require('../../lib/transactions');
 var PluginVideo = require('../../lib/plugin/video');
 var Logger = require('../../lib/logger');
 var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
+var Session = require('../../lib/session');
 var CmApiClient = require('../../lib/cm-api-client');
 var serviceLocator = require('../../lib/service-locator');
 
-describe('ProxyConnection', function() {
 
-  before(function() {
-    serviceLocator.reset();
-    serviceLocator.register('logger', function() {
-      return new Logger();
-    });
-    serviceLocator.register('cm-api-client', function() {
-      var cmApiClient = new CmApiClient('http://localhost:8080', 'apiKey');
-      sinon.stub(cmApiClient, '_request', function() {
-        return Promise.resolve(true);
-      });
-      return cmApiClient;
-    });
-  });
+describe('ProxyConnection', function() {
+  var connection, browserConnection, janusConnection;
 
   beforeEach(function() {
-    serviceLocator.register('streams', function() {
-      return new Streams();
+    serviceLocator.register('logger', sinon.stub(new Logger));
+    browserConnection = sinon.createStubInstance(BrowserConnection);
+    janusConnection = sinon.createStubInstance(JanusConnection);
+    connection = new ProxyConnection(browserConnection, janusConnection);
+  });
+
+  it('should store janus and browser connections', function() {
+    expect(connection.browserConnection).to.be.equal(browserConnection);
+    expect(connection.janusConnection).to.be.equal(janusConnection);
+  });
+
+  it('should have empty sessions collection', function() {
+    expect(connection.sessions.size()).to.be.equal(0);
+  });
+
+  it('should have empty transactions collection', function() {
+    expect(connection.transactions).to.be.instanceOf(Transactions);
+    expect(_.size(connection.transactions.list)).to.be.equal(0);
+  });
+
+  context('when processes "create" message', function() {
+
+    beforeEach(function() {
+      var message = {
+        janus: 'create',
+        token: 'token'
+      };
+      sinon.spy(connection.transactions, 'add');
+      connection.processMessage(message);
+    });
+
+    it('transaction should be added', function() {
+      assert(connection.transactions.add.calledOnce);
+    });
+
+    it('on successful transaction response should add session', function() {
+      sinon.stub(connection.sessions, 'add');
+      var transactionCallback = connection.transactions.add.firstCall.args[1];
+      transactionCallback({
+        janus: 'success',
+        data: {
+          id: 'session-id'
+        }
+      });
+      assert(connection.sessions.add.calledOnce);
+      var session = connection.sessions.add.firstCall.args[0];
+      expect(session).to.be.instanceof(Session);
+      expect(session.id).to.be.equal('session-id');
+      expect(session.data).to.be.equal('token');
     });
   });
 
-  after(function() {
-    serviceLocator.reset();
-  });
+  context('when processes "destroy" message"', function() {
 
-  it('message processing. onCreate.', function() {
-    var proxy = new ProxyConnection();
-    var onCreateStub = sinon.stub(proxy, 'onCreate', function() {
-      return Promise.resolve();
+    beforeEach(function() {
+      var message = {
+        janus: 'destroy',
+        sessionId: 'session-id'
+      };
+      sinon.spy(connection.transactions, 'add');
+      connection.processMessage(message);
     });
-    var createRequest = {
-      janus: 'create',
-      token: 'token',
-      transaction: ProxyConnection.generateTransactionId()
-    };
-    proxy.processMessage(createRequest).then(function() {
-      assert(onCreateStub.calledOnce);
-      assert(onCreateStub.calledWith(createRequest));
+
+    it('transaction should be added', function() {
+      assert(connection.transactions.add.calledOnce);
     });
-  });
 
-  it('message processing. onDestroy.', function() {
-    var proxy = new ProxyConnection();
-    var onDestroyStub = sinon.stub(proxy, 'onDestroy', function() {
-      return Promise.resolve();
-    });
-    var destroyRequest = {
-      janus: 'destroy',
-      transaction: ProxyConnection.generateTransactionId()
-    };
-    proxy.processMessage(destroyRequest).then(function() {
-      assert(onDestroyStub.calledOnce);
-      assert(onDestroyStub.calledWith(destroyRequest));
-    });
-  });
-
-  it('message processing. onAttach.', function() {
-    var proxy = new ProxyConnection();
-
-    var onAttachStub = sinon.stub(proxy, 'onAttach', function() {
-      return Promise.resolve();
-    });
-    var attachRequest = {
-      janus: 'attach',
-      plugin: 'plugin',
-      transaction: ProxyConnection.generateTransactionId()
-    };
-    proxy.processMessage(attachRequest).then(function() {
-      assert(onAttachStub.calledOnce);
-      assert(onAttachStub.calledWith(attachRequest));
-    });
-  });
-
-  it('create/destroy session', function(done) {
-    ////////////////// create ////////////////////////
-    var proxy = new ProxyConnection();
-
-    var createRequest = {
-      janus: 'create',
-      token: 'token',
-      transaction: ProxyConnection.generateTransactionId()
-    };
-    var createResponse = {
-      janus: 'success',
-      data: {id: 'id'},
-      transaction: createRequest.transaction
-    };
-    proxy.processMessage(createRequest).then(function() {
-      proxy.processMessage(createResponse).then(function() {
-        assert.equal(proxy.sessionId, createResponse.data.id);
-        assert.equal(proxy.sessionData, createRequest.token);
-
-        ////////////////// destroy ////////////////////////
-        sinon.stub(proxy, 'close');
-        var destroyRequest = {
-          janus: 'destroy',
-          transaction: ProxyConnection.generateTransactionId()
-        };
-        var destroyResponse = {
-          transaction: destroyRequest.transaction
-        };
-
-        assert(!proxy.close.called);
-        proxy.processMessage(destroyRequest).then(function() {
-          proxy.processMessage(destroyResponse).then(function() {
-            assert(proxy.close.calledOnce);
-            done();
-          });
+    context('on successful transaction response', function() {
+      beforeEach(function() {
+        sinon.stub(connection, 'close');
+        sinon.stub(connection.sessions, 'removeById');
+        var transactionCallback = connection.transactions.add.firstCall.args[1];
+        transactionCallback({
+          janus: 'success'
         });
-      })
-    });
-  });
+      });
 
-  it('Attach plugin', function() {
-    var proxy = new ProxyConnection();
-    var attachRequest = {
-      janus: 'attach',
-      plugin: PluginVideo.TYPE,
-      transaction: ProxyConnection.generateTransactionId()
-    };
-    var attachResponse = {
-      janus: 'success',
-      data: {id: 'id'},
-      transaction: attachRequest.transaction
-    };
+      it('should remove session', function() {
+        assert(connection.sessions.removeById.calledOnce);
+        expect(connection.sessions.removeById.firstCall.args[0]).to.be.equal('session-id');
+      });
 
-    proxy.processMessage(attachRequest).then(function() {
-      proxy.processMessage(attachResponse).then(function() {
-        assert(proxy.getPlugin(attachResponse.data.id) instanceof PluginVideo);
+      it('should close connection', function() {
+        assert(connection.close.calledOnce);
       });
     });
   });
 
-  it('Attach illegal plugin', function(done) {
-    var browserConnection = {send: sinon.stub()};
-    var proxy = new ProxyConnection(browserConnection, null);
-    var pluginName = 'unknown';
-    var attachRequest = {
-      janus: 'attach',
-      plugin: pluginName,
-      transaction: ProxyConnection.generateTransactionId()
-    };
+  context('when closes', function() {
+    var streams;
+    beforeEach(function() {
+      streams = sinon.createStubInstance(Streams);
+      streams.findAllByConnection.returns([]);
+      serviceLocator.register('streams', streams);
 
-    proxy.processMessage(attachRequest).catch(function(error) {
-      assert(browserConnection.send.calledOnce);
-      var expected = new JanusError.IllegalPlugin(null).response.error.code;
-      assert.equal(error.response.error.code, expected);
-      done();
+      browserConnection.isOpened.returns(false);
+      janusConnection.isOpened.returns(false);
+
+      sinon.spy(connection.sessions, 'clear');
+      sinon.spy(connection.transactions, 'clear');
     });
-  });
 
-  it('stop stream', function(done) {
-    var pluginStub = {id: 'id', stream: {id: 'streamId'}};
-    var janusConnection = {
-      send: function(message) {
-        assert.equal(message['janus'], 'message');
-        assert.equal(message['body']['request'], 'stop');
-        assert.equal(message['handle_id'], pluginStub.id);
-        done();
-      }
-    };
-    var proxy = new ProxyConnection(null, janusConnection);
-
-    proxy.plugins[pluginStub.id] = pluginStub;
-    proxy.stopStream('streamId');
-  });
-
-  it('close connection', function(done) {
-    new WebSocketServer('ws://localhost:8081');
-    new WebSocketServer('ws://localhost:8082');
-    var browserSocket = new WebSocket('ws://localhost:8081');
-    var browserConnection = new BrowserConnection(browserSocket);
-    var janusSocket = new WebSocket('ws://localhost:8082');
-    var janusConnection = new BrowserConnection(janusSocket);
-
-    Promise.join(
-      new Promise(function(resolve) {
-        browserSocket.once('open', resolve)
-      }), new Promise(function(resolve) {
-        janusSocket.once('open', resolve)
-      }))
-      .then(function() {
-        assert.isTrue(browserConnection.isOpened());
-        assert.isTrue(janusConnection.isOpened());
-        var proxy = new ProxyConnection(browserConnection, janusConnection);
-        var stream = new Stream('id', null, proxy);
-        var streams = serviceLocator.get('streams');
-        streams.add(stream);
-        assert.equal(streams.findAllByConnection(proxy).length, 1);
-        proxy.close();
-        assert.isFalse(browserConnection.isOpened());
-        assert.isFalse(janusConnection.isOpened());
-        assert.equal(streams.findAllByConnection(proxy).length, 0);
-        done();
+    context('with open janusConnection', function() {
+      beforeEach(function() {
+        janusConnection.isOpened.returns(true);
+        connection.close();
       });
+
+      it('should close janusConnection', function() {
+        assert(janusConnection.close.calledOnce);
+      });
+
+      it('should remove janusConnection listeners', function() {
+        assert(janusConnection.removeAllListeners.calledOnce);
+        expect(janusConnection.removeAllListeners.firstCall.args[0]).to.be.equal('message');
+      });
+    });
+
+    context('with open browserConnection', function() {
+      beforeEach(function() {
+        browserConnection.isOpened.returns(true);
+        connection.close();
+      });
+
+      it('should close browserConnection', function() {
+        assert(browserConnection.close.calledOnce);
+      });
+
+      it('should remove browserConnection listeners', function() {
+        assert(browserConnection.removeAllListeners.calledOnce);
+        expect(browserConnection.removeAllListeners.firstCall.args[0]).to.be.equal('message');
+      });
+    });
+
+    it('should close all related streams', function() {
+      var cmApiClient = sinon.createStubInstance(CmApiClient);
+      serviceLocator.register('cm-api-client', cmApiClient);
+
+      var stream = sinon.createStubInstance(Stream);
+      stream.id = 'foo';
+      stream.channelName = 'bar';
+      streams.findAllByConnection.returns([stream]);
+
+      connection.close();
+      assert(streams.findAllByConnection.withArgs(connection).calledOnce);
+      assert(streams.remove.withArgs(stream).calledOnce);
+      expect(cmApiClient.removeStream.firstCall.args).to.be.deep.equal(['bar', 'foo']);
+    });
+
+    it('should clear sessions', function() {
+      connection.close();
+      assert(connection.sessions.clear.calledOnce);
+    });
+
+    it('should clear transactions', function() {
+      connection.close();
+      assert(connection.transactions.clear.calledOnce);
+    });
   });
 });
