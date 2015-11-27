@@ -7,6 +7,7 @@ var WebSocketServer = require('../helpers/websocket').Server;
 var WebSocket = require('../helpers/websocket').Client;
 var JanusError = require('../../lib/janus-error');
 var ProxyConnection = require('../../lib/proxy-connection');
+var Connection = require('../../lib/connection');
 var BrowserConnection = require('../../lib/browser-connection');
 var JanusConnection = require('../../lib/janus-connection');
 var PluginVideo = require('../../lib/plugin/video');
@@ -43,7 +44,7 @@ describe('ProxyConnection', function() {
   });
 
   it('message processing. onCreate.', function() {
-    var proxy = new ProxyConnection(sinon.createStubInstance(BrowserConnection), sinon.createStubInstance(JanusConnection));
+    var proxy = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
     var onCreateStub = sinon.stub(proxy, 'onCreate', function() {
       return Promise.resolve();
     });
@@ -59,7 +60,7 @@ describe('ProxyConnection', function() {
   });
 
   it('message processing. onDestroy.', function() {
-    var proxy = new ProxyConnection(sinon.createStubInstance(BrowserConnection), sinon.createStubInstance(JanusConnection));
+    var proxy = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
     var onDestroyStub = sinon.stub(proxy, 'onDestroy', function() {
       return Promise.resolve();
     });
@@ -74,7 +75,7 @@ describe('ProxyConnection', function() {
   });
 
   it('message processing. onAttach.', function() {
-    var proxy = new ProxyConnection(sinon.createStubInstance(BrowserConnection), sinon.createStubInstance(JanusConnection));
+    var proxy = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
 
     var onAttachStub = sinon.stub(proxy, 'onAttach', function() {
       return Promise.resolve();
@@ -92,7 +93,7 @@ describe('ProxyConnection', function() {
 
   it('create/destroy session', function(done) {
     ////////////////// create ////////////////////////
-    var proxy = new ProxyConnection(sinon.createStubInstance(BrowserConnection), sinon.createStubInstance(JanusConnection));
+    var proxy = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
 
     var createRequest = {
       janus: 'create',
@@ -131,7 +132,7 @@ describe('ProxyConnection', function() {
   });
 
   it('Attach plugin', function() {
-    var proxy = new ProxyConnection(sinon.createStubInstance(BrowserConnection), sinon.createStubInstance(JanusConnection));
+    var proxy = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
     var attachRequest = {
       janus: 'attach',
       plugin: PluginVideo.TYPE,
@@ -151,7 +152,7 @@ describe('ProxyConnection', function() {
   });
 
   it('Attach illegal plugin', function(done) {
-    var proxy = new ProxyConnection(sinon.createStubInstance(BrowserConnection), sinon.createStubInstance(JanusConnection));
+    var proxy = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
     var pluginName = 'unknown';
     var attachRequest = {
       janus: 'attach',
@@ -169,14 +170,14 @@ describe('ProxyConnection', function() {
 
   it('stop stream', function(done) {
     var pluginStub = {id: 'id', stream: {id: 'streamId'}};
-    var janusConnection = sinon.createStubInstance(JanusConnection);
+    var janusConnection = sinon.createStubInstance(Connection);
     janusConnection.send = function(message) {
       assert.equal(message['janus'], 'message');
       assert.equal(message['body']['request'], 'stop');
       assert.equal(message['handle_id'], pluginStub.id);
       done();
     };
-    var proxy = new ProxyConnection(sinon.createStubInstance(BrowserConnection), janusConnection);
+    var proxy = new ProxyConnection(sinon.createStubInstance(Connection), janusConnection);
 
     proxy.plugins[pluginStub.id] = pluginStub;
     proxy.stopStream('streamId');
