@@ -4,6 +4,7 @@ var Promise = require('bluebird');
 require('../helpers/global-error-handler');
 var ProxyConnection = require('../../lib/proxy-connection');
 var PluginVideo = require('../../lib/plugin/video');
+var generateTransactionId = require('./util').generateTransactionId;
 
 var Logger = require('../../lib/logger');
 var CmApiClient = require('../../lib/cm-api-client');
@@ -42,7 +43,7 @@ describe('Video plugin', function() {
     var createRequest = {
       janus: 'message',
       body: {request: 'create'},
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: generateTransactionId()
     };
     plugin.processMessage(createRequest);
 
@@ -58,7 +59,7 @@ describe('Video plugin', function() {
     var watchRequest = {
       janus: 'message',
       body: {request: 'watch'},
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: generateTransactionId()
     };
     plugin.processMessage(watchRequest);
 
@@ -75,7 +76,7 @@ describe('Video plugin', function() {
       janus: 'message',
       body: {request: 'watch', id: 'streamId'},
       handle_id: plugin.id,
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: generateTransactionId()
     };
     var watchResponse = {
       janus: 'event',
@@ -103,7 +104,7 @@ describe('Video plugin', function() {
       janus: 'message',
       body: {request: 'watch', id: 'streamId'},
       handle_id: plugin.id,
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: generateTransactionId()
     };
     var watchResponse = {
       janus: 'event',
