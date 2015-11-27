@@ -32,7 +32,7 @@ httpServer:
   port: 8888 # port for incoming http api requests
   apiKey: '123fish' # token for authenticating incoming http request
 cmApi:
-  baseUrl: 'http://www.cm.dev' # cm-application address
+  baseUrl: 'http://www.cm.dev/rpc/null' # cm-application address
   apiKey: '123fish' # token for authentication, sent with each http request
 cmApplication:
   path: '/home/cm' # path to local cm application
