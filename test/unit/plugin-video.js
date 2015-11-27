@@ -3,6 +3,8 @@ var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
 var ProxyConnection = require('../../lib/proxy-connection');
+var BrowserConnection = require('../../lib/browser-connection');
+var JanusConnection = require('../../lib/janus-connection');
 var PluginVideo = require('../../lib/plugin/video');
 
 var Logger = require('../../lib/logger');
@@ -67,7 +69,7 @@ describe('Video plugin', function() {
   });
 
   it('watch stream', function(done) {
-    var proxyConnection = new ProxyConnection();
+    var proxyConnection = new ProxyConnection(sinon.createStubInstance(BrowserConnection), sinon.createStubInstance(JanusConnection));
     var plugin = new PluginVideo('id', 'type', proxyConnection);
     proxyConnection.plugins[plugin.id] = plugin;
 
@@ -95,7 +97,7 @@ describe('Video plugin', function() {
   });
 
   it('watch stream fail', function(done) {
-    var proxyConnection = new ProxyConnection();
+    var proxyConnection = new ProxyConnection(sinon.createStubInstance(BrowserConnection), sinon.createStubInstance(JanusConnection));
     var plugin = new PluginVideo('id', 'type', proxyConnection);
     proxyConnection.plugins[plugin.id] = plugin;
 
