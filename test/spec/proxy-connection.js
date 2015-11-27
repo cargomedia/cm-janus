@@ -9,14 +9,13 @@ var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
 var JanusError = require('../../lib/janus-error');
-var ProxyConnection = require('../../lib/proxy-connection');
-var BrowserConnection = require('../../lib/browser-connection');
-var JanusConnection = require('../../lib/janus-connection');
-var Transactions = require('../../lib/transactions');
+var ProxyConnection = require('../../lib/janus/proxy-connection');
+var Connection = require('../../lib/connection');
+var Transactions = require('../../lib/janus/transactions');
 var Logger = require('../../lib/logger');
 var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
-var Session = require('../../lib/session');
+var Session = require('../../lib/janus/session');
 var CmApiClient = require('../../lib/cm-api-client');
 var serviceLocator = require('../../lib/service-locator');
 
@@ -26,8 +25,8 @@ describe('ProxyConnection', function() {
 
   beforeEach(function() {
     serviceLocator.register('logger', sinon.stub(new Logger));
-    browserConnection = sinon.createStubInstance(BrowserConnection);
-    janusConnection = sinon.createStubInstance(JanusConnection);
+    browserConnection = sinon.createStubInstance(Connection);
+    janusConnection = sinon.createStubInstance(Connection);
     connection = new ProxyConnection(browserConnection, janusConnection);
   });
 
@@ -157,11 +156,6 @@ describe('ProxyConnection', function() {
       it('should close janusConnection', function() {
         assert(janusConnection.close.calledOnce);
       });
-
-      it('should remove janusConnection listeners', function() {
-        assert(janusConnection.removeAllListeners.calledOnce);
-        expect(janusConnection.removeAllListeners.firstCall.args[0]).to.be.equal('message');
-      });
     });
 
     context('with open browserConnection', function() {
@@ -172,11 +166,6 @@ describe('ProxyConnection', function() {
 
       it('should close browserConnection', function() {
         assert(browserConnection.close.calledOnce);
-      });
-
-      it('should remove browserConnection listeners', function() {
-        assert(browserConnection.removeAllListeners.calledOnce);
-        expect(browserConnection.removeAllListeners.firstCall.args[0]).to.be.equal('message');
       });
     });
 

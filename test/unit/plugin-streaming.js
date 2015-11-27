@@ -2,8 +2,8 @@ var assert = require('chai').assert;
 var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
-var ProxyConnection = require('../../lib/proxy-connection');
-var PluginStreaming = require('../../lib/plugin/streaming');
+var ProxyConnection = require('../../lib/janus/proxy-connection');
+var PluginStreaming = require('.././streaming');
 var generateTransactionId = require('./util').generateTransactionId;
 
 var Logger = require('../../lib/logger');

@@ -12,7 +12,7 @@ var HttpServer = require('../../lib/http-server');
 var Logger = require('../../lib/logger');
 var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
-var PluginStreaming = require('../../lib/plugin/streaming');
+var PluginStreaming = require('.././streaming');
 var serviceLocator = require('../../lib/service-locator');
 
 var port = 8811;

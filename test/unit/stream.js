@@ -4,7 +4,7 @@ var sinon = require('sinon');
 require('../helpers/global-error-handler');
 
 var Stream = require('../../lib/stream');
-var PluginStreaming = require('../../lib/plugin/streaming');
+var PluginStreaming = require('.././streaming');
 
 describe('Stream', function() {
 

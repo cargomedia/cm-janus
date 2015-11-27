@@ -3,9 +3,9 @@ var assert = require('chai').assert;
 var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
-var Session = require('../../lib/session');
-var ProxyConnection = require('../../lib/proxy-connection');
-var PluginAudio = require('../../lib/plugin/audio');
+var Session = require('../../lib/janus/session');
+var ProxyConnection = require('../../lib/janus/proxy-connection');
+var PluginAudio = require('.././audio');
 
 var generateTransactionId = require('./util').generateTransactionId;
 var Logger = require('../../lib/logger');

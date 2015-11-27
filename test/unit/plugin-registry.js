@@ -1,8 +1,8 @@
 var assert = require('chai').assert;
 var util = require('util');
 require('../helpers/global-error-handler');
-var PluginAbstract = require('../../lib/plugin/abstract');
-var PluginRegistry = require('../../lib/plugin/plugin-registry');
+var PluginAbstract = require('.././abstract');
+var PluginRegistry = require('.././plugin-registry');
 
 describe('Plugin registry', function() {
 

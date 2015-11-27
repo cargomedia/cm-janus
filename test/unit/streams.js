@@ -1,7 +1,7 @@
 var assert = require('chai').assert;
 var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
-var ProxyConnection = require('../../lib/proxy-connection');
+var ProxyConnection = require('../../lib/janus/proxy-connection');
 var sinon = require('sinon');
 var _ = require('underscore');
 
