@@ -5,19 +5,19 @@ var expect = chai.expect;
 var chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
 
+
 var sinon = require('sinon');
 var Promise = require('bluebird');
-require('../helpers/global-error-handler');
-var JanusError = require('../../lib/janus-error');
-var ProxyConnection = require('../../lib/janus/proxy-connection');
-var Connection = require('../../lib/connection');
-var Transactions = require('../../lib/janus/transactions');
-var Logger = require('../../lib/logger');
-var Stream = require('../../lib/stream');
-var Streams = require('../../lib/streams');
-var Session = require('../../lib/janus/session');
-var CmApiClient = require('../../lib/cm-api-client');
-var serviceLocator = require('../../lib/service-locator');
+require('../../helpers/global-error-handler');
+var JanusConnection = require('../../../lib/janus/connection');
+var WebSocketConnection = require('../../../lib/web-socket-connection');
+var Transactions = require('../../../lib/janus/transactions');
+var Logger = require('../../../lib/logger');
+var Stream = require('../../../lib/stream');
+var Streams = require('../../../lib/streams');
+var Session = require('../../../lib/janus/session');
+var CmApiClient = require('../../../lib/cm-api-client');
+var serviceLocator = require('../../../lib/service-locator');
 
 
 describe('ProxyConnection', function() {
@@ -25,9 +25,9 @@ describe('ProxyConnection', function() {
 
   beforeEach(function() {
     serviceLocator.register('logger', sinon.stub(new Logger));
-    browserConnection = sinon.createStubInstance(Connection);
-    janusConnection = sinon.createStubInstance(Connection);
-    connection = new ProxyConnection(browserConnection, janusConnection);
+    browserConnection = sinon.createStubInstance(WebSocketConnection);
+    janusConnection = sinon.createStubInstance(WebSocketConnection);
+    connection = new JanusConnection(browserConnection, janusConnection);
   });
 
   it('should store janus and browser connections', function() {
@@ -52,7 +52,7 @@ describe('ProxyConnection', function() {
         token: 'token'
       };
       sinon.spy(connection.transactions, 'add');
-      connection.processMessage(message);
+      connection.processRequest(message);
     });
 
     it('transaction should be added', function() {
@@ -84,7 +84,7 @@ describe('ProxyConnection', function() {
         sessionId: 'session-id'
       };
       sinon.spy(connection.transactions, 'add');
-      connection.processMessage(message);
+      connection.processRequest(message);
     });
 
     it('transaction should be added', function() {
@@ -120,16 +120,16 @@ describe('ProxyConnection', function() {
 
     it('should proxy message to session', function() {
       var session = sinon.createStubInstance(Session);
-      session.processMessage.returns(Promise.resolve());
+      session.processRequest.returns(Promise.resolve());
       session.id = 'session-id';
       connection.sessions.add(session);
 
-      connection.processMessage(message);
-      assert(session.processMessage.withArgs(message).calledOnce);
+      connection.processRequest(message);
+      assert(session.processRequest.withArgs(message).calledOnce);
     });
 
-    it('should reject on non-existing session', function() {
-      expect(connection.processMessage(message)).to.be.eventually.rejectedWith(JanusError.Error);
+    it('should reject on non-existing session', function(done) {
+      expect(connection.processRequest(message)).to.be.eventually.rejectedWith(Error, '`session-id` not found').and.notify(done);
     });
 });
 
