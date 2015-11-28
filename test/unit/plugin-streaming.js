@@ -2,8 +2,9 @@ var assert = require('chai').assert;
 var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
-var ProxyConnection = require('../../lib/proxy-connection');
-var PluginStreaming = require('../../lib/plugin/streaming');
+var ProxyConnection = require('../../lib/janus/proxy-connection');
+var PluginStreaming = require('.././streaming');
+var generateTransactionId = require('./util').generateTransactionId;
 
 var Logger = require('../../lib/logger');
 var CmApiClient = require('../../lib/cm-api-client');
@@ -42,7 +43,7 @@ describe('Streaming plugin', function() {
     });
     var webrtcupRequest = {
       janus: 'webrtcup',
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: generateTransactionId()
     };
     plugin.processMessage(webrtcupRequest);
 
@@ -57,7 +58,7 @@ describe('Streaming plugin', function() {
     });
     var hangupRequest = {
       janus: 'hangup',
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: generateTransactionId()
     };
     plugin.processMessage(hangupRequest);
 
@@ -66,7 +67,7 @@ describe('Streaming plugin', function() {
 
     var detachRequest = {
       janus: 'detach',
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: generateTransactionId()
     };
     plugin.processMessage(detachRequest);
 
@@ -83,7 +84,7 @@ describe('Streaming plugin', function() {
       janus: 'message',
       body: {request: 'create', id: 'streamId', channelData: 'channelData'},
       handle_id: plugin.id,
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: generateTransactionId()
     };
     var createResponse = {
       janus: 'event',
@@ -112,7 +113,7 @@ describe('Streaming plugin', function() {
       janus: 'message',
       body: {request: 'create', id: 'streamId'},
       handle_id: plugin.id,
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: generateTransactionId()
     };
     var createResponse = {
       janus: 'event',
@@ -139,7 +140,7 @@ describe('Streaming plugin', function() {
     var webrtcupRequest = {
       janus: 'webrtcup',
       sender: plugin.id,
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: generateTransactionId()
     };
 
     plugin.stream = new Stream('id', 'channelName', proxyConnection);

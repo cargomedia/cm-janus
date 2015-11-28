@@ -4,25 +4,25 @@ var sinon = require('sinon');
 require('../helpers/global-error-handler');
 
 var Stream = require('../../lib/stream');
-var ProxyConnection = require('../../lib/proxy-connection');
+var PluginStreaming = require('.././streaming');
 
-describe('Transactions', function() {
+describe('Stream', function() {
 
   it('constructor', function() {
-    var proxyConnection = sinon.createStubInstance(ProxyConnection);
-    var stream = new Stream('foo', 'bar', proxyConnection);
+    var plugin = sinon.createStubInstance(PluginStreaming);
+    var stream = new Stream('foo', 'bar', plugin);
 
     assert.strictEqual(stream.id, 'foo');
     assert.strictEqual(stream.channelName, 'bar');
-    assert.strictEqual(stream.proxyConnection, proxyConnection);
+    assert.strictEqual(stream.plugin, plugin);
   });
 
   it('generate', function() {
-    var proxyConnection = sinon.createStubInstance(ProxyConnection);
-    var stream = Stream.generate('foo', proxyConnection);
+    var plugin = sinon.createStubInstance(PluginStreaming);
+    var stream = Stream.generate('foo', plugin);
 
     assert.strictEqual(_.isString(stream.id), true);
     assert.strictEqual(stream.channelName, 'foo');
-    assert.strictEqual(stream.proxyConnection, proxyConnection);
+    assert.strictEqual(stream.plugin, plugin);
   });
 });
