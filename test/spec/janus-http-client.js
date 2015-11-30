@@ -50,6 +50,14 @@ describe('JanusHttpClient spec tests', function() {
       });
     });
 
+    it('xhr error', function(done) {
+      var client = new JanusHttpClient('http://invalid.url');
+      client.stopStream(sessionId, pluginId).catch(function(error) {
+        assert.include(error.message, 'ENOTFOUND');
+        done();
+      });
+    });
+
     it('general error', function(done) {
       var response = {
         janus: 'error',
