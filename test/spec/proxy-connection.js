@@ -1,12 +1,19 @@
 var _ = require('underscore');
 var assert = require('chai').assert;
 var sinon = require('sinon');
-var EventEmitter = require('events');
+var Promise = require('bluebird');
 require('../helpers/global-error-handler');
+var WebSocketServer = require('../helpers/websocket').Server;
+var WebSocket = require('../helpers/websocket').Client;
 var JanusError = require('../../lib/janus-error');
 var ProxyConnection = require('../../lib/proxy-connection');
-var PluginStreaming = require('../../lib/plugin/streaming');
+var BrowserConnection = require('../../lib/browser-connection');
+var JanusConnection = require('../../lib/janus-connection');
+var PluginVideo = require('../../lib/plugin/video');
 var Logger = require('../../lib/logger');
+var Stream = require('../../lib/stream');
+var Streams = require('../../lib/streams');
+var CmApiClient = require('../../lib/cm-api-client');
 var serviceLocator = require('../../lib/service-locator');
 
 describe('ProxyConnection', function() {
@@ -16,8 +23,18 @@ describe('ProxyConnection', function() {
     serviceLocator.register('logger', function() {
       return new Logger();
     });
+    serviceLocator.register('cm-api-client', function() {
+      var cmApiClient = new CmApiClient('http://localhost:8080', 'apiKey');
+      sinon.stub(cmApiClient, '_request', function() {
+        return Promise.resolve(true);
+      });
+      return cmApiClient;
+    });
+  });
+
+  beforeEach(function() {
     serviceLocator.register('streams', function() {
-      return new EventEmitter;
+      return new Streams();
     });
   });
 
@@ -115,10 +132,9 @@ describe('ProxyConnection', function() {
 
   it('Attach plugin', function() {
     var proxy = new ProxyConnection();
-    var pluginName = _.invert(ProxyConnection.pluginTypes)[PluginStreaming];
     var attachRequest = {
       janus: 'attach',
-      plugin: pluginName,
+      plugin: PluginVideo.TYPE,
       transaction: ProxyConnection.generateTransactionId()
     };
     var attachResponse = {
@@ -129,12 +145,12 @@ describe('ProxyConnection', function() {
 
     proxy.processMessage(attachRequest).then(function() {
       proxy.processMessage(attachResponse).then(function() {
-        assert(proxy.getPlugin(attachResponse.data.id) instanceof PluginStreaming);
+        assert(proxy.getPlugin(attachResponse.data.id) instanceof PluginVideo);
       });
     });
   });
 
-  it('Attach illegal plugin', function() {
+  it('Attach illegal plugin', function(done) {
     var browserConnection = {send: sinon.stub()};
     var proxy = new ProxyConnection(browserConnection, null);
     var pluginName = 'unknown';
@@ -148,6 +164,7 @@ describe('ProxyConnection', function() {
       assert(browserConnection.send.calledOnce);
       var expected = new JanusError.IllegalPlugin(null).response.error.code;
       assert.equal(error.response.error.code, expected);
+      done();
     });
   });
 
@@ -165,5 +182,35 @@ describe('ProxyConnection', function() {
 
     proxy.plugins[pluginStub.id] = pluginStub;
     proxy.stopStream('streamId');
+  });
+
+  it('close connection', function(done) {
+    new WebSocketServer('ws://localhost:8081');
+    new WebSocketServer('ws://localhost:8082');
+    var browserSocket = new WebSocket('ws://localhost:8081');
+    var browserConnection = new BrowserConnection(browserSocket);
+    var janusSocket = new WebSocket('ws://localhost:8082');
+    var janusConnection = new BrowserConnection(janusSocket);
+
+    Promise.join(
+      new Promise(function(resolve) {
+        browserSocket.once('open', resolve)
+      }), new Promise(function(resolve) {
+        janusSocket.once('open', resolve)
+      }))
+      .then(function() {
+        assert.isTrue(browserConnection.isOpened());
+        assert.isTrue(janusConnection.isOpened());
+        var proxy = new ProxyConnection(browserConnection, janusConnection);
+        var stream = new Stream('id', null, proxy);
+        var streams = serviceLocator.get('streams');
+        streams.add(stream);
+        assert.equal(streams.findAllByConnection(proxy).length, 1);
+        proxy.close();
+        assert.isFalse(browserConnection.isOpened());
+        assert.isFalse(janusConnection.isOpened());
+        assert.equal(streams.findAllByConnection(proxy).length, 0);
+        done();
+      });
   });
 });
