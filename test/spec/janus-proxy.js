@@ -7,7 +7,7 @@ var Logger = require('../../lib/logger');
 var Streams = require('../../lib/streams');
 var serviceLocator = require('../../lib/service-locator');
 
-describe.only('JanusProxy', function() {
+describe('JanusProxy', function() {
 
   before(function() {
     serviceLocator.reset();
@@ -19,29 +19,26 @@ describe.only('JanusProxy', function() {
     });
   });
 
-  beforeEach(function() {
-    this.janusPort = 8889;
-    this.server = new WebSocket.Server({port: this.janusPort});
-    this.proxyPort = 8883;
-    this.proxy = new JanusProxy(this.proxyPort, 'http://localhost:' + this.janusPort);
-  });
-
   after(function() {
     serviceLocator.reset();
   });
 
   it('start/stop proxy', function(done) {
-    var self = this;
-    this.server.on('connection', function() {
-      assert.equal(_.size(self.proxy._connections), 1);
-      self.proxy.stop();
-      assert.equal(_.size(self.proxy._connections), 0);
+    var janusPort = 8889;
+    var janusServer = new WebSocket.Server({port: janusPort});
+    var proxyPort = 8883;
+    var proxy = new JanusProxy(proxyPort, 'http://localhost:' + janusPort);
+
+    janusServer.on('connection', function() {
+      assert.equal(_.size(proxy._connections), 1);
+      proxy.stop();
+      assert.equal(_.size(proxy._connections), 0);
       done();
     });
 
-    this.proxy.start();
-    assert.equal(_.size(this.proxy._connections), 0);
+    proxy.start();
+    assert.equal(_.size(proxy._connections), 0);
 
-    new WebSocket('ws://localhost:' + this.proxyPort);
+    new WebSocket('ws://localhost:' + proxyPort);
   });
 });
