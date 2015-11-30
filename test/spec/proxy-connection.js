@@ -7,8 +7,7 @@ var WebSocketServer = require('../helpers/websocket').Server;
 var WebSocket = require('../helpers/websocket').Client;
 var JanusError = require('../../lib/janus-error');
 var ProxyConnection = require('../../lib/proxy-connection');
-var BrowserConnection = require('../../lib/browser-connection');
-var JanusConnection = require('../../lib/janus-connection');
+var Connection = require('../../lib/connection');
 var PluginVideo = require('../../lib/plugin/video');
 var Logger = require('../../lib/logger');
 var Stream = require('../../lib/stream');
@@ -188,9 +187,9 @@ describe('ProxyConnection', function() {
     new WebSocketServer('ws://localhost:8081');
     new WebSocketServer('ws://localhost:8082');
     var browserSocket = new WebSocket('ws://localhost:8081');
-    var browserConnection = new BrowserConnection(browserSocket);
+    var browserConnection = new Connection('browser', browserSocket);
     var janusSocket = new WebSocket('ws://localhost:8082');
-    var janusConnection = new BrowserConnection(janusSocket);
+    var janusConnection = new Connection('janus', janusSocket);
 
     Promise.join(
       new Promise(function(resolve) {
