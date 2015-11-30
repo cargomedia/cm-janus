@@ -2,9 +2,11 @@ logPath: 'log/app.log'
 httpServer:
   port: 8888
   apiKey: '123fish'
-proxy:
-  listenPort: 8188
-  janusAddress: 'ws://198.23.87.26:8188/janus'
+webSocketServer:
+  port: 8188
+janus:
+  webSocketAddress: 'ws://198.23.87.26:8188/janus'
+  httpAddress: 'http://198.23.87.26:8188/janus'
 cmApi:
   baseUrl: 'http://www.cm.dev/rpc/null'
   apiKey: '123fish'
