@@ -17,6 +17,7 @@ serviceLocator.register('logger', function() {
 describe('JobManager', function() {
 
   var globalTmpDir = path.join(__dirname, '/tmp');
+  var tempJobsHandlerDir =  path.join(globalTmpDir, '/job-handlers/');
 
   function randomString() {
     return Math.random().toString(36).substring(2, 10);
@@ -68,7 +69,7 @@ describe('JobManager', function() {
       testJobHandler.getPlugin = sinon.stub().returns(jobData['plugin']);
       testJobHandler.getEvent = sinon.stub().returns(jobData['event']);
 
-      var manager = new JobManager(tmpDirPath, [testJobHandler]);
+      var manager = new JobManager(tmpDirPath, tempJobsHandlerDir, [testJobHandler]);
       manager.start();
 
       createJobFile(tmpDirPath, jobData).then(function(jobFilepath) {
