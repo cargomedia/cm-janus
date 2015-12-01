@@ -1,4 +1,4 @@
-cm-janus [![Build Status](https://travis-ci.org/cargomedia/cm-janus.png?branch=master)](https://travis-ci.org/cargomedia/cm-janus)
+cm-janus [![Build Status](https://travis-ci.org/cargomedia/cm-janus.svg?branch=master)](https://travis-ci.org/cargomedia/cm-janus) [![codecov.io](https://codecov.io/github/cargomedia/cm-janus/coverage.svg?branch=master)](https://codecov.io/github/cargomedia/cm-janus?branch=master)
 ========
 
 ## About
@@ -32,10 +32,11 @@ httpServer:
   port: 8888 # port for incoming http api requests
   apiKey: '123fish' # token for authenticating incoming http request
 cmApi:
-  baseUrl: 'http://www.cm.dev' # cm-application address
+  baseUrl: 'http://www.cm.dev/rpc/null' # cm-application address
   apiKey: '123fish' # token for authentication, sent with each http request
 cmApplication:
   path: '/home/cm' # path to local cm application
 jobManager:
   jobsPath: '/tmp/jobs' # place where job definitions are stored
 ```
+
