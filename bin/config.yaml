@@ -12,3 +12,4 @@ cmApplication:
   path: '/home/cm'
 jobManager:
   jobsPath: '/tmp'
+  tempFilesPath: '/tmp/cm-janus/temp-job-handlers/'

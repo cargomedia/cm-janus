@@ -29,6 +29,7 @@
     "jsonschema": "^1.0.2",
     "minilog": "^2.1.0",
     "minimist": "^1.2.0",
+    "mkdirp": "^0.5.1",
     "node-uuid": "^1.4.3",
     "request-promise": "^1.0.2",
     "underscore": "^1.8.3",
