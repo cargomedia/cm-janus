@@ -12,8 +12,8 @@ var HttpServer = require('../../lib/http-server');
 var Logger = require('../../lib/logger');
 var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
-var PluginStreaming = require('../../lib/plugin/streaming');
 var serviceLocator = require('../../lib/service-locator');
+var JanusHttpClient = require('../../lib/janus-http-client');
 
 var port = 8811;
 var apiKey = 'foo-fish';
@@ -75,16 +75,23 @@ describe('HttpServer', function() {
       });
 
       context('on valid stream', function() {
-        var plugin;
+        var janusHttpClient;
 
         before(function() {
-          plugin = sinon.createStubInstance(PluginStreaming);
+          janusHttpClient = sinon.createStubInstance(JanusHttpClient);
+          serviceLocator.register('janus-http-client', janusHttpClient);
+          var plugin = {
+            id: 'plugin-id',
+            proxyConnection: {
+              sessionId: 'session-id'
+            }
+          };
           var stream = new Stream('stream-id', 'channel-name', plugin);
           streams.add(stream);
         });
 
         it('should return error on failure close', function(done) {
-          plugin.stopStream = function() {
+          janusHttpClient.stopStream = function() {
             return Promise.reject(new Error('Cannot close'))
           };
           var response = authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'});
@@ -92,7 +99,7 @@ describe('HttpServer', function() {
         });
 
         it('should return success on successful close', function(done) {
-          plugin.stopStream = function() {
+          janusHttpClient.stopStream = function() {
             return Promise.resolve();
           };
           var response = authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'});
