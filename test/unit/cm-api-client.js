@@ -44,20 +44,18 @@ describe('CmApiClient unit tests', function() {
     });
 
     it('works with successful response', function(done) {
-      var requestPromiseMock = sinon.stub(cmHttpClient, '_httpClient').returns(
-        function(options) {
-          assert.deepEqual(options, {
-            method: 'POST',
-            uri: baseUri,
-            body: {
-              method: 'CM_Janus_RpcEndpoints.' + action,
-              params: [apiKey].concat(sentData)
-            },
-            json: true
-          }, 'invoked with proper params');
-          return Promise.resolve({body: 'body', success: {result: 'quux'}});
-        }
-      );
+      var requestPromiseMock = sinon.stub(cmHttpClient, '_requestPromise', function(options) {
+        assert.deepEqual(options, {
+          method: 'POST',
+          uri: baseUri,
+          body: {
+            method: 'CM_Janus_RpcEndpoints.' + action,
+            params: [apiKey].concat(sentData)
+          },
+          json: true
+        }, 'invoked with proper params');
+        return Promise.resolve({body: 'body', success: {result: 'quux'}});
+      });
 
       cmHttpClient._request(action, sentData).then(function(res) {
         assert.strictEqual(res, 'quux');
@@ -68,11 +66,9 @@ describe('CmApiClient unit tests', function() {
     });
 
     it('works with response with error', function(done) {
-      var requestPromiseMock = sinon.stub(cmHttpClient, '_httpClient').returns(
-        function() {
-          return Promise.resolve({body: 'bodyErr', error: {msg: 'disaster'}});
-        }
-      );
+      var requestPromiseMock = sinon.stub(cmHttpClient, '_requestPromise', function() {
+        return Promise.resolve({body: 'bodyErr', error: {msg: 'disaster'}});
+      });
 
       cmHttpClient._request(action, sentData).catch(function(err) {
         assert.instanceOf(err, Error);
@@ -84,11 +80,9 @@ describe('CmApiClient unit tests', function() {
     });
 
     it('works with completely failed request', function(done) {
-      var requestPromiseMock = sinon.stub(cmHttpClient, '_httpClient').returns(
-        function() {
-          return Promise.reject(new Error('request failed'));
-        }
-      );
+      var requestPromiseMock = sinon.stub(cmHttpClient, '_requestPromise', function() {
+        return Promise.reject(new Error('request failed'));
+      });
 
       cmHttpClient._request(action, sentData).catch(function(err) {
         assert.instanceOf(err, Error);
