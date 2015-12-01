@@ -94,16 +94,20 @@ describe('HttpServer', function() {
           janusHttpClient.stopStream = function() {
             return Promise.reject(new Error('Cannot close'))
           };
-          var response = authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'});
-          expect(response).to.eventually.have.property('error', 'Stream stop failed').and.eventually.notify(done);
+          authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
+            expect(response).to.have.property('error', 'Stream stop failed');
+            done();
+          }, done);
         });
 
         it('should return success on successful close', function(done) {
           janusHttpClient.stopStream = function() {
             return Promise.resolve();
           };
-          var response = authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'});
-          expect(response).to.eventually.have.property('success', 'Stream stopped').and.eventually.notify(done);
+          authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
+            expect(response).to.have.property('success', 'Stream stopped');
+            done();
+          }, done);
         });
       });
     });
