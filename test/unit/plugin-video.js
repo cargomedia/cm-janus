@@ -1,14 +1,13 @@
-var _ = require('underscore');
 var assert = require('chai').assert;
 var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
 var ProxyConnection = require('../../lib/proxy-connection');
+var Connection = require('../../lib/connection');
 var PluginVideo = require('../../lib/plugin/video');
 
 var Logger = require('../../lib/logger');
 var CmApiClient = require('../../lib/cm-api-client');
-var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
 var serviceLocator = require('../../lib/service-locator');
 
@@ -68,78 +67,8 @@ describe('Video plugin', function() {
     assert(onWatchStub.calledWith(watchRequest));
   });
 
-  it('message processing. onWebrtcup.', function() {
-    var plugin = new PluginVideo();
-    var onWebrtcupStub = sinon.stub(plugin, 'onWebrtcup', function() {
-      return Promise.resolve();
-    });
-    var webrtcupRequest = {
-      janus: 'webrtcup',
-      transaction: ProxyConnection.generateTransactionId()
-    };
-    plugin.processMessage(webrtcupRequest);
-
-    assert(onWebrtcupStub.calledOnce);
-    assert(onWebrtcupStub.calledWith(webrtcupRequest));
-  });
-
-  it('message processing. onHangup. onDetach', function() {
-    var plugin = new PluginVideo();
-    var onHangupStub = sinon.stub(plugin, 'onHangup', function() {
-      return Promise.resolve();
-    });
-    var hangupRequest = {
-      janus: 'hangup',
-      transaction: ProxyConnection.generateTransactionId()
-    };
-    plugin.processMessage(hangupRequest);
-
-    assert(onHangupStub.calledOnce);
-    assert(onHangupStub.calledWith(hangupRequest));
-
-    var detachRequest = {
-      janus: 'detach',
-      transaction: ProxyConnection.generateTransactionId()
-    };
-    plugin.processMessage(detachRequest);
-
-    assert(onHangupStub.calledTwice);
-    assert(onHangupStub.calledWith(detachRequest));
-  });
-
-  it('create stream', function(done) {
-    ////////////////// create ////////////////////////
-    var proxyConnection = new ProxyConnection();
-    var plugin = new PluginVideo('id', 'type', proxyConnection);
-    proxyConnection.plugins[plugin.id] = plugin;
-
-    var createRequest = {
-      janus: 'message',
-      body: {request: 'create', id: 'streamId'},
-      handle_id: plugin.id,
-      transaction: ProxyConnection.generateTransactionId()
-    };
-    var createResponse = {
-      janus: 'success',
-      data: {id: 'id'},
-      handle_id: plugin.id,
-      transaction: createRequest.transaction
-    };
-
-    proxyConnection.processMessage(createRequest).then(function() {
-      proxyConnection.processMessage(createResponse).then(function() {
-        assert.equal(plugin.stream.channelName, createRequest.body.id);
-        var connectionStreams = serviceLocator.get('streams').findAllByConnection(proxyConnection);
-        assert.equal(connectionStreams.length, 1);
-        assert.equal(connectionStreams[0].channelName, createRequest.body.id);
-        done();
-      });
-    });
-  });
-
   it('watch stream', function(done) {
-    ////////////////// create ////////////////////////
-    var proxyConnection = new ProxyConnection();
+    var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
     var plugin = new PluginVideo('id', 'type', proxyConnection);
     proxyConnection.plugins[plugin.id] = plugin;
 
@@ -151,6 +80,7 @@ describe('Video plugin', function() {
     };
     var watchResponse = {
       janus: 'event',
+      plugindata: {data: {status: 'preparing'}},
       sender: plugin.id,
       transaction: watchRequest.transaction
     };
@@ -165,24 +95,29 @@ describe('Video plugin', function() {
     });
   });
 
-  it('webrtcup', function(done) {
-    ////////////////// create ////////////////////////
-    var proxyConnection = new ProxyConnection();
+  it('watch stream fail', function(done) {
+    var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
     var plugin = new PluginVideo('id', 'type', proxyConnection);
     proxyConnection.plugins[plugin.id] = plugin;
 
-    var webrtcupRequest = {
-      janus: 'webrtcup',
-      sender: plugin.id,
+    var watchRequest = {
+      janus: 'message',
+      body: {request: 'watch', id: 'streamId'},
+      handle_id: plugin.id,
       transaction: ProxyConnection.generateTransactionId()
     };
+    var watchResponse = {
+      janus: 'event',
+      plugindata: {data: {error: 'error'}},
+      sender: plugin.id,
+      transaction: watchRequest.transaction
+    };
 
-    plugin.stream = new Stream('id', 'channelName', proxyConnection);
-    proxyConnection.processMessage(webrtcupRequest).then(function() {
-      var connectionStreams = serviceLocator.get('streams').findAllByConnection(proxyConnection);
-      assert.equal(connectionStreams.length, 1);
-      assert.equal(connectionStreams[0], plugin.stream);
-      done();
+    proxyConnection.processMessage(watchRequest).then(function() {
+      proxyConnection.processMessage(watchResponse).then(function() {
+        assert.isNull(plugin.stream);
+        done();
+      });
     });
   });
 
