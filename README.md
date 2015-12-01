@@ -40,5 +40,6 @@ cmApplication:
   path: '/home/cm' # path to local cm application
 jobManager:
   jobsPath: '/tmp/jobs' # place where job definitions are stored
+  tempFilesPath: '/tmp/jobs/temp-files/' # jobs handlers' temp files
 ```
 
