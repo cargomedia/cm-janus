@@ -19,6 +19,10 @@ describe('imports archive', function() {
     serviceLocator.register('cm-application', cmApplication);
   });
 
+  after(function() {
+    serviceLocator.reset();
+  });
+
   describe('given invalid jobData ', function() {
     it('with missing jobData.audio it should reject', function(done) {
       var jobData = {
