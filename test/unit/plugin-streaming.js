@@ -3,6 +3,7 @@ var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
 var ProxyConnection = require('../../lib/proxy-connection');
+var Connection = require('../../lib/connection');
 var PluginStreaming = require('../../lib/plugin/streaming');
 
 var Logger = require('../../lib/logger');
@@ -75,7 +76,7 @@ describe('Streaming plugin', function() {
   });
 
   it('create stream', function(done) {
-    var proxyConnection = new ProxyConnection();
+    var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
     var plugin = new PluginStreaming('id', 'type', proxyConnection);
     proxyConnection.plugins[plugin.id] = plugin;
 
@@ -104,7 +105,7 @@ describe('Streaming plugin', function() {
   });
 
   it('create stream fail', function(done) {
-    var proxyConnection = new ProxyConnection();
+    var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
     var plugin = new PluginStreaming('id', 'type', proxyConnection);
     proxyConnection.plugins[plugin.id] = plugin;
 
@@ -132,7 +133,7 @@ describe('Streaming plugin', function() {
   });
 
   it('webrtcup', function(done) {
-    var proxyConnection = new ProxyConnection();
+    var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
     var plugin = new PluginStreaming('id', 'type', proxyConnection);
     proxyConnection.plugins[plugin.id] = plugin;
 

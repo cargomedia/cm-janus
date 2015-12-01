@@ -4,6 +4,7 @@ var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
 var ProxyConnection = require('../../lib/proxy-connection');
+var Connection = require('../../lib/connection');
 var PluginAudio = require('../../lib/plugin/audio');
 
 var Logger = require('../../lib/logger');
@@ -41,7 +42,7 @@ describe('Audio plugin', function() {
   });
 
   it('join room', function(done) {
-    var proxyConnection = new ProxyConnection();
+    var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
     var plugin = new PluginAudio('id', 'type', proxyConnection);
     proxyConnection.plugins[plugin.id] = plugin;
 
@@ -69,7 +70,7 @@ describe('Audio plugin', function() {
   });
 
   it('join room fail', function(done) {
-    var proxyConnection = new ProxyConnection();
+    var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
     var plugin = new PluginAudio('id', 'type', proxyConnection);
     proxyConnection.plugins[plugin.id] = plugin;
 
