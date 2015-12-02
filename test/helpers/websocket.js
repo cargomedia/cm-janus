@@ -33,6 +33,10 @@ WebSocketClient.prototype.close = function() {
   this._webSocket.close();
 };
 
+WebSocketClient.prototype.terminate = function() {
+  this._webSocket.close();
+};
+
 module.exports = {
   Server: MockServer,
   Client: WebSocketClient
