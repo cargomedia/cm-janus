@@ -1,7 +1,7 @@
 {
   "name": "cm-janus",
   "description": "",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "author": "Cargomedia",
   "license": "MIT",
   "main": "",
@@ -36,7 +36,8 @@
     "ws": "~0.8.0"
   },
   "devDependencies": {
-    "chai": "~1.9.1",
+    "chai": "~2.1.2",
+    "chai-as-promised": "^5.1.0",
     "codecov.io": "^0.1.6",
     "istanbul": "^0.4.0",
     "mocha": "~1.21.4",
