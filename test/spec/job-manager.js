@@ -18,7 +18,7 @@ serviceLocator.register('logger', function() {
 describe('JobManager', function() {
 
   var globalTmpDir = path.join(__dirname, '/tmp');
-  var tempJobsHandlerDir =  path.join(globalTmpDir, '/job-handlers/');
+  var tempJobsHandlerDir = path.join(globalTmpDir, '/job-handlers/');
 
   function randomString() {
     return Math.random().toString(36).substring(2, 10);
@@ -102,7 +102,7 @@ describe('JobManager', function() {
       testJobHandler.getEvent = sinon.stub().returns(jobData['event']);
       var handlerStub = sinon.stub(testJobHandler, 'handle', function() {
         return Promise.delay(
-          2000,
+          1500,
           fs.writeFileAsync(tempJobFilename, 'foo bar', {encoding: 'utf8', flag: 'w'})
         );
       });
@@ -117,10 +117,12 @@ describe('JobManager', function() {
 
         setTimeout(function() {
           fs.accessSync(tempJobFilename);
+          assert.isTrue(handlerStub.calledOnce);
+          var handlerPromise = handlerStub.returnValues[0];
+          assert.isFalse(handlerPromise.isCancelled());
 
-          manager.stop().then(function () {
-            assert.isTrue(handlerStub.calledOnce);
-            assert.isTrue(handlerStub.returnValues[0].isCancelled());
+          manager.stop().then(function() {
+            assert.isTrue(handlerPromise.isCancelled());
 
             assert.throws(function() {
               fs.accessSync(tempJobFilename);
@@ -128,7 +130,7 @@ describe('JobManager', function() {
 
             done();
           });
-        }, 1000);
+        }, 500);
 
       });
     });
