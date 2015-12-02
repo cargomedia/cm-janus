@@ -96,13 +96,14 @@ describe('JobManager', function() {
     createLocalTmpDir().then(function(tmpDirPath) {
       var jobData = randomTestJobData();
       var tempJobFilename = tmp.tmpNameSync({dir: tempJobsHandlerDir});
+      var delayToStop = 500;
 
       var testJobHandler = new AbstractJobHandler();
       testJobHandler.getPlugin = sinon.stub().returns(jobData['plugin']);
       testJobHandler.getEvent = sinon.stub().returns(jobData['event']);
       var handlerStub = sinon.stub(testJobHandler, 'handle', function() {
         return Promise.delay(
-          1500,
+          delayToStop * 3,
           fs.writeFileAsync(tempJobFilename, 'foo bar', {encoding: 'utf8', flag: 'w'})
         );
       });
@@ -130,7 +131,7 @@ describe('JobManager', function() {
 
             done();
           });
-        }, 500);
+        }, delayToStop);
 
       });
     });
