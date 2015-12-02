@@ -5,6 +5,7 @@ var path = require('path');
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require("fs"));
 var rimraf = require('rimraf');
+var tmp = require('tmp');
 
 var JobManager = require('../../lib/job/manager');
 var AbstractJobHandler = require('../../lib/job/handler/abstract');
@@ -57,7 +58,9 @@ describe('JobManager', function() {
 
   after(function(done) {
     rimraf(globalTmpDir, function(err) {
-      done(err);
+      rimraf(tempJobsHandlerDir, function(err) {
+        done(err);
+      });
     });
   });
 
@@ -88,4 +91,47 @@ describe('JobManager', function() {
       });
     });
   });
+
+  it('cleanups after shutdown', function(done) {
+    createLocalTmpDir().then(function(tmpDirPath) {
+      var jobData = randomTestJobData();
+      var tempJobFilename = tmp.tmpNameSync({dir: tempJobsHandlerDir});
+
+      var testJobHandler = new AbstractJobHandler();
+      testJobHandler.getPlugin = sinon.stub().returns(jobData['plugin']);
+      testJobHandler.getEvent = sinon.stub().returns(jobData['event']);
+      var handlerStub = sinon.stub(testJobHandler, 'handle', function() {
+        return Promise.delay(
+          2000,
+          fs.writeFileAsync(tempJobFilename, 'foo bar', {encoding: 'utf8', flag: 'w'})
+        );
+      });
+
+      var manager = new JobManager(tmpDirPath, tempJobsHandlerDir, [testJobHandler]);
+      assert.throws(function() {
+        fs.accessSync(tempJobFilename);
+      });
+
+      manager.start();
+      createJobFile(tmpDirPath, jobData).then(function() {
+
+        setTimeout(function() {
+          fs.accessSync(tempJobFilename);
+
+          manager.stop().then(function () {
+            assert.isTrue(handlerStub.calledOnce);
+            assert.isTrue(handlerStub.returnValues[0].isCancelled());
+
+            assert.throws(function() {
+              fs.accessSync(tempJobFilename);
+            });
+
+            done();
+          });
+        }, 1000);
+
+      });
+    });
+  });
+
 });
