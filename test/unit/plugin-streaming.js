@@ -143,7 +143,7 @@ describe('Streaming plugin', function() {
       transaction: ProxyConnection.generateTransactionId()
     };
 
-    plugin.stream = new Stream('id', 'channelName', proxyConnection);
+    plugin.stream = new Stream('id', 'channelName', plugin);
     proxyConnection.processMessage(webrtcupRequest).then(function() {
       var connectionStreams = serviceLocator.get('streams').findAllByConnection(proxyConnection);
       assert.equal(connectionStreams.length, 1);

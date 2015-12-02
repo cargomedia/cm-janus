@@ -199,7 +199,7 @@ describe('ProxyConnection', function() {
         assert.isTrue(browserConnection.isOpened());
         assert.isTrue(janusConnection.isOpened());
         var proxy = new ProxyConnection(browserConnection, janusConnection);
-        var stream = new Stream('id', null, proxy);
+        var stream = new Stream('id', null, {proxyConnection: proxy});
         var streams = serviceLocator.get('streams');
         streams.add(stream);
         assert.equal(streams.findAllByConnection(proxy).length, 1);
