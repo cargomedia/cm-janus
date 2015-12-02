@@ -74,11 +74,11 @@ describe('streams', function() {
     var connection3 = sinon.createStubInstance(ProxyConnection);
 
     var stream1 = sinon.createStubInstance(Stream);
-    stream1.proxyConnection = connection1;
+    stream1.plugin = {proxyConnection: connection1};
     var stream2 = sinon.createStubInstance(Stream);
-    stream2.proxyConnection = connection3;
+    stream2.plugin = {proxyConnection: connection3};
     var stream3 = sinon.createStubInstance(Stream);
-    stream3.proxyConnection = connection1;
+    stream3.plugin = {proxyConnection: connection1};
     streams.list = {
       foo: stream1,
       bar: stream2,
