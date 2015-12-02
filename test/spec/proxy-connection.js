@@ -150,7 +150,11 @@ describe('ProxyConnection', function() {
   });
 
   it('Attach illegal plugin', function(done) {
-    var proxy = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
+    var browserConnection = new Connection('browser', sinon.createStubInstance(WebSocket));
+    sinon.stub(browserConnection, 'send', function() {
+      return Promise.resolve();
+    });
+    var proxy = new ProxyConnection(browserConnection, sinon.createStubInstance(Connection));
     var pluginName = 'unknown';
     var attachRequest = {
       janus: 'attach',
@@ -160,7 +164,7 @@ describe('ProxyConnection', function() {
 
     proxy.processMessage(attachRequest).catch(function(error) {
       assert(proxy.browserConnection.send.calledOnce);
-      var expected = new JanusError.IllegalPlugin(null).response.error.code;
+      var expected = new JanusError.IllegalPlugin(attachRequest.transaction).response.error.code;
       assert.equal(error.response.error.code, expected);
       done();
     });
