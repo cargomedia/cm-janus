@@ -82,7 +82,9 @@ describe('HttpServer', function() {
           var plugin = {
             id: 'plugin-id',
             proxyConnection: {
-              sessionId: 'session-id'
+              session: {
+                id: 'session-id'
+              }
             }
           };
           var stream = new Stream('stream-id', 'channel-name', plugin);
