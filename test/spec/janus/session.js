@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var libRequire = require('../../../lib/require');
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
@@ -8,13 +9,13 @@ var sinon = require('sinon');
 
 var Promise = require('bluebird');
 require('../../helpers/global-error-handler');
-var ProxyConnection = require('../../../lib/proxy-connection');
-var PluginRegistry = require('../../../lib/plugin/plugin-registry');
-var PluginAbstract = require('../../../lib/plugin/abstract');
-var Transactions = require('../../../lib/transactions');
-var Logger = require('../../../lib/logger');
-var Session = require('../../../lib/janus/session');
-var serviceLocator = require('../../../lib/service-locator');
+var ProxyConnection = libRequire('proxy-connection');
+var PluginRegistry = libRequire('plugin/plugin-registry');
+var PluginAbstract = libRequire('plugin/abstract');
+var Transactions = libRequire('transactions');
+var Logger = libRequire('logger');
+var Session = libRequire('janus/session');
+var serviceLocator = libRequire('service-locator');
 
 describe('Session', function() {
   var session, proxyConnection;
