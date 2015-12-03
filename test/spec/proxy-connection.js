@@ -121,7 +121,7 @@ describe('ProxyConnection', function() {
     });
 
     it('should reject on non-existing session', function(done) {
-      expect(connection._processMessage(message)).to.be.eventually.rejectedWith(Error, 'Invalid session').and.notify(done);
+      expect(connection.processMessage(message)).to.be.eventually.rejectedWith(Error, 'Invalid session').and.notify(done);
     });
   });
 
