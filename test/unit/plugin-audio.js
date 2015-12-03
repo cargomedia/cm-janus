@@ -5,7 +5,6 @@ var Promise = require('bluebird');
 require('../helpers/global-error-handler');
 var ProxyConnection = require('../../lib/proxy-connection');
 var Session = require('../../lib/janus/session');
-var Connection = require('../../lib/connection');
 var PluginAudio = require('../../lib/plugin/audio');
 
 var Logger = require('../../lib/logger');
