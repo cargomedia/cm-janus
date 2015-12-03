@@ -81,7 +81,7 @@ describe('HttpServer', function() {
           serviceLocator.register('janus-http-client', janusHttpClient);
           var plugin = {
             id: 'plugin-id',
-            proxyConnection: {
+            janusConnection: {
               sessionId: 'session-id'
             }
           };

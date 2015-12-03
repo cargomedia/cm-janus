@@ -8,7 +8,7 @@ var sinon = require('sinon');
 
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
-var ProxyConnection = require('../../lib/proxy-connection');
+var JanusConnection = require('../../lib/janus/connection');
 var Connection = require('../../lib/connection');
 var Transactions = require('../../lib/transactions');
 var Logger = require('../../lib/logger');
@@ -19,19 +19,19 @@ var CmApiClient = require('../../lib/cm-api-client');
 var serviceLocator = require('../../lib/service-locator');
 
 
-describe('ProxyConnection', function() {
+describe('JanusConnection', function() {
   var connection, browserConnection, janusConnection;
 
   beforeEach(function() {
     serviceLocator.register('logger', sinon.stub(new Logger));
     browserConnection = sinon.createStubInstance(Connection);
     janusConnection = sinon.createStubInstance(Connection);
-    connection = new ProxyConnection(browserConnection, janusConnection);
+    connection = new JanusConnection(browserConnection, janusConnection);
   });
 
   it('should store janus and browser connections', function() {
     expect(connection.browserConnection).to.be.equal(browserConnection);
-    expect(connection.janusConnection).to.be.equal(janusConnection);
+    expect(connection.connection).to.be.equal(janusConnection);
   });
 
   it('should have empty session', function() {

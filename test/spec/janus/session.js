@@ -9,7 +9,7 @@ var sinon = require('sinon');
 
 var Promise = require('bluebird');
 require('../../helpers/global-error-handler');
-var ProxyConnection = libRequire('proxy-connection');
+var JanusConnection = libRequire('janus/connection');
 var PluginRegistry = libRequire('plugin/plugin-registry');
 var PluginAbstract = libRequire('plugin/abstract');
 var Transactions = libRequire('transactions');
@@ -18,17 +18,17 @@ var Session = libRequire('janus/session');
 var serviceLocator = libRequire('service-locator');
 
 describe('Session', function() {
-  var session, proxyConnection;
+  var session, janusConnection;
 
   beforeEach(function() {
     serviceLocator.register('logger', sinon.stub(new Logger));
-    proxyConnection = new ProxyConnection();
-    session = new Session(proxyConnection, 'session-id', 'session-data');
+    janusConnection = new JanusConnection();
+    session = new Session(janusConnection, 'session-id', 'session-data');
     session.pluginRegistry = sinon.createStubInstance(PluginRegistry);
   });
 
   it('should store connection, id and data', function() {
-    expect(session.proxyConnection).to.be.equal(proxyConnection);
+    expect(session.connection).to.be.equal(janusConnection);
     expect(session.id).to.be.equal('session-id');
     expect(session.data).to.be.equal('session-data');
   });
@@ -45,25 +45,25 @@ describe('Session', function() {
         plugin: 'plugin-type',
         token: 'token'
       };
-      sinon.spy(proxyConnection.transactions, 'add');
+      sinon.spy(janusConnection.transactions, 'add');
       session.pluginRegistry.instantiatePlugin.returns('plugin-instance');
       session.pluginRegistry.isAllowedPlugin.returns(true);
       session.processMessage(message);
     });
 
     it('transaction should be added', function() {
-      assert(proxyConnection.transactions.add.calledOnce);
+      assert(janusConnection.transactions.add.calledOnce);
     });
 
     it('on successful transaction response should add session', function() {
-      var transactionCallback = proxyConnection.transactions.add.firstCall.args[1];
+      var transactionCallback = janusConnection.transactions.add.firstCall.args[1];
       transactionCallback({
         janus: 'success',
         data: {
           id: 'plugin-id'
         }
       });
-      assert(session.pluginRegistry.instantiatePlugin.withArgs('plugin-id', 'plugin-type', proxyConnection).calledOnce);
+      assert(session.pluginRegistry.instantiatePlugin.withArgs('plugin-id', 'plugin-type', janusConnection).calledOnce);
       expect(_.size(session.plugins)).to.be.equal(1);
       expect(session.plugins).to.have.property('plugin-id');
       expect(session.plugins['plugin-id']).to.be.equal('plugin-instance');
