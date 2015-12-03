@@ -3,6 +3,7 @@ var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
 var ProxyConnection = require('../../lib/proxy-connection');
+var Session = require('../../lib/janus/session');
 var Connection = require('../../lib/connection');
 var PluginVideo = require('../../lib/plugin/video');
 
@@ -69,8 +70,8 @@ describe('Video plugin', function() {
 
   it('watch stream', function(done) {
     var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
+    proxyConnection.session = new Session(proxyConnection, 'session-id', 'session-data');
     var plugin = new PluginVideo('id', 'type', proxyConnection);
-    proxyConnection.plugins[plugin.id] = plugin;
 
     var watchRequest = {
       janus: 'message',
@@ -85,8 +86,8 @@ describe('Video plugin', function() {
       transaction: watchRequest.transaction
     };
 
-    proxyConnection.processMessage(watchRequest).then(function() {
-      proxyConnection.processMessage(watchResponse).then(function() {
+    plugin.processMessage(watchRequest).then(function() {
+      proxyConnection.transactions.execute(watchRequest.transaction, watchResponse).then(function() {
         assert.equal(plugin.stream.channelName, watchRequest.body.id);
         var connectionStreams = serviceLocator.get('streams').findAllByConnection(proxyConnection);
         assert.equal(connectionStreams.length, 0);
@@ -97,8 +98,9 @@ describe('Video plugin', function() {
 
   it('watch stream fail', function(done) {
     var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
+    proxyConnection.session = new Session(proxyConnection, 'session-id', 'session-data');
+
     var plugin = new PluginVideo('id', 'type', proxyConnection);
-    proxyConnection.plugins[plugin.id] = plugin;
 
     var watchRequest = {
       janus: 'message',
@@ -113,8 +115,8 @@ describe('Video plugin', function() {
       transaction: watchRequest.transaction
     };
 
-    proxyConnection.processMessage(watchRequest).then(function() {
-      proxyConnection.processMessage(watchResponse).then(function() {
+    plugin.processMessage(watchRequest).then(function() {
+      proxyConnection.transactions.execute(watchRequest.transaction, watchResponse).then(function() {
         assert.isNull(plugin.stream);
         done();
       });

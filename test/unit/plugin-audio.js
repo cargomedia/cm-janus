@@ -4,6 +4,7 @@ var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
 var ProxyConnection = require('../../lib/proxy-connection');
+var Session = require('../../lib/janus/session');
 var Connection = require('../../lib/connection');
 var PluginAudio = require('../../lib/plugin/audio');
 
@@ -42,9 +43,9 @@ describe('Audio plugin', function() {
   });
 
   it('join room', function(done) {
-    var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
+    var proxyConnection = new ProxyConnection();
+    proxyConnection.session = new Session(proxyConnection, 'session-id', 'session-data');
     var plugin = new PluginAudio('id', 'type', proxyConnection);
-    proxyConnection.plugins[plugin.id] = plugin;
 
     var joinRequest = {
       janus: 'message',
@@ -59,8 +60,8 @@ describe('Audio plugin', function() {
       transaction: joinRequest.transaction
     };
 
-    proxyConnection.processMessage(joinRequest).then(function() {
-      proxyConnection.processMessage(joinResponse).then(function() {
+    plugin.processMessage(joinRequest).then(function() {
+      proxyConnection.transactions.execute(joinResponse.transaction, joinResponse).then(function() {
         assert.equal(plugin.stream.channelName, joinRequest.body.id);
         var connectionStreams = serviceLocator.get('streams').findAllByConnection(proxyConnection);
         assert.equal(connectionStreams.length, 0);
@@ -70,13 +71,13 @@ describe('Audio plugin', function() {
   });
 
   it('join room fail', function(done) {
-    var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
+    var proxyConnection = new ProxyConnection();
+    proxyConnection.session = new Session(proxyConnection, 'session-id', 'session-data');
     var plugin = new PluginAudio('id', 'type', proxyConnection);
-    proxyConnection.plugins[plugin.id] = plugin;
 
     var joinRequest = {
       janus: 'message',
-      body: {request: 'watch', id: 'streamId'},
+      body: {request: 'join', id: 'streamId'},
       handle_id: plugin.id,
       transaction: ProxyConnection.generateTransactionId()
     };
@@ -87,8 +88,8 @@ describe('Audio plugin', function() {
       transaction: joinRequest.transaction
     };
 
-    proxyConnection.processMessage(joinRequest).then(function() {
-      proxyConnection.processMessage(joinResponse).then(function() {
+    plugin.processMessage(joinRequest).then(function() {
+      proxyConnection.transactions.execute(joinResponse.transaction, joinResponse).then(function() {
         assert.isNull(plugin.stream);
         done();
       });
