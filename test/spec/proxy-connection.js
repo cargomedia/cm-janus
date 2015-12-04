@@ -156,8 +156,6 @@ describe('JanusConnection', function() {
       expect(connection.session).to.be.equal(null);
     });
 
-    it('should clear transactions');
-
     context('with open janusConnection', function() {
       beforeEach(function() {
         janusConnection.isOpened.returns(true);

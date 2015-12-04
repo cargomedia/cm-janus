@@ -81,8 +81,10 @@ describe('HttpServer', function() {
           serviceLocator.register('janus-http-client', janusHttpClient);
           var plugin = {
             id: 'plugin-id',
-            janusConnection: {
-              sessionId: 'session-id'
+            connection: {
+              session: {
+                id: 'session-id'
+              }
             }
           };
           var stream = new Stream('stream-id', 'channel-name', plugin);
