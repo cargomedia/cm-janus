@@ -12,7 +12,7 @@ var Logger = require('../../lib/logger');
 var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
 var serviceLocator = require('../../lib/service-locator');
-var JanusHttpClient = require('../../lib/janus-http-client');
+var JanusHttpClient = require('../../lib/janus/http-client');
 
 var port = 8811;
 var apiKey = 'foo-fish';
@@ -78,7 +78,7 @@ describe('HttpServer', function() {
 
         before(function() {
           janusHttpClient = new JanusHttpClient();
-          serviceLocator.register('janus-http-client', janusHttpClient);
+          serviceLocator.register('http-client', janusHttpClient);
           var plugin = {
             id: 'plugin-id',
             connection: {
