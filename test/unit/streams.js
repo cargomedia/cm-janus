@@ -74,11 +74,11 @@ describe('streams', function() {
     var connection3 = sinon.createStubInstance(JanusConnection);
 
     var stream1 = sinon.createStubInstance(Stream);
-    stream1.plugin = {janusConnection: connection1};
+    stream1.plugin = {connection: connection1};
     var stream2 = sinon.createStubInstance(Stream);
-    stream2.plugin = {janusConnection: connection3};
+    stream2.plugin = {connection: connection3};
     var stream3 = sinon.createStubInstance(Stream);
-    stream3.plugin = {janusConnection: connection1};
+    stream3.plugin = {connection: connection1};
     streams.list = {
       foo: stream1,
       bar: stream2,

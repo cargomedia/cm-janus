@@ -56,30 +56,6 @@ describe('Streaming plugin', function() {
       assert(onWebrtcupStub.calledWith(webrtcupRequest));
     });
 
-    it('message processing. onHangup. onDetach', function() {
-      var plugin = new PluginStreaming();
-      var onHangupStub = sinon.stub(plugin, 'onHangup', function() {
-        return Promise.resolve();
-      });
-      var hangupRequest = {
-        janus: 'hangup',
-        transaction: JanusConnection.generateTransactionId()
-      };
-      plugin.processMessage(hangupRequest);
-
-      assert(onHangupStub.calledOnce);
-      assert(onHangupStub.calledWith(hangupRequest));
-
-      var detachRequest = {
-        janus: 'detach',
-        transaction: JanusConnection.generateTransactionId()
-      };
-      plugin.processMessage(detachRequest);
-
-      assert(onHangupStub.calledTwice);
-      assert(onHangupStub.calledWith(detachRequest));
-    });
-
     it('create stream', function(done) {
       var janusConnection = new JanusConnection();
       janusConnection.session = new Session(janusConnection, 'session-id', 'session-data');
