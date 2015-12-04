@@ -6,7 +6,7 @@ require('../helpers/global-error-handler');
 var Stream = require('../../lib/stream');
 var PluginAbstract = require('../../lib/janus/plugin/abstract');
 
-describe('Transactions', function() {
+describe('Stream', function() {
 
   it('constructor', function() {
     var plugin = sinon.createStubInstance(PluginAbstract);
