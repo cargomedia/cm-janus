@@ -5,7 +5,7 @@ var Promise = require('bluebird');
 require('../helpers/global-error-handler');
 var JanusConnection = require('../../lib/janus/connection');
 var Session = require('../../lib/janus/session');
-var PluginAudio = require('../../lib/plugin/audio');
+var PluginAudio = require('../../lib/janus/plugin/audio');
 
 var Logger = require('../../lib/logger');
 var Streams = require('../../lib/streams');

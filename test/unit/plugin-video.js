@@ -5,7 +5,7 @@ require('../helpers/global-error-handler');
 var JanusConnection = require('../../lib/janus/connection');
 var Session = require('../../lib/janus/session');
 var Connection = require('../../lib/connection');
-var PluginVideo = require('../../lib/plugin/video');
+var PluginVideo = require('../../lib/janus/plugin/video');
 
 var Logger = require('../../lib/logger');
 var CmApiClient = require('../../lib/cm-api-client');

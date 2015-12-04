@@ -4,7 +4,7 @@ var sinon = require('sinon');
 require('../helpers/global-error-handler');
 
 var Stream = require('../../lib/stream');
-var PluginAbstract = require('../../lib/plugin/abstract');
+var PluginAbstract = require('../../lib/janus/plugin/abstract');
 
 describe('Transactions', function() {
 
