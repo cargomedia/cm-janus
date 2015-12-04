@@ -1,6 +1,6 @@
 require('../helpers/global-error-handler');
 var WebSocket = require('ws');
-var JanusProxy = require('../../lib/janus-proxy');
+var JanusProxy = require('../../lib/janus/proxy');
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
 
