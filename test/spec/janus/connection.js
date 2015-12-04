@@ -10,7 +10,7 @@ var Promise = require('bluebird');
 require('../../helpers/global-error-handler');
 var JanusConnection = require('../../../lib/janus/connection');
 var Connection = require('../../../lib/connection');
-var Transactions = require('../../../lib/transactions');
+var Transactions = require('../../../lib/janus/transactions');
 var Logger = require('../../../lib/logger');
 var Stream = require('../../../lib/stream');
 var Streams = require('../../../lib/streams');

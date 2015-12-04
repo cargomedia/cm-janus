@@ -11,7 +11,7 @@ require('../../helpers/global-error-handler');
 var JanusConnection = require('../../../lib/janus/connection');
 var PluginRegistry = require('../../../lib/janus/plugin-registry');
 var PluginAbstract = require('../../../lib/janus/plugin/abstract');
-var Transactions = require('../../../lib/transactions');
+var Transactions = require('../../../lib/janus/transactions');
 var Logger = require('../../../lib/logger');
 var Session = require('../../../lib/janus/session');
 var serviceLocator = require('../../../lib/service-locator');
