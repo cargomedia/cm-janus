@@ -7,16 +7,16 @@ chai.use(chaiAsPromised);
 var sinon = require('sinon');
 
 var Promise = require('bluebird');
-require('../helpers/global-error-handler');
-var JanusConnection = require('../../lib/janus/connection');
-var Connection = require('../../lib/connection');
-var Transactions = require('../../lib/transactions');
-var Logger = require('../../lib/logger');
-var Stream = require('../../lib/stream');
-var Streams = require('../../lib/streams');
-var Session = require('../../lib/janus/session');
-var CmApiClient = require('../../lib/cm-api-client');
-var serviceLocator = require('../../lib/service-locator');
+require('../../helpers/global-error-handler');
+var JanusConnection = require('../../../lib/janus/connection');
+var Connection = require('../../../lib/connection');
+var Transactions = require('../../../lib/transactions');
+var Logger = require('../../../lib/logger');
+var Stream = require('../../../lib/stream');
+var Streams = require('../../../lib/streams');
+var Session = require('../../../lib/janus/session');
+var CmApiClient = require('../../../lib/cm-api-client');
+var serviceLocator = require('../../../lib/service-locator');
 
 
 describe('JanusConnection', function() {
@@ -26,12 +26,13 @@ describe('JanusConnection', function() {
     serviceLocator.register('logger', sinon.stub(new Logger));
     browserConnection = sinon.createStubInstance(Connection);
     janusConnection = sinon.createStubInstance(Connection);
-    connection = new JanusConnection(browserConnection, janusConnection);
+    connection = new JanusConnection('connection-id', browserConnection, janusConnection);
   });
 
-  it('should store janus and browser connections', function() {
+  it('should store id and janus, browser connections', function() {
+    expect(connection.id).to.be.equal('connection-id');
     expect(connection.browserConnection).to.be.equal(browserConnection);
-    expect(connection.connection).to.be.equal(janusConnection);
+    expect(connection.janusConnection).to.be.equal(janusConnection);
   });
 
   it('should have empty session', function() {
@@ -80,6 +81,7 @@ describe('JanusConnection', function() {
         sessionId: 'session-id'
       };
       sinon.spy(connection.transactions, 'add');
+      connection.session = sinon.createStubInstance(Session);
       connection.processMessage(message);
     });
 
@@ -89,7 +91,6 @@ describe('JanusConnection', function() {
 
     context('on successful transaction response', function() {
       beforeEach(function() {
-        sinon.stub(connection, 'close');
         var transactionCallback = connection.transactions.add.firstCall.args[1];
         transactionCallback({
           janus: 'success'
@@ -98,10 +99,6 @@ describe('JanusConnection', function() {
 
       it('should remove session', function() {
         expect(connection.session).to.be.equal(null);
-      });
-
-      it('should close connection', function() {
-        assert(connection.close.calledOnce);
       });
     });
   });
@@ -125,15 +122,12 @@ describe('JanusConnection', function() {
     });
   });
 
-  context('when closes', function() {
+  context('when is removed', function() {
     var streams;
     beforeEach(function() {
       streams = sinon.createStubInstance(Streams);
       streams.findAllByConnection.returns([]);
       serviceLocator.register('streams', streams);
-
-      browserConnection.isOpened.returns(false);
-      janusConnection.isOpened.returns(false);
     });
 
     it('should close all related streams', function() {
@@ -145,37 +139,15 @@ describe('JanusConnection', function() {
       stream.channelName = 'bar';
       streams.findAllByConnection.returns([stream]);
 
-      connection.close();
+      connection.onRemove();
       assert(streams.findAllByConnection.withArgs(connection).calledOnce);
       assert(streams.remove.withArgs(stream).calledOnce);
       expect(cmApiClient.removeStream.firstCall.args).to.be.deep.equal(['bar', 'foo']);
     });
 
     it('should clear session', function() {
-      connection.close();
+      connection.onRemove();
       expect(connection.session).to.be.equal(null);
-    });
-
-    context('with open janusConnection', function() {
-      beforeEach(function() {
-        janusConnection.isOpened.returns(true);
-        connection.close();
-      });
-
-      it('should close janusConnection', function() {
-        assert(janusConnection.close.calledOnce);
-      });
-    });
-
-    context('with open browserConnection', function() {
-      beforeEach(function() {
-        browserConnection.isOpened.returns(true);
-        connection.close();
-      });
-
-      it('should close browserConnection', function() {
-        assert(browserConnection.close.calledOnce);
-      });
     });
   });
 });
