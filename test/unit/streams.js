@@ -1,7 +1,7 @@
 var assert = require('chai').assert;
 var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
-var ProxyConnection = require('../../lib/proxy-connection');
+var JanusConnection = require('../../lib/janus/connection');
 var sinon = require('sinon');
 var _ = require('underscore');
 
@@ -69,16 +69,16 @@ describe('streams', function() {
 
   it('findAllByConnection', function() {
     var streams = new Streams();
-    var connection1 = sinon.createStubInstance(ProxyConnection);
-    var connection2 = sinon.createStubInstance(ProxyConnection);
-    var connection3 = sinon.createStubInstance(ProxyConnection);
+    var connection1 = sinon.createStubInstance(JanusConnection);
+    var connection2 = sinon.createStubInstance(JanusConnection);
+    var connection3 = sinon.createStubInstance(JanusConnection);
 
     var stream1 = sinon.createStubInstance(Stream);
-    stream1.plugin = {proxyConnection: connection1};
+    stream1.plugin = {connection: connection1};
     var stream2 = sinon.createStubInstance(Stream);
-    stream2.plugin = {proxyConnection: connection3};
+    stream2.plugin = {connection: connection3};
     var stream3 = sinon.createStubInstance(Stream);
-    stream3.plugin = {proxyConnection: connection1};
+    stream3.plugin = {connection: connection1};
     streams.list = {
       foo: stream1,
       bar: stream2,

@@ -2,7 +2,7 @@ var assert = require('chai').assert;
 var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
-var ProxyConnection = require('../../lib/proxy-connection');
+var JanusConnection = require('../../lib/janus/connection');
 var Session = require('../../lib/janus/session');
 var Connection = require('../../lib/connection');
 var PluginVideo = require('../../lib/plugin/video');
@@ -44,7 +44,7 @@ describe('Video plugin', function() {
     var createRequest = {
       janus: 'message',
       body: {request: 'create'},
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: JanusConnection.generateTransactionId()
     };
     plugin.processMessage(createRequest);
 
@@ -60,7 +60,7 @@ describe('Video plugin', function() {
     var watchRequest = {
       janus: 'message',
       body: {request: 'watch'},
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: JanusConnection.generateTransactionId()
     };
     plugin.processMessage(watchRequest);
 
@@ -69,15 +69,15 @@ describe('Video plugin', function() {
   });
 
   it('watch stream', function(done) {
-    var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
-    proxyConnection.session = new Session(proxyConnection, 'session-id', 'session-data');
-    var plugin = new PluginVideo('id', 'type', proxyConnection);
+    var janusConnection = new JanusConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
+    janusConnection.session = new Session(janusConnection, 'session-id', 'session-data');
+    var plugin = new PluginVideo('id', 'type', janusConnection);
 
     var watchRequest = {
       janus: 'message',
       body: {request: 'watch', id: 'streamId'},
       handle_id: plugin.id,
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: JanusConnection.generateTransactionId()
     };
     var watchResponse = {
       janus: 'event',
@@ -87,9 +87,9 @@ describe('Video plugin', function() {
     };
 
     plugin.processMessage(watchRequest).then(function() {
-      proxyConnection.transactions.execute(watchRequest.transaction, watchResponse).then(function() {
+      janusConnection.transactions.execute(watchRequest.transaction, watchResponse).then(function() {
         assert.equal(plugin.stream.channelName, watchRequest.body.id);
-        var connectionStreams = serviceLocator.get('streams').findAllByConnection(proxyConnection);
+        var connectionStreams = serviceLocator.get('streams').findAllByConnection(janusConnection);
         assert.equal(connectionStreams.length, 0);
         done();
       });
@@ -97,16 +97,16 @@ describe('Video plugin', function() {
   });
 
   it('watch stream fail', function(done) {
-    var proxyConnection = new ProxyConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
-    proxyConnection.session = new Session(proxyConnection, 'session-id', 'session-data');
+    var janusConnection = new JanusConnection(sinon.createStubInstance(Connection), sinon.createStubInstance(Connection));
+    janusConnection.session = new Session(janusConnection, 'session-id', 'session-data');
 
-    var plugin = new PluginVideo('id', 'type', proxyConnection);
+    var plugin = new PluginVideo('id', 'type', janusConnection);
 
     var watchRequest = {
       janus: 'message',
       body: {request: 'watch', id: 'streamId'},
       handle_id: plugin.id,
-      transaction: ProxyConnection.generateTransactionId()
+      transaction: JanusConnection.generateTransactionId()
     };
     var watchResponse = {
       janus: 'event',
@@ -116,7 +116,7 @@ describe('Video plugin', function() {
     };
 
     plugin.processMessage(watchRequest).then(function() {
-      proxyConnection.transactions.execute(watchRequest.transaction, watchResponse).then(function() {
+      janusConnection.transactions.execute(watchRequest.transaction, watchResponse).then(function() {
         assert.isNull(plugin.stream);
         done();
       });

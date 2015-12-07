@@ -2,7 +2,7 @@ var assert = require('chai').assert;
 var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../helpers/global-error-handler');
-var ProxyConnection = require('../../lib/proxy-connection');
+var JanusConnection = require('../../lib/janus/connection');
 var Session = require('../../lib/janus/session');
 var Connection = require('../../lib/connection');
 var PluginStreaming = require('../../lib/plugin/streaming');
@@ -48,7 +48,7 @@ describe('Streaming plugin', function() {
       });
       var webrtcupRequest = {
         janus: 'webrtcup',
-        transaction: ProxyConnection.generateTransactionId()
+        transaction: JanusConnection.generateTransactionId()
       };
       plugin.processMessage(webrtcupRequest);
 
@@ -56,40 +56,16 @@ describe('Streaming plugin', function() {
       assert(onWebrtcupStub.calledWith(webrtcupRequest));
     });
 
-    it('message processing. onHangup. onDetach', function() {
-      var plugin = new PluginStreaming();
-      var onHangupStub = sinon.stub(plugin, 'onHangup', function() {
-        return Promise.resolve();
-      });
-      var hangupRequest = {
-        janus: 'hangup',
-        transaction: ProxyConnection.generateTransactionId()
-      };
-      plugin.processMessage(hangupRequest);
-
-      assert(onHangupStub.calledOnce);
-      assert(onHangupStub.calledWith(hangupRequest));
-
-      var detachRequest = {
-        janus: 'detach',
-        transaction: ProxyConnection.generateTransactionId()
-      };
-      plugin.processMessage(detachRequest);
-
-      assert(onHangupStub.calledTwice);
-      assert(onHangupStub.calledWith(detachRequest));
-    });
-
     it('create stream', function(done) {
-      var proxyConnection = new ProxyConnection();
-      proxyConnection.session = new Session(proxyConnection, 'session-id', 'session-data');
-      var plugin = new PluginStreaming('id', 'type', proxyConnection);
+      var janusConnection = new JanusConnection();
+      janusConnection.session = new Session(janusConnection, 'session-id', 'session-data');
+      var plugin = new PluginStreaming('id', 'type', janusConnection);
 
       var createRequest = {
         janus: 'message',
         body: {request: 'create', id: 'streamId', channelData: 'channelData'},
         handle_id: plugin.id,
-        transaction: ProxyConnection.generateTransactionId()
+        transaction: JanusConnection.generateTransactionId()
       };
       var createResponse = {
         janus: 'event',
@@ -99,9 +75,9 @@ describe('Streaming plugin', function() {
       };
 
       plugin.processMessage(createRequest).then(function() {
-        proxyConnection.transactions.execute(createResponse.transaction, createResponse).then(function() {
+        janusConnection.transactions.execute(createResponse.transaction, createResponse).then(function() {
           assert.equal(plugin.stream.channelName, createRequest.body.id);
-          var connectionStreams = serviceLocator.get('streams').findAllByConnection(proxyConnection);
+          var connectionStreams = serviceLocator.get('streams').findAllByConnection(janusConnection);
           assert.equal(connectionStreams.length, 1);
           assert.equal(connectionStreams[0].channelName, createRequest.body.id);
           done();
@@ -110,15 +86,15 @@ describe('Streaming plugin', function() {
     });
 
     it('create stream fail', function(done) {
-      var proxyConnection = new ProxyConnection();
-      proxyConnection.session = new Session(proxyConnection, 'session-id', 'session-data');
-      var plugin = new PluginStreaming('id', 'type', proxyConnection);
+      var janusConnection = new JanusConnection();
+      janusConnection.session = new Session(janusConnection, 'session-id', 'session-data');
+      var plugin = new PluginStreaming('id', 'type', janusConnection);
 
       var createRequest = {
         janus: 'message',
         body: {request: 'create', id: 'streamId'},
         handle_id: plugin.id,
-        transaction: ProxyConnection.generateTransactionId()
+        transaction: JanusConnection.generateTransactionId()
       };
       var createResponse = {
         janus: 'event',
@@ -128,9 +104,9 @@ describe('Streaming plugin', function() {
       };
 
       plugin.processMessage(createRequest).then(function() {
-        proxyConnection.transactions.execute(createResponse.transaction, createResponse).then(function() {
+        janusConnection.transactions.execute(createResponse.transaction, createResponse).then(function() {
           assert.isNull(plugin.stream);
-          var connectionStreams = serviceLocator.get('streams').findAllByConnection(proxyConnection);
+          var connectionStreams = serviceLocator.get('streams').findAllByConnection(janusConnection);
           assert.equal(connectionStreams.length, 0);
           done();
         });
@@ -138,19 +114,19 @@ describe('Streaming plugin', function() {
     });
 
     it('webrtcup', function(done) {
-      var proxyConnection = new ProxyConnection();
-      proxyConnection.session = new Session(proxyConnection, 'session-id', 'session-data');
-      var plugin = new PluginStreaming('id', 'type', proxyConnection);
+      var janusConnection = new JanusConnection();
+      janusConnection.session = new Session(janusConnection, 'session-id', 'session-data');
+      var plugin = new PluginStreaming('id', 'type', janusConnection);
 
       var webrtcupRequest = {
         janus: 'webrtcup',
         sender: plugin.id,
-        transaction: ProxyConnection.generateTransactionId()
+        transaction: JanusConnection.generateTransactionId()
       };
 
       plugin.stream = new Stream('id', 'channelName', plugin);
       plugin.processMessage(webrtcupRequest).then(function() {
-        var connectionStreams = serviceLocator.get('streams').findAllByConnection(proxyConnection);
+        var connectionStreams = serviceLocator.get('streams').findAllByConnection(janusConnection);
         assert.equal(connectionStreams.length, 1);
         assert.equal(connectionStreams[0], plugin.stream);
         done();
@@ -171,15 +147,15 @@ describe('Streaming plugin', function() {
     });
 
     it('create stream. error publish', function(done) {
-      var proxyConnection = new ProxyConnection();
-      proxyConnection.session = new Session(proxyConnection, 'session-id', 'session-data');
-      var plugin = new PluginStreaming('id', 'type', proxyConnection);
+      var janusConnection = new JanusConnection();
+      janusConnection.session = new Session(janusConnection, 'session-id', 'session-data');
+      var plugin = new PluginStreaming('id', 'type', janusConnection);
 
       var createRequest = {
         janus: 'message',
         body: {request: 'create', id: 'streamId'},
         handle_id: plugin.id,
-        transaction: ProxyConnection.generateTransactionId()
+        transaction: JanusConnection.generateTransactionId()
       };
       var createResponse = {
         janus: 'event',
@@ -189,12 +165,12 @@ describe('Streaming plugin', function() {
       };
 
       plugin.processMessage(createRequest).then(function() {
-        proxyConnection.transactions.execute(createResponse.transaction, createResponse)
+        janusConnection.transactions.execute(createResponse.transaction, createResponse)
           .then(function() {
             done(new Error('processMessage must fail on publish stream fail'));
           })
           .catch(function() {
-            var connectionStreams = serviceLocator.get('streams').findAllByConnection(proxyConnection);
+            var connectionStreams = serviceLocator.get('streams').findAllByConnection(janusConnection);
             assert.equal(connectionStreams.length, 0);
             done();
           });
@@ -202,14 +178,14 @@ describe('Streaming plugin', function() {
     });
 
     it('webrtcup. error subscribe', function(done) {
-      var proxyConnection = new ProxyConnection();
-      proxyConnection.session = new Session(proxyConnection, 'session-id', 'session-data');
-      var plugin = new PluginStreaming('id', 'type', proxyConnection);
+      var janusConnection = new JanusConnection();
+      janusConnection.session = new Session(janusConnection, 'session-id', 'session-data');
+      var plugin = new PluginStreaming('id', 'type', janusConnection);
 
       var webrtcupRequest = {
         janus: 'webrtcup',
         sender: plugin.id,
-        transaction: ProxyConnection.generateTransactionId()
+        transaction: JanusConnection.generateTransactionId()
       };
 
       plugin.stream = new Stream('id', 'channelName', plugin);
@@ -218,7 +194,7 @@ describe('Streaming plugin', function() {
           done(new Error('webrtcup must fail on subscribe stream fail'));
         })
         .catch(function() {
-          var connectionStreams = serviceLocator.get('streams').findAllByConnection(proxyConnection);
+          var connectionStreams = serviceLocator.get('streams').findAllByConnection(janusConnection);
           assert.equal(connectionStreams.length, 0);
           done();
         });
