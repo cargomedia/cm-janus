@@ -12,10 +12,7 @@ var JanusConnection = require('../../../lib/janus/connection');
 var Connection = require('../../../lib/connection');
 var Transactions = require('../../../lib/janus/transactions');
 var Logger = require('../../../lib/logger');
-var Stream = require('../../../lib/stream');
-var Streams = require('../../../lib/streams');
 var Session = require('../../../lib/janus/session');
-var CmApiClient = require('../../../lib/cm-api-client');
 var serviceLocator = require('../../../lib/service-locator');
 
 
@@ -45,7 +42,6 @@ describe('JanusConnection', function() {
   });
 
   context('when processes "create" message', function() {
-
     beforeEach(function() {
       var message = {
         janus: 'create',
@@ -74,7 +70,6 @@ describe('JanusConnection', function() {
   });
 
   context('when processes "destroy" message"', function() {
-
     beforeEach(function() {
       var message = {
         janus: 'destroy',
@@ -123,31 +118,29 @@ describe('JanusConnection', function() {
   });
 
   context('when is removed', function() {
-    var streams;
-    beforeEach(function() {
-      streams = sinon.createStubInstance(Streams);
-      streams.findAllByConnection.returns([]);
-      serviceLocator.register('streams', streams);
+
+    context('when session exists', function() {
+      beforeEach(function() {
+        connection.session = sinon.createStubInstance(Session);
+      });
+
+      it('should trigger session onRemove', function() {
+        var session = connection.session;
+        connection.onRemove();
+        assert(session.onRemove.calledOnce)
+      });
+
+      it('should clear session', function() {
+        connection.onRemove();
+        expect(connection.session).to.be.equal(null);
+      });
     });
 
-    it('should close all related streams', function() {
-      var cmApiClient = sinon.createStubInstance(CmApiClient);
-      serviceLocator.register('cm-api-client', cmApiClient);
-
-      var stream = sinon.createStubInstance(Stream);
-      stream.id = 'foo';
-      stream.channelName = 'bar';
-      streams.findAllByConnection.returns([stream]);
-
-      connection.onRemove();
-      assert(streams.findAllByConnection.withArgs(connection).calledOnce);
-      assert(streams.remove.withArgs(stream).calledOnce);
-      expect(cmApiClient.removeStream.firstCall.args).to.be.deep.equal(['bar', 'foo']);
-    });
-
-    it('should clear session', function() {
-      connection.onRemove();
-      expect(connection.session).to.be.equal(null);
+    context('when session exists', function() {
+      it('should clear session', function() {
+        connection.onRemove();
+        expect(connection.session).to.be.equal(null);
+      });
     });
   });
 });
