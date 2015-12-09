@@ -3,7 +3,6 @@ var expect = chai.expect;
 var sinon = require('sinon');
 
 
-var Promise = require('bluebird');
 require('../../../helpers/global-error-handler');
 var PluginAbstract = require('../../../../lib/janus/plugin/abstract');
 var Session = require('../../../../lib/janus/session');
