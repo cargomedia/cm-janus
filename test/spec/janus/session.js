@@ -53,7 +53,7 @@ describe('Session', function() {
         session.pluginRegistry.isAllowedPlugin.returns(false);
       });
 
-      it('should reject', function() {
+      it('should reject', function(done) {
         session.processMessage(message).then(function() {
           done(new Error('Should not resolve'));
         }, function(error) {
