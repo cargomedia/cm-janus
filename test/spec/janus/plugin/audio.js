@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var assert = require('chai').assert;
 var sinon = require('sinon');
 var Promise = require('bluebird');

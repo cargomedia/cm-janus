@@ -5,7 +5,6 @@ var sinon = require('sinon');
 
 var Promise = require('bluebird');
 var Stream = require('../../../../lib/stream');
-var PluginAbstract = require('../../../../lib/janus/plugin/abstract');
 var PluginStreaming = require('../../../../lib/janus/plugin/streaming');
 var Connection = require('../../../../lib/janus/connection');
 var Session = require('../../../../lib/janus/session');
