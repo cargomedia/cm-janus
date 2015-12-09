@@ -189,4 +189,36 @@ describe('PluginStreaming', function() {
       });
     })
   });
+
+  context('when removed', function() {
+    it('should remove stream', function() {
+      sinon.stub(plugin, 'removeStream');
+      plugin.onRemove();
+      expect(plugin.removeStream.calledOnce).to.be.equal(true);
+    });
+  });
+
+  context('with existing stream', function() {
+    var stream;
+
+    beforeEach(function() {
+      stream = sinon.createStubInstance(Stream);
+      plugin.stream = stream;
+      streams.has.returns(true);
+    });
+    context('when removes stream', function() {
+      beforeEach(function() {
+        plugin.removeStream();
+      });
+
+      it('should remove stream reference', function() {
+        expect(plugin.stream).to.be.equal(null);
+      });
+
+      it('should remove stream from streams', function() {
+        expect(streams.has.withArgs(stream.id).calledOnce).to.be.equal(true);
+        expect(streams.remove.withArgs(stream).calledOnce).to.be.equal(true);
+      });
+    });
+  })
 });
