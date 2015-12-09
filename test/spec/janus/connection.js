@@ -156,12 +156,5 @@ describe('JanusConnection', function() {
         expect(connection.session).to.be.equal(null);
       });
     });
-
-    context('when session exists', function() {
-      it('should clear session', function() {
-        connection.onRemove();
-        expect(connection.session).to.be.equal(null);
-      });
-    });
   });
 });
