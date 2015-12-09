@@ -23,14 +23,13 @@ describe('Audio plugin', function() {
   });
 
   beforeEach(function() {
-    connection = new Connection();
+    connection = new Connection('connection-id');
     session = new Session(connection, 'session-id', 'session-data');
     plugin = new PluginAudio('id', 'type', session);
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
   });
-
 
   after(function() {
     serviceLocator.reset();
@@ -43,7 +42,7 @@ describe('Audio plugin', function() {
     var joinRequest = {
       janus: 'message',
       body: {request: 'join'},
-      transaction: Connection.generateTransactionId()
+      transaction: 'transaction-id'
     };
     plugin.processMessage(joinRequest);
 
@@ -56,7 +55,7 @@ describe('Audio plugin', function() {
       janus: 'message',
       body: {request: 'join', id: 'streamId'},
       handle_id: plugin.id,
-      transaction: Connection.generateTransactionId()
+      transaction: 'transaction-id'
     };
     var joinResponse = {
       janus: 'event',
@@ -78,7 +77,7 @@ describe('Audio plugin', function() {
       janus: 'message',
       body: {request: 'join', id: 'streamId'},
       handle_id: plugin.id,
-      transaction: Connection.generateTransactionId()
+      transaction: 'transaction-id'
     };
     var joinResponse = {
       janus: 'event',
