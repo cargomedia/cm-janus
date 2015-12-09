@@ -130,4 +130,63 @@ describe('PluginStreaming', function() {
       })
     });
   });
+
+  context('when processes "webrtcup" message', function() {
+    var processWebrtcupMessage;
+
+    beforeEach(function() {
+      plugin.stream = new Stream('stream-id', 'channel-name', plugin);
+      processWebrtcupMessage = function() {
+        return plugin.processMessage({
+          janus: 'webrtcup',
+          transaction: 'transaction-id'
+        });
+      };
+
+      cmApiClient.subscribe.restore();
+      sinon.stub(cmApiClient, 'subscribe', function() {
+        return Promise.resolve();
+      });
+    });
+
+    it('should subscribe', function(done) {
+      processWebrtcupMessage().finally(function() {
+        expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
+        var args = cmApiClient.subscribe.firstCall.args;
+        expect(args[0]).to.be.equal('channel-name');
+        expect(args[1]).to.be.equal('stream-id');
+        expect(args[2]).to.be.closeTo(Date.now() / 1000, 5);
+        expect(args[3]).to.be.equal('session-data');
+        done();
+      });
+    });
+
+    context('on successful subscribe', function() {
+      it('should add stream to streams', function(done) {
+        processWebrtcupMessage().finally(function() {
+          done();
+        });
+      });
+    });
+
+    context('on unsuccessful subscribe', function() {
+      beforeEach(function() {
+        cmApiClient.subscribe.restore();
+        sinon.stub(cmApiClient, 'subscribe', function() {
+          return Promise.reject(new Error('Cannot subscribe'));
+        });
+      });
+
+      it('should detach');
+
+      it('should reject', function(done) {
+        processWebrtcupMessage().then(function() {
+          done(new Error('Should not resolve'));
+        }, function(error) {
+          expect(error.message).to.include('error: Cannot subscribe');
+          done();
+        });
+      });
+    })
+  });
 });
