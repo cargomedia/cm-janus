@@ -66,31 +66,4 @@ describe('streams', function() {
     assert.strictEqual(streams.find('foo'), stream);
     assert.strictEqual(streams.find('bar'), null);
   });
-
-  it('findAllByConnection', function() {
-    var streams = new Streams();
-    var connection1 = sinon.createStubInstance(JanusConnection);
-    var connection2 = sinon.createStubInstance(JanusConnection);
-    var connection3 = sinon.createStubInstance(JanusConnection);
-
-    var stream1 = sinon.createStubInstance(Stream);
-    stream1.plugin = {connection: connection1};
-    var stream2 = sinon.createStubInstance(Stream);
-    stream2.plugin = {connection: connection3};
-    var stream3 = sinon.createStubInstance(Stream);
-    stream3.plugin = {connection: connection1};
-    streams.list = {
-      foo: stream1,
-      bar: stream2,
-      zoo: stream3
-    };
-    assert.equalArray(streams.findAllByConnection(connection1), [stream1, stream3]);
-    assert.equalArray(streams.findAllByConnection(connection2), []);
-    assert.equalArray(streams.findAllByConnection(connection3), [stream2]);
-
-    assert.throws(function() {
-      streams.findAllByConnection(sinon.stub());
-    });
-  });
-
 });
