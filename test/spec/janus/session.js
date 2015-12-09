@@ -37,34 +37,55 @@ describe('Session', function() {
   });
 
   context('when processes "attach" message', function() {
+    var message;
     beforeEach(function() {
-      var message = {
+      message = {
         janus: 'attach',
         plugin: 'plugin-type',
         token: 'token'
       };
       sinon.spy(connection.transactions, 'add');
       session.pluginRegistry.instantiatePlugin.returns('plugin-instance');
-      session.pluginRegistry.isAllowedPlugin.returns(true);
-      session.processMessage(message);
     });
 
-    it('transaction should be added', function() {
-      assert(connection.transactions.add.calledOnce);
-    });
-
-    it('on successful transaction response should add plugin', function() {
-      var transactionCallback = connection.transactions.add.firstCall.args[1];
-      transactionCallback({
-        janus: 'success',
-        data: {
-          id: 'plugin-id'
-        }
+    context('with illegal plugin', function() {
+      beforeEach(function() {
+        session.pluginRegistry.isAllowedPlugin.returns(false);
       });
-      assert(session.pluginRegistry.instantiatePlugin.withArgs('plugin-id', 'plugin-type', session).calledOnce);
-      expect(_.size(session.plugins)).to.be.equal(1);
-      expect(session.plugins).to.have.property('plugin-id');
-      expect(session.plugins['plugin-id']).to.be.equal('plugin-instance');
+
+      it('should reject', function() {
+        session.processMessage(message).then(function() {
+          done(new Error('Should not resolve'));
+        }, function(error) {
+          expect(error.message).to.include('Illegal plugin to access');
+          done();
+        });
+      });
+    });
+
+    context('with legal plugin', function() {
+      beforeEach(function(done) {
+        session.pluginRegistry.isAllowedPlugin.returns(true);
+        session.processMessage(message).finally(done);
+      });
+
+      it('transaction should be added', function() {
+        assert(connection.transactions.add.calledOnce);
+      });
+
+      it('on successful transaction response should add plugin', function() {
+        var transactionCallback = connection.transactions.add.firstCall.args[1];
+        transactionCallback({
+          janus: 'success',
+          data: {
+            id: 'plugin-id'
+          }
+        });
+        assert(session.pluginRegistry.instantiatePlugin.withArgs('plugin-id', 'plugin-type', session).calledOnce);
+        expect(_.size(session.plugins)).to.be.equal(1);
+        expect(session.plugins).to.have.property('plugin-id');
+        expect(session.plugins['plugin-id']).to.be.equal('plugin-instance');
+      });
     });
   });
 
