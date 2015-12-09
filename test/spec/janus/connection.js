@@ -41,6 +41,27 @@ describe('JanusConnection', function() {
     expect(_.size(connection.transactions.list)).to.be.equal(0);
   });
 
+  context('when processes transaction-related message', function() {
+    beforeEach(function() {
+      connection.transactions.add('transaction-id', new Function())
+      sinon.stub(connection.transactions, 'execute', function() {
+        return Promise.resolve('transaction-resolved');
+      })
+    });
+
+    it('transaction should be added', function(done) {
+      var transactionRelatedMessage = {
+        transaction: 'transaction-id',
+        body: 'foo'
+      };
+      connection.processMessage(transactionRelatedMessage).then(function(resolvedWith) {
+        expect(resolvedWith).to.be.equal('transaction-resolved');
+        expect(connection.transactions.execute.withArgs('transaction-id', transactionRelatedMessage).calledOnce).to.be.equal(true);
+        done();
+      });
+    });
+  });
+
   context('when processes "create" message', function() {
     beforeEach(function() {
       var message = {
