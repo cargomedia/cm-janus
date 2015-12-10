@@ -12,10 +12,7 @@ var JanusConnection = require('../../../lib/janus/connection');
 var Connection = require('../../../lib/connection');
 var Transactions = require('../../../lib/janus/transactions');
 var Logger = require('../../../lib/logger');
-var Stream = require('../../../lib/stream');
-var Streams = require('../../../lib/streams');
 var Session = require('../../../lib/janus/session');
-var CmApiClient = require('../../../lib/cm-api-client');
 var serviceLocator = require('../../../lib/service-locator');
 
 
@@ -44,8 +41,28 @@ describe('JanusConnection', function() {
     expect(_.size(connection.transactions.list)).to.be.equal(0);
   });
 
-  context('when processes "create" message', function() {
+  context('when processes transaction-related message', function() {
+    beforeEach(function() {
+      connection.transactions.add('transaction-id', new Function())
+      sinon.stub(connection.transactions, 'execute', function() {
+        return Promise.resolve('transaction-resolved');
+      })
+    });
 
+    it('transaction should be added', function(done) {
+      var transactionRelatedMessage = {
+        transaction: 'transaction-id',
+        body: 'foo'
+      };
+      connection.processMessage(transactionRelatedMessage).then(function(resolvedWith) {
+        expect(resolvedWith).to.be.equal('transaction-resolved');
+        expect(connection.transactions.execute.withArgs('transaction-id', transactionRelatedMessage).calledOnce).to.be.equal(true);
+        done();
+      });
+    });
+  });
+
+  context('when processes "create" message', function() {
     beforeEach(function() {
       var message = {
         janus: 'create',
@@ -74,7 +91,6 @@ describe('JanusConnection', function() {
   });
 
   context('when processes "destroy" message"', function() {
-
     beforeEach(function() {
       var message = {
         janus: 'destroy',
@@ -123,31 +139,22 @@ describe('JanusConnection', function() {
   });
 
   context('when is removed', function() {
-    var streams;
-    beforeEach(function() {
-      streams = sinon.createStubInstance(Streams);
-      streams.findAllByConnection.returns([]);
-      serviceLocator.register('streams', streams);
-    });
 
-    it('should close all related streams', function() {
-      var cmApiClient = sinon.createStubInstance(CmApiClient);
-      serviceLocator.register('cm-api-client', cmApiClient);
+    context('when session exists', function() {
+      beforeEach(function() {
+        connection.session = sinon.createStubInstance(Session);
+      });
 
-      var stream = sinon.createStubInstance(Stream);
-      stream.id = 'foo';
-      stream.channelName = 'bar';
-      streams.findAllByConnection.returns([stream]);
+      it('should trigger session onRemove', function() {
+        var session = connection.session;
+        connection.onRemove();
+        assert(session.onRemove.calledOnce)
+      });
 
-      connection.onRemove();
-      assert(streams.findAllByConnection.withArgs(connection).calledOnce);
-      assert(streams.remove.withArgs(stream).calledOnce);
-      expect(cmApiClient.removeStream.firstCall.args).to.be.deep.equal(['bar', 'foo']);
-    });
-
-    it('should clear session', function() {
-      connection.onRemove();
-      expect(connection.session).to.be.equal(null);
+      it('should clear session', function() {
+        connection.onRemove();
+        expect(connection.session).to.be.equal(null);
+      });
     });
   });
 });
