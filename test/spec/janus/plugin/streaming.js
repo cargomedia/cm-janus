@@ -11,10 +11,11 @@ var Session = require('../../../../lib/janus/session');
 var Logger = require('../../../../lib/logger');
 var CmApiClient = require('../../../../lib/cm-api-client');
 var Streams = require('../../../../lib/streams');
+var JanusHttpClient = require('../../../../lib/janus/http-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('PluginStreaming', function() {
-  var plugin, session, connection, cmApiClient, streams;
+  var plugin, session, connection, cmApiClient, streams, httpClient;
 
   beforeEach(function() {
     serviceLocator.register('logger', sinon.stub(new Logger));
@@ -27,6 +28,8 @@ describe('PluginStreaming', function() {
     serviceLocator.register('cm-api-client', cmApiClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
+    httpClient = sinon.createStubInstance(JanusHttpClient)
+    serviceLocator.register('http-client', httpClient);
   });
 
   context('when processes "create" message', function() {
@@ -76,7 +79,7 @@ describe('PluginStreaming', function() {
         sinon.stub(cmApiClient, 'publish', function() {
           return Promise.resolve();
         });
-      });
+    });
 
       it('should set stream', function(done) {
         executeTransactionCallback().finally(function() {
@@ -116,12 +119,11 @@ describe('PluginStreaming', function() {
           });
         });
 
-        it('should detach');
-
-        it('should reject', function(done) {
+        it('should detach and should reject', function(done) {
           executeTransactionCallback().then(function() {
             done(new Error('Should not resolve'));
           }, function(error) {
+            expect(httpClient.detach.callCount).to.be.equal(1);
             expect(error.message).to.include('error: Cannot publish');
             done();
           });
@@ -176,13 +178,12 @@ describe('PluginStreaming', function() {
         });
       });
 
-      it('should detach');
-
-      it('should reject', function(done) {
+      it('should detach and should reject', function(done) {
         processWebrtcupMessage().then(function() {
           done(new Error('Should not resolve'));
         }, function(error) {
-          expect(error.message).to.include('error: Cannot subscribe');
+          expect(httpClient.detach.callCount).to.be.equal(1);
+          expect(error.stack).to.include('error: Cannot subscribe');
           done();
         });
       });
