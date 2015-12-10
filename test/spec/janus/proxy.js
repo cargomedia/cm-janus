@@ -4,7 +4,6 @@ var expect = require('chai').expect;
 var Promise = require('bluebird');
 var WebSocket = require('ws');
 var JanusProxy = require('../../../lib/janus/proxy');
-var JanusConnection = require('../../../lib/janus/connection');
 var Logger = require('../../../lib/logger');
 var serviceLocator = require('../../../lib/service-locator');
 var EventEmitter = require('events');
