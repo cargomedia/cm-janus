@@ -79,40 +79,35 @@ describe('HttpServer', function() {
         before(function() {
           janusHttpClient = new JanusHttpClient();
           serviceLocator.register('http-client', janusHttpClient);
-          var plugin = {
-            id: 'plugin-id',
-            session: {
-              id: 'session-id'
-            }
-          };
+          var plugin = 'plugin';
           var stream = new Stream('stream-id', 'channel-name', plugin);
           streams.add(stream);
         });
 
         it('should return error on failure close', function(done) {
-          sinon.stub(janusHttpClient, 'stopStream', function() {
+          sinon.stub(janusHttpClient, 'detach', function() {
             return Promise.reject(new Error('Cannot close'));
           });
           authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
-            assert(janusHttpClient.stopStream.withArgs('session-id', 'plugin-id').calledOnce);
+            assert(janusHttpClient.detach.withArgs('plugin').calledOnce);
             expect(response).to.have.property('error', 'Stream stop failed');
             done();
           }, done);
         });
 
         it('should return success on successful close', function(done) {
-          sinon.stub(janusHttpClient, 'stopStream', function() {
+          sinon.stub(janusHttpClient, 'detach', function() {
             return Promise.resolve();
           });
           authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
-            assert(janusHttpClient.stopStream.withArgs('session-id', 'plugin-id').calledOnce);
+            assert(janusHttpClient.detach.withArgs('plugin').calledOnce);
             expect(response).to.have.property('success', 'Stream stopped');
             done();
           }, done);
         });
 
         afterEach(function() {
-          janusHttpClient.stopStream.restore();
+          janusHttpClient.detach.restore();
         })
       });
     });
