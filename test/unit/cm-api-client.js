@@ -1,5 +1,6 @@
 var assert = require('chai').assert;
 require('../helpers/global-error-handler');
+var Logger = require('../../lib/logger');
 var CMApiClient = require('../../lib/cm-api-client');
 var Promise = require('bluebird');
 var sinon = require('sinon');
@@ -23,19 +24,13 @@ describe('CmApiClient unit tests', function() {
     var apiKey = 'fooKey';
     var cmApiClient = new CMApiClient(baseUri, apiKey);
     var serviceLocator = require('../../lib/service-locator.js');
-
-    var logger = {
-      info: function() {
-      }
-    };
-
     var action = 'foo';
     var sentData = ['bar', 'baz'];
 
     before(function() {
       serviceLocator.reset();
       serviceLocator.register('logger', function() {
-        return logger;
+        return new Logger();
       });
     });
 
@@ -67,12 +62,12 @@ describe('CmApiClient unit tests', function() {
 
     it('works with response with error', function(done) {
       var requestPromiseMock = sinon.stub(cmApiClient, '_requestPromise', function() {
-        return Promise.resolve({body: 'bodyErr', error: {msg: 'disaster'}});
+        return Promise.resolve({body: 'bodyErr', error: {msg: 'msg', type: 'type'}});
       });
 
       cmApiClient._request(action, sentData).catch(function(err) {
         assert.instanceOf(err, Error);
-        assert.strictEqual(err.message, 'cm-api error: disaster');
+        assert.strictEqual(err.message, 'cm-api error: type. msg');
         assert.isTrue(requestPromiseMock.calledOnce);
         done();
       });
