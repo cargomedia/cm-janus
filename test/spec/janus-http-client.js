@@ -4,7 +4,7 @@ require('../helpers/global-error-handler');
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
 
-var JanusHttpClient = require('../../lib/janus-http-client');
+var JanusHttpClient = require('../../lib/janus/http-client');
 
 describe('JanusHttpClient spec tests', function() {
 

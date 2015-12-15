@@ -1,7 +1,7 @@
 var assert = require('chai').assert;
 var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
-var ProxyConnection = require('../../lib/proxy-connection');
+var JanusConnection = require('../../lib/janus/connection');
 var sinon = require('sinon');
 var _ = require('underscore');
 
@@ -66,31 +66,4 @@ describe('streams', function() {
     assert.strictEqual(streams.find('foo'), stream);
     assert.strictEqual(streams.find('bar'), null);
   });
-
-  it('findAllByConnection', function() {
-    var streams = new Streams();
-    var connection1 = sinon.createStubInstance(ProxyConnection);
-    var connection2 = sinon.createStubInstance(ProxyConnection);
-    var connection3 = sinon.createStubInstance(ProxyConnection);
-
-    var stream1 = sinon.createStubInstance(Stream);
-    stream1.proxyConnection = connection1;
-    var stream2 = sinon.createStubInstance(Stream);
-    stream2.proxyConnection = connection3;
-    var stream3 = sinon.createStubInstance(Stream);
-    stream3.proxyConnection = connection1;
-    streams.list = {
-      foo: stream1,
-      bar: stream2,
-      zoo: stream3
-    };
-    assert.equalArray(streams.findAllByConnection(connection1), [stream1, stream3]);
-    assert.equalArray(streams.findAllByConnection(connection2), []);
-    assert.equalArray(streams.findAllByConnection(connection3), [stream2]);
-
-    assert.throws(function() {
-      streams.findAllByConnection(sinon.stub());
-    });
-  });
-
 });
