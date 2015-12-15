@@ -6,6 +6,7 @@ var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require("fs"));
 var rimraf = require('rimraf');
 var tmp = require('tmp');
+var exec = require('child_process').exec;
 
 var JobManager = require('../../lib/job/manager');
 var AbstractJobHandler = require('../../lib/job/handler/abstract');
@@ -92,7 +93,7 @@ describe('JobManager', function() {
     });
   });
 
-  it('cleanups after shutdown', function(done) {
+  it('cleanups after shutdown when writes with promise', function(done) {
     createLocalTmpDir().then(function(tmpDirPath) {
       var jobData = randomTestJobData();
       var tempJobFilename = tmp.tmpNameSync({dir: tempJobsHandlerDir});
@@ -137,4 +138,49 @@ describe('JobManager', function() {
     });
   });
 
+  it('cleanups after shutdown when writes with exec', function(done) {
+    createLocalTmpDir().then(function(tmpDirPath) {
+      var jobData = randomTestJobData();
+      var tempJobFilename = tmp.tmpNameSync({dir: tempJobsHandlerDir});
+      var delayToStop = 500;
+
+      var testJobHandler = new AbstractJobHandler();
+      testJobHandler.getPlugin = sinon.stub().returns(jobData['plugin']);
+      testJobHandler.getEvent = sinon.stub().returns(jobData['event']);
+      var handlerStub = sinon.stub(testJobHandler, 'handle', function() {
+        var writeToFile = function() {
+          exec('echo "foo " >> ' + tempJobFilename);
+        };
+        setImmediate(writeToFile);
+        setInterval(writeToFile, 1000);
+        return Promise.delay(5000);
+      });
+
+      var manager = new JobManager(tmpDirPath, tempJobsHandlerDir, [testJobHandler]);
+      assert.throws(function() {
+        fs.accessSync(tempJobFilename);
+      });
+
+      manager.start();
+      createJobFile(tmpDirPath, jobData).then(function() {
+
+        setTimeout(function() {
+          fs.accessSync(tempJobFilename);
+          assert.isTrue(handlerStub.calledOnce);
+          var handlerPromise = handlerStub.returnValues[0];
+          assert.isFalse(handlerPromise.isCancelled());
+
+          manager.stop().then(function() {
+            assert.isTrue(handlerPromise.isCancelled());
+
+            assert.throws(function() {
+              fs.accessSync(tempJobFilename);
+            });
+            done();
+          });
+        }, delayToStop);
+
+      });
+    });
+  });
 });
