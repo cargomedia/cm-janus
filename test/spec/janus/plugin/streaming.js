@@ -28,7 +28,7 @@ describe('PluginStreaming', function() {
     serviceLocator.register('cm-api-client', cmApiClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
-    httpClient = sinon.createStubInstance(JanusHttpClient)
+    httpClient = sinon.createStubInstance(JanusHttpClient);
     serviceLocator.register('http-client', httpClient);
   });
 
@@ -79,7 +79,7 @@ describe('PluginStreaming', function() {
         sinon.stub(cmApiClient, 'publish', function() {
           return Promise.resolve();
         });
-    });
+      });
 
       it('should set stream', function(done) {
         executeTransactionCallback().finally(function() {
@@ -202,7 +202,7 @@ describe('PluginStreaming', function() {
     var stream;
 
     beforeEach(function() {
-      stream = sinon.createStubInstance(Stream);
+      stream = new Stream('stream-id', 'channel-name', plugin);
       plugin.stream = stream;
       streams.has.returns(true);
     });
@@ -218,6 +218,13 @@ describe('PluginStreaming', function() {
       it('should remove stream from streams', function() {
         expect(streams.has.withArgs(stream.id).calledOnce).to.be.equal(true);
         expect(streams.remove.withArgs(stream).calledOnce).to.be.equal(true);
+      });
+
+      it('should call cmApiClient removeStream', function() {
+        expect(cmApiClient.removeStream.calledOnce).to.be.equal(true);
+        var args = cmApiClient.removeStream.firstCall.args;
+        expect(args[0]).to.be.equal('channel-name');
+        expect(args[1]).to.be.equal('stream-id');
       });
     });
   })
