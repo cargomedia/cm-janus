@@ -8,6 +8,7 @@ var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
 var CmApiClient = require('../../../../lib/cm-api-client');
 var Logger = require('../../../../lib/logger');
+var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
 var serviceLocator = require('../../../../lib/service-locator');
 
@@ -150,6 +151,8 @@ describe('Video plugin', function() {
     sinon.stub(cmApiClient, 'subscribe', function() {
       return Promise.resolve();
     });
+    streams.has.restore();
+    sinon.stub(streams, 'has').returns(true);
 
     var switchRequest = {
       janus: 'message',
@@ -164,8 +167,12 @@ describe('Video plugin', function() {
       transaction: switchRequest.transaction
     };
 
+    var previousStream = new Stream('previousId', 'previousChannel', plugin);
+    plugin.stream = previousStream;
     plugin.processMessage(switchRequest).then(function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
+        expect(cmApiClient.removeStream.calledWith(previousStream.channelName, previousStream.id)).to.be.equal(true);
+        expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
         assert.equal(plugin.stream.channelName, switchRequest.body.id);
         expect(cmApiClient.subscribe.called).to.be.equal(false);
         expect(streams.add.called).to.be.equal(false);
