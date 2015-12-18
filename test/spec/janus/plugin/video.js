@@ -1,16 +1,17 @@
 var assert = require('chai').assert;
+var expect = require('chai').expect;
 var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../../../helpers/global-error-handler');
 var Connection = require('../../../../lib/janus/connection');
 var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
-
+var CmApiClient = require('../../../../lib/cm-api-client');
 var Logger = require('../../../../lib/logger');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Video plugin', function() {
-  var plugin, session, connection;
+  var plugin, session, connection, cmApiClient;
 
   this.timeout(2000);
 
@@ -22,6 +23,8 @@ describe('Video plugin', function() {
     connection = new Connection('connection-id');
     session = new Session(connection, 'session-id', 'session-data');
     plugin = new PluginVideo('id', 'type', session);
+    cmApiClient = sinon.createStubInstance(CmApiClient);
+    serviceLocator.register('cm-api-client', cmApiClient);
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
@@ -85,6 +88,54 @@ describe('Video plugin', function() {
     plugin.processMessage(watchRequest).then(function() {
       connection.transactions.execute(watchRequest.transaction, watchResponse).then(function() {
         assert.isNull(plugin.stream);
+        done();
+      });
+    });
+  });
+
+  it('when processes "switch" message', function() {
+    var onSwitchStub = sinon.stub(plugin, 'onSwitch', function() {
+      return Promise.resolve();
+    });
+    var switchRequest = {
+      janus: 'message',
+      body: {request: 'switch'},
+      transaction: 'transaction-id'
+    };
+    plugin.processMessage(switchRequest);
+
+    assert(onSwitchStub.calledOnce);
+    assert(onSwitchStub.calledWith(switchRequest));
+  });
+
+  it('switch stream', function(done) {
+    cmApiClient.subscribe.restore();
+    sinon.stub(cmApiClient, 'subscribe', function() {
+      return Promise.resolve();
+    });
+
+    var switchRequest = {
+      janus: 'message',
+      body: {request: 'switch', id: 'streamId'},
+      handle_id: plugin.id,
+      transaction: 'transaction-id'
+    };
+    var switchResponse = {
+      janus: 'event',
+      plugindata: {data: {streaming: 'event', result: {}}},
+      sender: plugin.id,
+      transaction: switchRequest.transaction
+    };
+
+    plugin.processMessage(switchRequest).then(function() {
+      connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
+        assert.equal(plugin.stream.channelName, switchRequest.body.id);
+        expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
+        var args = cmApiClient.subscribe.firstCall.args;
+        expect(args[0]).to.be.equal(switchRequest.body.id);
+        expect(args[1]).to.be.equal(plugin.stream.id);
+        expect(args[2]).to.be.closeTo(Date.now() / 1000, 5);
+        expect(args[3]).to.be.equal('session-data');
         done();
       });
     });
