@@ -8,10 +8,11 @@ var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
 var CmApiClient = require('../../../../lib/cm-api-client');
 var Logger = require('../../../../lib/logger');
+var Streams = require('../../../../lib/streams');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Video plugin', function() {
-  var plugin, session, connection, cmApiClient;
+  var plugin, session, connection, cmApiClient, streams;
 
   this.timeout(2000);
 
@@ -25,6 +26,8 @@ describe('Video plugin', function() {
     plugin = new PluginVideo('id', 'type', session);
     cmApiClient = sinon.createStubInstance(CmApiClient);
     serviceLocator.register('cm-api-client', cmApiClient);
+    streams = sinon.createStubInstance(Streams);
+    serviceLocator.register('streams', streams);
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
@@ -136,6 +139,36 @@ describe('Video plugin', function() {
         expect(args[1]).to.be.equal(plugin.stream.id);
         expect(args[2]).to.be.closeTo(Date.now() / 1000, 5);
         expect(args[3]).to.be.equal('session-data');
+        expect(streams.add.withArgs(plugin.stream).calledOnce).to.be.equal(true);
+        done();
+      });
+    });
+  });
+
+  it('switch stream fail', function(done) {
+    cmApiClient.subscribe.restore();
+    sinon.stub(cmApiClient, 'subscribe', function() {
+      return Promise.resolve();
+    });
+
+    var switchRequest = {
+      janus: 'message',
+      body: {request: 'switch', id: 'streamId'},
+      handle_id: plugin.id,
+      transaction: 'transaction-id'
+    };
+    var switchResponse = {
+      janus: 'event',
+      plugindata: {data: {error: 'error', error_code: 455}},
+      sender: plugin.id,
+      transaction: switchRequest.transaction
+    };
+
+    plugin.processMessage(switchRequest).then(function() {
+      connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
+        assert.equal(plugin.stream.channelName, switchRequest.body.id);
+        expect(cmApiClient.subscribe.called).to.be.equal(false);
+        expect(streams.add.called).to.be.equal(false);
         done();
       });
     });
