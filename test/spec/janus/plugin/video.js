@@ -151,8 +151,7 @@ describe('Video plugin', function() {
     sinon.stub(cmApiClient, 'subscribe', function() {
       return Promise.resolve();
     });
-    streams.has.restore();
-    sinon.stub(streams, 'has').returns(true);
+    streams.has.returns(true);
 
     var switchRequest = {
       janus: 'message',
