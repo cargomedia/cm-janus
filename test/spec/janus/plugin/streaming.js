@@ -139,8 +139,7 @@ describe('PluginStreaming', function() {
       plugin.stream = new Stream('stream-id', 'channel-name', plugin);
       processWebrtcupMessage = function() {
         return plugin.processMessage({
-          janus: 'webrtcup',
-          transaction: 'transaction-id'
+          janus: 'webrtcup'
         });
       };
 
@@ -184,6 +183,7 @@ describe('PluginStreaming', function() {
         }, function(error) {
           expect(httpClient.detach.callCount).to.be.equal(1);
           expect(error.stack).to.include('error: Cannot subscribe');
+          expect(error.transaction).to.exist;
           done();
         });
       });
