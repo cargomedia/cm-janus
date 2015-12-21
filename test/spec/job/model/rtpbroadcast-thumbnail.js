@@ -3,17 +3,16 @@ var fs = require('fs');
 var assert = require('chai').assert;
 
 var serviceLocator = require('../../../../lib/service-locator');
-var RtpbroadcastThumbnailHandler = require('../../../../lib/job/handler/rtpbroadcast-thumbnail');
+var RtpbroadcastThumbnailJob = require('../../../../lib/job/model/rtpbroadcast-thumbnail');
 var CmApplication = require('../../../../lib/cm-application');
 var Logger = require('../../../../lib/logger');
 
 
 describe('imports archive', function() {
 
-  var handler, cmApplication;
+  var cmApplication;
 
   before(function() {
-    handler = new RtpbroadcastThumbnailHandler();
     cmApplication = sinon.createStubInstance(CmApplication);
     serviceLocator.register('logger', sinon.stub(new Logger));
     serviceLocator.register('cm-application', cmApplication);
@@ -24,31 +23,34 @@ describe('imports archive', function() {
   });
 
   describe('given invalid jobData ', function() {
-    it('with missing jobData.thumb it should reject', function(done) {
+    it('with missing jobData.thumb it should reject', function() {
       var jobData = {
         id: 'stream-channel-id'
       };
-      handler.handle(jobData).catch(function(error) {
-        assert.equal(error.message, 'No `thumb` parameter provided');
-        done();
-      });
+      assert.throws(function() {
+        new RtpbroadcastThumbnailJob(jobData);
+      }, /No `thumb` parameter provided/);
     });
   });
 
   describe('given valid jobData', function() {
 
+    var job;
+
     before(function(done) {
-      sinon.stub(handler, '_exec', function(command, callback) {
-        callback(null);
-      });
-      handler.handle({
+      var jobData = {
         thumb: 'video-file',
         id: 'stream-channel-id'
-      }).then(done);
+      };
+      job = new RtpbroadcastThumbnailJob(jobData);
+      sinon.stub(job, '_exec', function(command, callback) {
+        callback(null);
+      });
+      job.run().then(done);
     });
 
     it('should extract png thumbnail from video file', function() {
-      var commandArgs = handler._exec.firstCall.args[0].split(' ');
+      var commandArgs = job._exec.firstCall.args[0].split(' ');
       assert(fs.existsSync(commandArgs[0]), 'script ' + commandArgs[0] + ' does not exist');
       assert.match(commandArgs[0], /rtpbroadcast-thumb\.sh$/);
       assert.equal(commandArgs[1], 'video-file');
@@ -56,15 +58,12 @@ describe('imports archive', function() {
     });
 
     it('should import png file into cm-application', function() {
-      var commandArgs = handler._exec.firstCall.args[0].split(' ');
+      var commandArgs = job._exec.firstCall.args[0].split(' ');
       assert(cmApplication.importVideoStreamThumbnail.calledOnce, 'importVideoStreamThumbnail was not called');
       assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[0], 'stream-channel-id');
       assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[1], commandArgs[2]);
     });
 
-    after(function() {
-      handler._exec.restore();
-    });
   });
 });
 
