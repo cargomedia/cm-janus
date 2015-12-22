@@ -5,9 +5,13 @@ var path = require('path');
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require("fs"));
 var rimraf = require('rimraf');
+var tmp = require('tmp');
+var exec = require('child_process').exec;
 
 var JobManager = require('../../lib/job/manager');
-var AbstractJobHandler = require('../../lib/job/handler/abstract');
+var AbstractJob = require('../../lib/job/model/abstract');
+var TestJobSuccess = require('../helpers/test-jobs').Success;
+var TestJobSleep = require('../helpers/test-jobs').Sleep;
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
 serviceLocator.register('logger', function() {
@@ -17,6 +21,7 @@ serviceLocator.register('logger', function() {
 describe('JobManager', function() {
 
   var globalTmpDir = path.join(__dirname, '/tmp');
+  var tempJobsDir = path.join(globalTmpDir, '/job-tmp/');
 
   function randomString() {
     return Math.random().toString(36).substring(2, 10);
@@ -38,8 +43,8 @@ describe('JobManager', function() {
 
   function randomTestJobData() {
     return {
-      plugin: 'test',
-      event: 'test',
+      plugin: TestJobSuccess.getPlugin(),
+      event: TestJobSuccess.getEvent(),
       data: {
         streamChannelId: '1',
         audio: '/path/123.rtp',
@@ -55,26 +60,31 @@ describe('JobManager', function() {
   });
 
   after(function(done) {
-    rimraf(globalTmpDir, function(err) {
-      done(err);
+    rimraf(tempJobsDir, function() {
+      rimraf(globalTmpDir, function(err) {
+        done(err);
+      });
     });
   });
 
-  it('test job handler call', function(done) {
+  beforeEach(function() {
+    rimraf.sync(tempJobsDir);
+  });
+
+  it('test job call', function(done) {
     createLocalTmpDir().then(function(tmpDirPath) {
       var jobData = randomTestJobData();
-      var testJobHandler = new AbstractJobHandler();
-      testJobHandler.handle = sinon.stub().returns(Promise.resolve());
-      testJobHandler.getPlugin = sinon.stub().returns(jobData['plugin']);
-      testJobHandler.getEvent = sinon.stub().returns(jobData['event']);
-
-      var manager = new JobManager(tmpDirPath, [testJobHandler]);
+      var manager = new JobManager(tmpDirPath, tempJobsDir, [TestJobSuccess]);
+      sinon.spy(manager, '_addJob');
       manager.start();
 
       createJobFile(tmpDirPath, jobData).then(function(jobFilepath) {
         setTimeout(function() {
-          assert.isTrue(testJobHandler.handle.calledOnce);
-          assert.isTrue(testJobHandler.handle.alwaysCalledWithExactly(jobData['data']));
+          assert.isTrue(manager._addJob.calledOnce);
+          var args = manager._addJob.firstCall.args;
+          var job = args[0];
+          assert.isTrue(job instanceof AbstractJob);
+          assert.deepEqual(job._jobData, jobData['data']);
 
           assert.throws(function() {
             fs.accessSync(jobFilepath);
@@ -83,8 +93,41 @@ describe('JobManager', function() {
           fs.rmdirAsync(tmpDirPath).then(function() {
             done();
           });
-        }, 1000);//here we need to wait a bit to give time to jobHandler to work.
+        }, 1000);//here we need to wait a bit to give time to job to run.
       });
     });
   });
+
+  it('cleanups after shutdown', function(done) {
+    createLocalTmpDir().then(function(tmpDirPath) {
+      var jobData = randomTestJobData();
+      var delayToStop = 1000;
+
+      var manager = new JobManager(tmpDirPath, tempJobsDir, [TestJobSleep]);
+      sinon.spy(manager, '_addJob');
+      manager.start();
+
+      createJobFile(tmpDirPath, jobData).then(function() {
+        setTimeout(function() {
+          assert.strictEqual(fs.readdirSync(tempJobsDir).length, 1);
+          var args = manager._addJob.firstCall.args;
+          var job = args[0];
+          var jobPromise = job._promise;
+          assert.isTrue(jobPromise.isPending());
+          assert.isTrue(!!job._process.pid);
+
+          manager.stop().then(function() {
+            assert.isTrue(jobPromise.isCancelled());
+            assert.isNull(job._promise);
+            assert.isNull(job._process);
+            assert.throws(function() {
+              fs.accessSync(tempJobsDir);
+            });
+            done();
+          });
+        }, delayToStop);
+      });
+    });
+  });
+
 });
