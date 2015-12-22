@@ -139,8 +139,7 @@ describe('PluginStreaming', function() {
       plugin.stream = new Stream('stream-id', 'channel-name', plugin);
       processWebrtcupMessage = function() {
         return plugin.processMessage({
-          janus: 'webrtcup',
-          transaction: 'transaction-id'
+          janus: 'webrtcup'
         });
       };
 
