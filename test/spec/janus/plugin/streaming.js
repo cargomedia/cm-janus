@@ -36,7 +36,7 @@ describe('PluginStreaming', function() {
     var processWebrtcupMessage;
 
     beforeEach(function() {
-      plugin.stream = new Stream('stream-id', 'channel-name', plugin);
+      plugin.stream = new Stream('stream-id', 'channel-name', 'channel-data', plugin);
       processWebrtcupMessage = function() {
         return plugin.processMessage({
           janus: 'webrtcup',
