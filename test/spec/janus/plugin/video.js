@@ -6,14 +6,15 @@ require('../../../helpers/global-error-handler');
 var Connection = require('../../../../lib/janus/connection');
 var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
-var CmApiClient = require('../../../../lib/cm-api-client');
-var Logger = require('../../../../lib/logger');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
+var CmApiClient = require('../../../../lib/cm-api-client');
+var Logger = require('../../../../lib/logger');
+var JanusHttpClient = require('../../../../lib/janus/http-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Video plugin', function() {
-  var plugin, session, connection, cmApiClient, streams;
+  var plugin, session, connection, cmApiClient, httpClient, streams;
 
   this.timeout(2000);
 
@@ -27,6 +28,8 @@ describe('Video plugin', function() {
     plugin = new PluginVideo('id', 'type', session);
     cmApiClient = sinon.createStubInstance(CmApiClient);
     serviceLocator.register('cm-api-client', cmApiClient);
+    httpClient = sinon.createStubInstance(JanusHttpClient);
+    serviceLocator.register('http-client', httpClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
 
@@ -61,6 +64,106 @@ describe('Video plugin', function() {
         assert.isTrue(testPromise.isRejected());
       });
       done();
+    });
+  });
+
+  context('when processes "create" message', function() {
+    var transaction;
+
+    beforeEach(function() {
+      sinon.spy(connection.transactions, 'add');
+      plugin.processMessage({
+        janus: 'message',
+        body: {
+          request: 'create',
+          id: 'channel-name',
+          channel_data: 'channel-data'
+        },
+        transaction: 'transaction-id'
+      });
+      transaction = connection.transactions.add.firstCall.args[1];
+    });
+
+    it('transaction should be added', function() {
+      expect(connection.transactions.add.calledOnce).to.be.equal(true);
+    });
+
+    context('on unsuccessful transaction response', function() {
+      it('should resolve', function(done) {
+        transaction({}).then(function() {
+          done();
+        }, done);
+      });
+    });
+
+    context('on successful transaction response', function() {
+      var executeTransactionCallback;
+
+      beforeEach(function() {
+        executeTransactionCallback = function() {
+          return transaction({
+            janus: 'success',
+            plugindata: {
+              data: {
+                id: 'plugin-id'
+              }
+            }
+          });
+        };
+        cmApiClient.publish.restore();
+        sinon.stub(cmApiClient, 'publish', function() {
+          return Promise.resolve();
+        });
+      });
+
+      it('should set stream', function(done) {
+        executeTransactionCallback().finally(function() {
+          expect(plugin.stream).to.be.instanceOf(Stream);
+          expect(plugin.stream.channelName).to.be.equal('channel-name');
+          expect(plugin.stream.plugin).to.be.equal(plugin);
+          done();
+        });
+      });
+
+      it('should publish', function(done) {
+        executeTransactionCallback().finally(function() {
+          expect(cmApiClient.publish.calledOnce).to.be.equal(true);
+          var args = cmApiClient.publish.firstCall.args;
+          expect(args[0]).to.be.equal('channel-name');
+          expect(args[1]).to.be.a('string');
+          expect(args[2]).to.be.closeTo(Date.now() / 1000, 5);
+          expect(args[3]).to.be.equal('session-data');
+          expect(args[4]).to.be.equal('channel-data');
+          done();
+        });
+      });
+
+      context('on successful publish', function() {
+        it('should add stream to streams', function(done) {
+          executeTransactionCallback().finally(function() {
+            done();
+          });
+        });
+      });
+
+      context('on unsuccessful publish', function() {
+        beforeEach(function() {
+          cmApiClient.publish.restore();
+          sinon.stub(cmApiClient, 'publish', function() {
+            return Promise.reject(new Error('Cannot publish'));
+          });
+        });
+
+        it('should detach and should reject', function(done) {
+          executeTransactionCallback().then(function() {
+            done(new Error('Should not resolve'));
+          }, function(error) {
+            expect(httpClient.detach.callCount).to.be.equal(1);
+            expect(error.message).to.include('error: Cannot publish');
+            done();
+          });
+        });
+      })
     });
   });
 
