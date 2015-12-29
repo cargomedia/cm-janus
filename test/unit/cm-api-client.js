@@ -116,8 +116,8 @@ describe('CmApiClient unit tests', function() {
     var streamChannelKey = 'scKey';
     var streamKey = 'stKey';
     var start = 123;
-    var sessionData = '{"foo": "bar"}';
-    var channelData = 'channelData';
+    var sessionData = 'session-data';
+    var channelData = 'channel-data';
 
     it('passes params to request correctly', function() {
       var requestStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(true));
@@ -132,13 +132,13 @@ describe('CmApiClient unit tests', function() {
     var streamChannelKey = 'scKey';
     var streamKey = 'stKey';
     var start = 123;
-    var userData = '{"foo": "bar"}';
-    var channelData = '{"baz": "quux"}';
+    var sessionData = 'session-data';
+    var channelData = 'channel-data';
 
     it('passes params to request correctly', function() {
       var requestStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(true));
-      cmApiClient.subscribe(streamChannelKey, streamKey, start, userData, channelData);
-      assert.isTrue(requestStub.withArgs('subscribe', [streamChannelKey, streamKey, start, userData, channelData]).calledOnce);
+      cmApiClient.subscribe(streamChannelKey, streamKey, start, sessionData, channelData);
+      assert.isTrue(requestStub.withArgs('subscribe', [streamChannelKey, streamKey, start, sessionData, channelData]).calledOnce);
       requestStub.restore();
     });
   });
