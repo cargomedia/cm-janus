@@ -80,7 +80,7 @@ describe('HttpServer', function() {
           janusHttpClient = new JanusHttpClient();
           serviceLocator.register('http-client', janusHttpClient);
           var plugin = 'plugin';
-          var stream = new Stream('stream-id', 'channel-name', plugin);
+          var stream = new Stream('stream-id', 'channel-name', 'channel-data', plugin);
           streams.add(stream);
         });
 
@@ -115,7 +115,7 @@ describe('HttpServer', function() {
     context('when receives status request', function() {
       before(function() {
         var streams = new Streams();
-        streams.add(new Stream('stream-id', 'channel-name'));
+        streams.add(new Stream('stream-id', 'channel-name', 'channel-data'));
         serviceLocator.register('streams', streams);
       });
 
