@@ -149,8 +149,10 @@ describe('Session', function() {
       handle_id: 'plugin-id'
     };
 
-    it('should reject on non-existing plugin', function(done) {
-      expect(session.processMessage(message)).to.be.eventually.rejectedWith(Error, 'Invalid plugin').and.notify(done);
+    it('should resolve on non-existing plugin', function(done) {
+      session.processMessage(message).then(function() {
+        done();
+      }, done);
     });
 
     it('should proxy message to plugin', function() {
