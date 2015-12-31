@@ -1,7 +1,7 @@
 {
   "name": "cm-janus",
   "description": "",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Cargomedia",
   "license": "MIT",
   "main": "",
@@ -31,6 +31,7 @@
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
     "node-uuid": "^1.4.3",
+    "rimraf": "^2.4.4",
     "request-promise": "^1.0.2",
     "tmp": "^0.0.28",
     "underscore": "^1.8.3",
@@ -44,7 +45,6 @@
     "mocha": "~1.21.4",
     "mock-socket": "^0.8.2",
     "nock": "^3.0.0",
-    "rimraf": "^2.4.4",
     "sinon": "^1.17.2"
   }
 }
