@@ -41,6 +41,32 @@ describe('Video plugin', function() {
     serviceLocator.reset();
   });
 
+  it('when processes invalid message', function(done) {
+    var invalidRequestPromises = [];
+
+    var listRequest = {
+      janus: 'message',
+      body: {request: 'list'},
+      transaction: 'transaction-id'
+    };
+    invalidRequestPromises.push(plugin.processMessage(listRequest));
+
+    var destroyRequest = {
+      janus: 'destroy',
+      transaction: 'transaction-id'
+    };
+    invalidRequestPromises.push(plugin.processMessage(destroyRequest));
+
+    Promise.all(invalidRequestPromises.map(function(promise) {
+      return promise.reflect();
+    })).then(function() {
+      invalidRequestPromises.forEach(function(testPromise) {
+        assert.isTrue(testPromise.isRejected());
+      });
+      done();
+    });
+  });
+
   context('when processes "create" message', function() {
     var transaction;
 

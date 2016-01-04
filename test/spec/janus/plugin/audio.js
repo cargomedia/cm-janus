@@ -34,6 +34,37 @@ describe('Audio plugin', function() {
     serviceLocator.reset();
   });
 
+  it('when processes invalid message', function(done) {
+    var invalidRequestPromises = [];
+    var invalidRequestActions = ['list', 'exists', 'resetdecoder', 'listparticipants'];
+
+    invalidRequestActions.forEach(function(action) {
+      var invalidRequest = {
+        janus: 'message',
+        body: {request: action},
+        transaction: 'transaction-id'
+      };
+      invalidRequestPromises.push(plugin.processMessage(invalidRequest));
+    });
+
+    var destroyRequest = {
+      janus: 'destroy',
+      transaction: 'transaction-id'
+    };
+    invalidRequestPromises.push(plugin.processMessage(destroyRequest));
+
+
+    Promise.all(invalidRequestPromises.map(function(promise) {
+      return promise.reflect();
+    })).then(function() {
+      invalidRequestPromises.forEach(function(testPromise) {
+        assert.isTrue(testPromise.isRejected());
+      });
+      done();
+    });
+
+  });
+
   it('when processes "join" message.', function() {
     var onJoinStub = sinon.stub(plugin, 'onJoin', function() {
       return Promise.resolve();
