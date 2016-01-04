@@ -133,8 +133,10 @@ describe('JanusConnection', function() {
       assert(connection.session.processMessage.withArgs(message).calledOnce);
     });
 
-    it('should reject on non-existing session', function(done) {
-      expect(connection.processMessage(message)).to.be.eventually.rejectedWith(Error, 'Invalid session').and.notify(done);
+    it('should resolve on non-existing session', function(done) {
+      connection.processMessage(message).then(function() {
+        done();
+      }, done)
     });
   });
 
