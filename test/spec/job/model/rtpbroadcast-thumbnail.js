@@ -51,17 +51,15 @@ describe('imports archive', function() {
 
     it('should extract png thumbnail from video file', function() {
       var commandArgs = job._exec.firstCall.args[0].split(' ');
-      assert(fs.existsSync(commandArgs[0]), 'script ' + commandArgs[0] + ' does not exist');
-      assert.match(commandArgs[0], /rtpbroadcast-thumb\.sh$/);
-      assert.equal(commandArgs[1], 'video-file');
-      assert.match(commandArgs[2], /\.png$/);
+      assert.equal(commandArgs[2], 'video-file');
+      assert.match(commandArgs[3], /\.png$/);
     });
 
     it('should import png file into cm-application', function() {
       var commandArgs = job._exec.firstCall.args[0].split(' ');
       assert(cmApplication.importVideoStreamThumbnail.calledOnce, 'importVideoStreamThumbnail was not called');
       assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[0], 'stream-channel-id');
-      assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[1], commandArgs[2]);
+      assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[1], commandArgs[3]);
     });
 
   });
