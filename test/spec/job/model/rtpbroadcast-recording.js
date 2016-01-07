@@ -45,7 +45,7 @@ describe('imports archive', function() {
         streamChannelId: 'stream-channel-id'
       };
       var configuration = {
-        convertCommand: 'record <%= videoMjrFile %> <%= audioMjrFile %> <%= webmFile %>'
+        mergeCommand: 'record <%= videoMjrFile %> <%= audioMjrFile %> <%= webmFile %>'
       };
       job = new RtpbroadcastRecordingJob(jobData, configuration);
       sinon.stub(job, '_exec', function(command, callback) {

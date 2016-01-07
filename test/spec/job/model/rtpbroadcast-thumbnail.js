@@ -43,7 +43,7 @@ describe('imports archive', function() {
         id: 'stream-channel-id'
       };
       var configuration = {
-        convertCommand: 'thumbnail <%= videoMjrFile %> -param value <%= pngFile %>'
+        createThumbnailCommand: 'thumbnail <%= videoMjrFile %> -param value <%= pngFile %>'
       };
       job = new RtpbroadcastThumbnailJob(jobData, configuration);
       sinon.stub(job, '_exec', function(command, callback) {
