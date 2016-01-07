@@ -42,7 +42,11 @@ describe('imports archive', function() {
         audio: 'audio-file',
         streamChannelId: 'stream-channel-id'
       };
-      job = new AudioroomRecordingJob(jobData);
+      var configuration = {
+        convertCommand: 'foo <%= wavFile %> bar <%= mp3File%>'
+      };
+
+      job = new AudioroomRecordingJob(jobData, configuration);
       sinon.stub(job, '_exec', function(command, callback) {
         callback(null);
       });
@@ -51,17 +55,17 @@ describe('imports archive', function() {
 
     it('should convert audio into mpeg file', function() {
       var commandArgs = job._exec.firstCall.args[0].split(' ');
-      assert(fs.existsSync(commandArgs[0]), 'script ' + commandArgs[0] + ' does not exist');
-      assert.match(commandArgs[0], /audioroom-convert\.sh$/);
+      assert.equal(commandArgs[0], 'foo');
       assert.equal(commandArgs[1], 'audio-file');
-      assert.match(commandArgs[2], /\.mp3$/);
+      assert.equal(commandArgs[2], 'bar');
+      assert.match(commandArgs[3], /\.mp3$/);
     });
 
     it('should import audio mpeg file into cm-application', function() {
       var commandArgs = job._exec.firstCall.args[0].split(' ');
       assert(cmApplication.importMediaStreamArchive.calledOnce, 'importMediaStreamArchive was not called');
       assert.equal(cmApplication.importMediaStreamArchive.firstCall.args[0], 'stream-channel-id');
-      assert.equal(cmApplication.importMediaStreamArchive.firstCall.args[1], commandArgs[2]);
+      assert.equal(cmApplication.importMediaStreamArchive.firstCall.args[1], commandArgs[3]);
     });
   });
 });

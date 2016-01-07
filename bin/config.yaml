@@ -15,3 +15,10 @@ cmApplication:
 jobManager:
   jobsPath: '/tmp/jobs' # place where job definitions are stored
   tempFilesPath: '/tmp/jobs/temp-files/' # jobs handlers' temp files
+  handlersConfiguration:
+    'janus.plugin.cm.audioroom:audio-recording-finished':
+      convertCommand: 'lame <%= wavFile %> <%= mp3File %>'
+    'janus.plugin.cm.rtpbroadcast:recording-finished':
+      mergeCommand: 'mjr2webm <%= audioMjrFile %> <%= videoMjrFile %> <%= webmFile %>'
+    'janus.plugin.cm.rtpbroadcast:thumbnailing-finished':
+      createThumbnailCommand: 'mjr2png <%= videoMjrFile %> <%= width %> <%= height %> <%= pngFile %>'

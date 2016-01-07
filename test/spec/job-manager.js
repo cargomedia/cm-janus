@@ -9,6 +9,7 @@ var tmp = require('tmp');
 var exec = require('child_process').exec;
 
 var JobManager = require('../../lib/job/manager');
+var JobHandler = require('../../lib/job/handler');
 var AbstractJob = require('../../lib/job/model/abstract');
 var TestJobSuccess = require('../helpers/test-jobs').Success;
 var TestJobSleep = require('../helpers/test-jobs').Sleep;
@@ -74,7 +75,7 @@ describe('JobManager', function() {
   it('test job call', function(done) {
     createLocalTmpDir().then(function(tmpDirPath) {
       var jobData = randomTestJobData();
-      var manager = new JobManager(tmpDirPath, tempJobsDir, [TestJobSuccess]);
+      var manager = new JobManager(tmpDirPath, tempJobsDir, [new JobHandler(TestJobSuccess)]);
       sinon.spy(manager, '_addJob');
       manager.start();
 
@@ -103,7 +104,7 @@ describe('JobManager', function() {
       var jobData = randomTestJobData();
       var delayToStop = 1000;
 
-      var manager = new JobManager(tmpDirPath, tempJobsDir, [TestJobSleep]);
+      var manager = new JobManager(tmpDirPath, tempJobsDir, [new JobHandler(TestJobSleep)]);
       sinon.spy(manager, '_addJob');
       manager.start();
 

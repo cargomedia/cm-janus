@@ -44,7 +44,10 @@ describe('imports archive', function() {
         video: 'video-file',
         streamChannelId: 'stream-channel-id'
       };
-      job = new RtpbroadcastRecordingJob(jobData);
+      var configuration = {
+        mergeCommand: 'record <%= videoMjrFile %> <%= audioMjrFile %> <%= webmFile %>'
+      };
+      job = new RtpbroadcastRecordingJob(jobData, configuration);
       sinon.stub(job, '_exec', function(command, callback) {
         callback(null);
       });
@@ -53,11 +56,10 @@ describe('imports archive', function() {
 
     it('should merge video and audio file into mpeg file', function() {
       var commandArgs = job._exec.firstCall.args[0].split(' ');
-      assert(fs.existsSync(commandArgs[0]), 'script ' + commandArgs[0] + ' does not exist');
-      assert.match(commandArgs[0], /rtpbroadcast-merge\.sh$/);
-      assert.equal(commandArgs[1], 'audio-file');
-      assert.equal(commandArgs[2], 'video-file');
-      assert.match(commandArgs[3], /\.mp4$/);
+      assert.equal(commandArgs[0], 'record');
+      assert.equal(commandArgs[1], 'video-file');
+      assert.equal(commandArgs[2], 'audio-file');
+      assert.match(commandArgs[3], /\.webm$/);
     });
 
     it('should import mpeg file into cm-application', function() {
