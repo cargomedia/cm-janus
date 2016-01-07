@@ -42,7 +42,10 @@ describe('imports archive', function() {
         thumb: 'video-file',
         id: 'stream-channel-id'
       };
-      job = new RtpbroadcastThumbnailJob(jobData);
+      var configuration = {
+        convertCommand: 'thumbnail <%= videoMjrFile %> -param value <%= pngFile %>'
+      };
+      job = new RtpbroadcastThumbnailJob(jobData, configuration);
       sinon.stub(job, '_exec', function(command, callback) {
         callback(null);
       });
@@ -51,15 +54,18 @@ describe('imports archive', function() {
 
     it('should extract png thumbnail from video file', function() {
       var commandArgs = job._exec.firstCall.args[0].split(' ');
-      assert.equal(commandArgs[2], 'video-file');
-      assert.match(commandArgs[3], /\.png$/);
+      assert.equal(commandArgs[0], 'thumbnail');
+      assert.equal(commandArgs[1], 'video-file');
+      assert.equal(commandArgs[2], '-param');
+      assert.equal(commandArgs[3], 'value');
+      assert.match(commandArgs[4], /\.png$/);
     });
 
     it('should import png file into cm-application', function() {
       var commandArgs = job._exec.firstCall.args[0].split(' ');
       assert(cmApplication.importVideoStreamThumbnail.calledOnce, 'importVideoStreamThumbnail was not called');
       assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[0], 'stream-channel-id');
-      assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[1], commandArgs[3]);
+      assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[1], commandArgs[4]);
     });
 
   });

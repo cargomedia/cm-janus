@@ -42,8 +42,11 @@ describe('imports archive', function() {
         audio: 'audio-file',
         streamChannelId: 'stream-channel-id'
       };
+      var configuration = {
+        convertCommand: 'foo <%= wavFile %> bar <%= mp3File%>'
+      };
 
-      job = new AudioroomRecordingJob(jobData);
+      job = new AudioroomRecordingJob(jobData, configuration);
       sinon.stub(job, '_exec', function(command, callback) {
         callback(null);
       });
@@ -52,7 +55,9 @@ describe('imports archive', function() {
 
     it('should convert audio into mpeg file', function() {
       var commandArgs = job._exec.firstCall.args[0].split(' ');
-      assert.equal(commandArgs[2], 'audio-file');
+      assert.equal(commandArgs[0], 'foo');
+      assert.equal(commandArgs[1], 'audio-file');
+      assert.equal(commandArgs[2], 'bar');
       assert.match(commandArgs[3], /\.mp3$/);
     });
 
