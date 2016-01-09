@@ -74,7 +74,7 @@ describe('JanusProxy', function() {
       it('should send it to janus connection', function(done) {
         fromClientConnection.emit('message', 'body');
         connection.processMessage.firstCall.returnValue.finally(function() {
-          expect(toJanusConnection.send.withArgs('body').calledOnce).to.be.equal(true);
+          expect(toJanusConnection.send.withArgs('altered-body').calledOnce).to.be.equal(true);
           done();
         });
       });
@@ -113,7 +113,7 @@ describe('JanusProxy', function() {
       it('should send it to client connection', function(done) {
         toJanusConnection.emit('message', 'body');
         connection.processMessage.firstCall.returnValue.finally(function() {
-          expect(fromClientConnection.send.withArgs('body').calledOnce).to.be.equal(true);
+          expect(fromClientConnection.send.withArgs('altered-body').calledOnce).to.be.equal(true);
           done();
         });
       });
