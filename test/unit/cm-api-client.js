@@ -2,6 +2,7 @@ var assert = require('chai').assert;
 require('../helpers/global-error-handler');
 var Logger = require('../../lib/logger');
 var CMApiClient = require('../../lib/cm-api-client');
+var Stream = require('../../lib/stream');
 var Promise = require('bluebird');
 var sinon = require('sinon');
 
@@ -115,14 +116,16 @@ describe('CmApiClient unit tests', function() {
     var cmApiClient = new CMApiClient('http://cm.dev/', 'apiKey');
     var streamChannelKey = 'scKey';
     var streamKey = 'stKey';
-    var start = 123;
     var sessionData = 'session-data';
     var channelData = 'channel-data';
 
     it('passes params to request correctly', function() {
       var requestStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(true));
-      cmApiClient.publish(streamChannelKey, streamKey, start, sessionData, channelData);
-      assert.isTrue(requestStub.withArgs('publish', [streamChannelKey, streamKey, start, sessionData, channelData]).calledOnce);
+
+      var plugin = {session: {data: sessionData}};
+      var stream = new Stream(streamKey, streamChannelKey, channelData, plugin);
+      cmApiClient.publish(stream);
+      assert.isTrue(requestStub.withArgs('publish', [streamChannelKey, streamKey, stream.start.getTime() / 1000, sessionData, channelData]).calledOnce);
       requestStub.restore();
     });
   });
@@ -131,14 +134,15 @@ describe('CmApiClient unit tests', function() {
     var cmApiClient = new CMApiClient('http://cm.dev/', 'apiKey');
     var streamChannelKey = 'scKey';
     var streamKey = 'stKey';
-    var start = 123;
     var sessionData = 'session-data';
     var channelData = 'channel-data';
 
     it('passes params to request correctly', function() {
       var requestStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(true));
-      cmApiClient.subscribe(streamChannelKey, streamKey, start, sessionData, channelData);
-      assert.isTrue(requestStub.withArgs('subscribe', [streamChannelKey, streamKey, start, sessionData, channelData]).calledOnce);
+      var plugin = {session: {data: sessionData}};
+      var stream = new Stream(streamKey, streamChannelKey, channelData, plugin);
+      cmApiClient.subscribe(stream);
+      assert.isTrue(requestStub.withArgs('subscribe', [streamChannelKey, streamKey, stream.start.getTime() / 1000, sessionData, channelData]).calledOnce);
       requestStub.restore();
     });
   });
@@ -150,7 +154,8 @@ describe('CmApiClient unit tests', function() {
 
     it('passes params to request correctly', function() {
       var requestStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(true));
-      cmApiClient.removeStream(streamChannelKey, streamKey);
+      var stream = new Stream(streamKey, streamChannelKey);
+      cmApiClient.removeStream(stream);
       assert.isTrue(requestStub.withArgs('removeStream', [streamChannelKey, streamKey]).calledOnce);
       requestStub.restore();
     });

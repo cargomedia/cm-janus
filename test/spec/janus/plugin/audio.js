@@ -169,11 +169,7 @@ describe('Audio plugin', function() {
       connection.transactions.execute(changeroomRequest.transaction, changeroomResponse).then(function() {
         assert.equal(plugin.stream.channelName, changeroomRequest.body.id);
         expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
-        var args = cmApiClient.subscribe.firstCall.args;
-        expect(args[0]).to.be.equal(changeroomRequest.body.id);
-        expect(args[1]).to.be.equal(plugin.stream.id);
-        expect(args[2]).to.be.closeTo(Date.now() / 1000, 5);
-        expect(args[3]).to.be.equal('session-data');
+        expect(cmApiClient.subscribe.firstCall.args[0]).to.be.equal(plugin.stream);
         expect(streams.add.withArgs(plugin.stream).calledOnce).to.be.equal(true);
         done();
       });
@@ -205,7 +201,7 @@ describe('Audio plugin', function() {
     plugin.stream = previousStream;
     plugin.processMessage(changeroomRequest).then(function() {
       connection.transactions.execute(changeroomRequest.transaction, changeroomResponse).then(function() {
-        expect(cmApiClient.removeStream.calledWith(previousStream.channelName, previousStream.id)).to.be.equal(true);
+        expect(cmApiClient.removeStream.calledWith(previousStream)).to.be.equal(true);
         expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
         assert.equal(plugin.stream.channelName, changeroomRequest.body.id);
         expect(cmApiClient.subscribe.called).to.be.equal(false);

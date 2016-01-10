@@ -128,12 +128,7 @@ describe('Video plugin', function() {
       it('should publish', function(done) {
         executeTransactionCallback().finally(function() {
           expect(cmApiClient.publish.calledOnce).to.be.equal(true);
-          var args = cmApiClient.publish.firstCall.args;
-          expect(args[0]).to.be.equal('channel-name');
-          expect(args[1]).to.be.a('string');
-          expect(args[2]).to.be.closeTo(Date.now() / 1000, 5);
-          expect(args[3]).to.be.equal('session-data');
-          expect(args[4]).to.be.equal('channel-data');
+          expect(cmApiClient.publish.firstCall.args[0]).to.be.equal(plugin.stream);
           done();
         });
       });
@@ -264,11 +259,7 @@ describe('Video plugin', function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
         assert.equal(plugin.stream.channelName, switchRequest.body.id);
         expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
-        var args = cmApiClient.subscribe.firstCall.args;
-        expect(args[0]).to.be.equal(switchRequest.body.id);
-        expect(args[1]).to.be.equal(plugin.stream.id);
-        expect(args[2]).to.be.closeTo(Date.now() / 1000, 5);
-        expect(args[3]).to.be.equal('session-data');
+        expect(cmApiClient.subscribe.firstCall.args[0]).to.be.equal(plugin.stream);
         expect(streams.add.withArgs(plugin.stream).calledOnce).to.be.equal(true);
         done();
       });
@@ -299,7 +290,7 @@ describe('Video plugin', function() {
     plugin.stream = previousStream;
     plugin.processMessage(switchRequest).then(function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
-        expect(cmApiClient.removeStream.calledWith(previousStream.channelName, previousStream.id)).to.be.equal(true);
+        expect(cmApiClient.removeStream.calledWith(previousStream)).to.be.equal(true);
         expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
         assert.equal(plugin.stream.channelName, switchRequest.body.id);
         expect(cmApiClient.subscribe.called).to.be.equal(false);

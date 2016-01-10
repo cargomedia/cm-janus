@@ -3,6 +3,7 @@ var nock = require('nock');
 require('../helpers/global-error-handler');
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
+var Stream = require('../../lib/stream');
 
 var CmApiClient = require('../../lib/cm-api-client');
 
@@ -37,9 +38,12 @@ describe('CmApiClient spec tests', function() {
     var url = 'http://localhost:8080';
     var action = 'publish';
     var apiKey = 'test';
-    var params = ['streamChannelKey', 'streamKey', 0, 'sessionData', 'channelData'];
+    var plugin = {session: {data: 'sessionData'}};
+    var stream = new Stream('streamKey', 'streamChannelKey', 'channelData', plugin);
+    var params = [stream];
+    var httpParams = ['streamChannelKey', 'streamKey', stream.start.getTime() / 1000, 'sessionData', 'channelData'];
 
-    mockRequest(url, action, apiKey, params);
+    mockRequest(url, action, apiKey, httpParams);
 
     var client = new CmApiClient(url, apiKey);
     client.publish.apply(client, params).then(function(result) {
@@ -52,9 +56,12 @@ describe('CmApiClient spec tests', function() {
     var url = 'http://localhost:8080';
     var action = 'subscribe';
     var apiKey = 'test';
-    var params = ['streamChannelKey', 'streamKey', 0, 'sessionData', 'channelData'];
+    var plugin = {session: {data: 'sessionData'}};
+    var stream = new Stream('streamKey', 'streamChannelKey', 'channelData', plugin);
+    var params = [stream];
+    var httpParams = ['streamChannelKey', 'streamKey', stream.start.getTime() / 1000, 'sessionData', 'channelData'];
 
-    mockRequest(url, action, apiKey, params);
+    mockRequest(url, action, apiKey, httpParams);
 
     var client = new CmApiClient(url, apiKey);
     client.subscribe.apply(client, params).then(function(result) {
@@ -67,9 +74,11 @@ describe('CmApiClient spec tests', function() {
     var url = 'http://localhost:8080';
     var action = 'removeStream';
     var apiKey = 'test';
-    var params = ['streamChannelKey', 'streamKey'];
+    var stream = new Stream('streamKey', 'streamChannelKey', 'channelData');
+    var params = [stream];
+    var httpParams = ['streamChannelKey', 'streamKey'];
 
-    mockRequest(url, action, apiKey, params);
+    mockRequest(url, action, apiKey, httpParams);
 
     var client = new CmApiClient(url, apiKey);
     client.removeStream.apply(client, params).then(function(result) {
