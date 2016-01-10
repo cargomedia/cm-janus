@@ -16,6 +16,7 @@ describe('Stream', function() {
     assert.strictEqual(stream.channelName, 'bar');
     assert.strictEqual(stream.channelData, 'zoo');
     assert.strictEqual(stream.plugin, plugin);
+    assert.closeTo(stream.start.getTime(), Date.now(), 1);
   });
 
   it('generate', function() {
