@@ -52,11 +52,7 @@ describe('PluginStreaming', function() {
     it('should subscribe', function(done) {
       processWebrtcupMessage().finally(function() {
         expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
-        var args = cmApiClient.subscribe.firstCall.args;
-        expect(args[0]).to.be.equal('channel-name');
-        expect(args[1]).to.be.equal('stream-id');
-        expect(args[2]).to.be.closeTo(Date.now() / 1000, 5);
-        expect(args[3]).to.be.equal('session-data');
+        expect(cmApiClient.subscribe.firstCall.args[0]).to.be.equal(plugin.stream);
         done();
       });
     });
@@ -121,9 +117,7 @@ describe('PluginStreaming', function() {
 
       it('should call cmApiClient removeStream', function() {
         expect(cmApiClient.removeStream.calledOnce).to.be.equal(true);
-        var args = cmApiClient.removeStream.firstCall.args;
-        expect(args[0]).to.be.equal('channel-name');
-        expect(args[1]).to.be.equal('stream-id');
+        expect(cmApiClient.removeStream.firstCall.args[0]).to.be.equal(stream);
       });
     });
   })
