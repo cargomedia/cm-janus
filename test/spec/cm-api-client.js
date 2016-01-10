@@ -86,21 +86,4 @@ describe('CmApiClient spec tests', function() {
       done();
     });
   });
-
-  it('isValidUser', function(done) {
-    var url = 'http://localhost:8080';
-    var action = 'isValidUser';
-    var apiKey = 'test';
-    var params = ['data'];
-
-    mockRequest(url, action, apiKey, params);
-
-    var client = new CmApiClient(url, apiKey);
-    client.isValidUser.apply(client, params).then(function() {
-      done();
-    }).catch(function(error) {
-      done(error);
-    });
-  });
-
 });

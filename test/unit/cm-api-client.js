@@ -90,28 +90,6 @@ describe('CmApiClient unit tests', function() {
     });
   });
 
-  describe('isValidUser()', function() {
-    var cmApiClient = new CMApiClient('http://cm.dev/', 'foo');
-    var userData = {foo: 'bar'};
-
-    it('works when returns true', function() {
-      var successStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(true));
-      cmApiClient.isValidUser(userData);
-      assert.isTrue(successStub.withArgs('isValidUser', [userData]).calledOnce);
-      successStub.restore();
-    });
-
-    it('works when returns false', function(done) {
-      var failStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(false));
-      cmApiClient.isValidUser(userData).catch(function(err) {
-        assert.instanceOf(err, Error);
-        assert.strictEqual(err.message, 'Not valid user');
-        assert.isTrue(failStub.withArgs('isValidUser', [userData]).calledOnce);
-        done();
-      });
-    });
-  });
-
   describe('publish()', function() {
     var cmApiClient = new CMApiClient('http://cm.dev/', 'apiKey');
     var streamChannelKey = 'scKey';
