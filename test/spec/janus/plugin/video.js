@@ -8,13 +8,14 @@ var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
+var Channels = require('../../../../lib/channels');
 var CmApiClient = require('../../../../lib/cm-api-client');
 var Logger = require('../../../../lib/logger');
 var JanusHttpClient = require('../../../../lib/janus/http-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Video plugin', function() {
-  var plugin, session, connection, cmApiClient, httpClient, streams;
+  var plugin, session, connection, cmApiClient, httpClient, streams, channels;
 
   this.timeout(2000);
 
@@ -32,6 +33,8 @@ describe('Video plugin', function() {
     serviceLocator.register('http-client', httpClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
+    channels = sinon.createStubInstance(Channels);
+    serviceLocator.register('channels', channels);
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
