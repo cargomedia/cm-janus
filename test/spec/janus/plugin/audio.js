@@ -118,7 +118,7 @@ describe('Audio plugin', function() {
 
     plugin.processMessage(joinRequest).then(function() {
       connection.transactions.execute(joinResponse.transaction, joinResponse).then(function() {
-        assert.equal(plugin.stream.channelName, joinRequest.body.id);
+        assert.equal(plugin.stream.channel.name, joinRequest.body.id);
         done();
       });
     });
@@ -167,7 +167,7 @@ describe('Audio plugin', function() {
 
     plugin.processMessage(changeroomRequest).then(function() {
       connection.transactions.execute(changeroomRequest.transaction, changeroomResponse).then(function() {
-        assert.equal(plugin.stream.channelName, changeroomRequest.body.id);
+        assert.equal(plugin.stream.channel.name, changeroomRequest.body.id);
         expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
         expect(cmApiClient.subscribe.firstCall.args[0]).to.be.equal(plugin.stream);
         expect(streams.add.withArgs(plugin.stream).calledOnce).to.be.equal(true);
@@ -197,13 +197,13 @@ describe('Audio plugin', function() {
       transaction: changeroomRequest.transaction
     };
 
-    var previousStream = new Stream('previousId', 'previousChannel', plugin);
+    var previousStream = new Stream();
     plugin.stream = previousStream;
     plugin.processMessage(changeroomRequest).then(function() {
       connection.transactions.execute(changeroomRequest.transaction, changeroomResponse).then(function() {
         expect(cmApiClient.removeStream.calledWith(previousStream)).to.be.equal(true);
         expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
-        assert.equal(plugin.stream.channelName, changeroomRequest.body.id);
+        assert.equal(plugin.stream.channel.name, changeroomRequest.body.id);
         expect(cmApiClient.subscribe.called).to.be.equal(false);
         expect(streams.add.called).to.be.equal(false);
         done();

@@ -101,7 +101,8 @@ describe('CmApiClient unit tests', function() {
       var requestStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(true));
 
       var plugin = {session: {data: sessionData}};
-      var stream = new Stream(streamKey, streamChannelKey, channelData, plugin);
+      var channel = {name: streamChannelKey, data: channelData};
+      var stream = new Stream(streamKey, channel, plugin);
       cmApiClient.publish(stream);
       assert.isTrue(requestStub.withArgs('publish', [streamChannelKey, streamKey, stream.start.getTime() / 1000, sessionData, channelData]).calledOnce);
       requestStub.restore();
@@ -118,7 +119,8 @@ describe('CmApiClient unit tests', function() {
     it('passes params to request correctly', function() {
       var requestStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(true));
       var plugin = {session: {data: sessionData}};
-      var stream = new Stream(streamKey, streamChannelKey, channelData, plugin);
+      var channel = {name: streamChannelKey, data: channelData};
+      var stream = new Stream(streamKey, channel, plugin);
       cmApiClient.subscribe(stream);
       assert.isTrue(requestStub.withArgs('subscribe', [streamChannelKey, streamKey, stream.start.getTime() / 1000, sessionData, channelData]).calledOnce);
       requestStub.restore();
@@ -132,7 +134,8 @@ describe('CmApiClient unit tests', function() {
 
     it('passes params to request correctly', function() {
       var requestStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(true));
-      var stream = new Stream(streamKey, streamChannelKey);
+      var channel = {name: streamChannelKey};
+      var stream = new Stream(streamKey, channel);
       cmApiClient.removeStream(stream);
       assert.isTrue(requestStub.withArgs('removeStream', [streamChannelKey, streamKey]).calledOnce);
       requestStub.restore();

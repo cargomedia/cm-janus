@@ -39,7 +39,8 @@ describe('CmApiClient spec tests', function() {
     var action = 'publish';
     var apiKey = 'test';
     var plugin = {session: {data: 'sessionData'}};
-    var stream = new Stream('streamKey', 'streamChannelKey', 'channelData', plugin);
+    var channel = {name: 'streamChannelKey', data: 'channelData'};
+    var stream = new Stream('streamKey', channel, plugin);
     var params = [stream];
     var httpParams = ['streamChannelKey', 'streamKey', stream.start.getTime() / 1000, 'sessionData', 'channelData'];
 
@@ -57,7 +58,8 @@ describe('CmApiClient spec tests', function() {
     var action = 'subscribe';
     var apiKey = 'test';
     var plugin = {session: {data: 'sessionData'}};
-    var stream = new Stream('streamKey', 'streamChannelKey', 'channelData', plugin);
+    var channel = {name: 'streamChannelKey', data: 'channelData'};
+    var stream = new Stream('streamKey', channel, plugin);
     var params = [stream];
     var httpParams = ['streamChannelKey', 'streamKey', stream.start.getTime() / 1000, 'sessionData', 'channelData'];
 
@@ -74,7 +76,8 @@ describe('CmApiClient spec tests', function() {
     var url = 'http://localhost:8080';
     var action = 'removeStream';
     var apiKey = 'test';
-    var stream = new Stream('streamKey', 'streamChannelKey', 'channelData');
+    var channel = {name: 'streamChannelKey', data: 'channelData'};
+    var stream = new Stream('streamKey', channel);
     var params = [stream];
     var httpParams = ['streamChannelKey', 'streamKey'];
 
