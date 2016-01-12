@@ -34,7 +34,8 @@ describe('Audio plugin', function() {
     serviceLocator.register('cm-api-client', cmApiClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
-    channels = new Channels;
+    channels = sinon.createStubInstance(Channels);
+    channels.getByNameAndData.restore();
     sinon.stub(channels, 'getByNameAndData', function(name, data) {
       return Channel.generate(name, data);
     });
@@ -292,13 +293,9 @@ describe('Audio plugin', function() {
     });
   });
 
-  it.only('destroy room', function(done) {
+  it('destroy room', function(done) {
     streams.has.returns(true);
-    sinon.stub(channels, 'remove', function() {
-    });
-    sinon.stub(channels, 'contains', function() {
-      return true;
-    });
+    channels.contains.returns(true);
     var destroyedRequest = {
       janus: 'event',
       plugindata: {
