@@ -36,6 +36,8 @@ describe('PluginStreaming', function() {
     var processWebrtcupMessage;
 
     beforeEach(function() {
+      var channel = {name: 'channel-name', data: 'channel-data'};
+      var stream = new Stream('stream-id', channel);
       plugin.stream = new Stream('stream-id', 'channel-name', 'channel-data', plugin);
       processWebrtcupMessage = function() {
         return plugin.processMessage({
@@ -97,7 +99,7 @@ describe('PluginStreaming', function() {
     var stream;
 
     beforeEach(function() {
-      stream = new Stream('stream-id', 'channel-name', plugin);
+      stream = new Stream('stream-id', 'channel', plugin);
       plugin.stream = stream;
       streams.has.returns(true);
     });

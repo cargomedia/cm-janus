@@ -8,13 +8,15 @@ var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
+var Channel = require('../../../../lib/channel');
+var Channels = require('../../../../lib/channels');
 var CmApiClient = require('../../../../lib/cm-api-client');
 var Logger = require('../../../../lib/logger');
 var JanusHttpClient = require('../../../../lib/janus/http-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Video plugin', function() {
-  var plugin, session, connection, cmApiClient, httpClient, streams;
+  var plugin, session, connection, cmApiClient, httpClient, streams, channels;
 
   this.timeout(2000);
 
@@ -32,6 +34,11 @@ describe('Video plugin', function() {
     serviceLocator.register('http-client', httpClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
+    channels = new Channels;
+    sinon.stub(channels, 'getByNameAndData', function(name, data) {
+      return Channel.generate(name, data);
+    });
+    serviceLocator.register('channels', channels);
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
@@ -116,10 +123,18 @@ describe('Video plugin', function() {
         });
       });
 
+      it('should set channel', function(done) {
+        executeTransactionCallback().finally(function() {
+          expect(plugin.channel).to.be.instanceOf(Channel);
+          expect(plugin.channel.name).to.be.equal('channel-name');
+          done();
+        });
+      });
+
       it('should set stream', function(done) {
         executeTransactionCallback().finally(function() {
           expect(plugin.stream).to.be.instanceOf(Stream);
-          expect(plugin.stream.channelName).to.be.equal('channel-name');
+          expect(plugin.stream.channel).to.be.equal(plugin.channel);
           expect(plugin.stream.plugin).to.be.equal(plugin);
           done();
         });
@@ -193,7 +208,7 @@ describe('Video plugin', function() {
 
     plugin.processMessage(watchRequest).then(function() {
       connection.transactions.execute(watchRequest.transaction, watchResponse).then(function() {
-        assert.equal(plugin.stream.channelName, watchRequest.body.id);
+        assert.equal(plugin.stream.channel.name, watchRequest.body.id);
         done();
       });
     });
@@ -257,7 +272,7 @@ describe('Video plugin', function() {
 
     plugin.processMessage(switchRequest).then(function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
-        assert.equal(plugin.stream.channelName, switchRequest.body.id);
+        assert.equal(plugin.stream.channel.name, switchRequest.body.id);
         expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
         expect(cmApiClient.subscribe.firstCall.args[0]).to.be.equal(plugin.stream);
         expect(streams.add.withArgs(plugin.stream).calledOnce).to.be.equal(true);
@@ -286,13 +301,13 @@ describe('Video plugin', function() {
       transaction: switchRequest.transaction
     };
 
-    var previousStream = new Stream('previousId', 'previousChannel', plugin);
+    var previousStream = new Stream();
     plugin.stream = previousStream;
     plugin.processMessage(switchRequest).then(function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
         expect(cmApiClient.removeStream.calledWith(previousStream)).to.be.equal(true);
         expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
-        assert.equal(plugin.stream.channelName, switchRequest.body.id);
+        assert.equal(plugin.stream.channel.name, switchRequest.body.id);
         expect(cmApiClient.subscribe.called).to.be.equal(false);
         expect(streams.add.called).to.be.equal(false);
         done();

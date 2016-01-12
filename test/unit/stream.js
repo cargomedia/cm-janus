@@ -10,22 +10,21 @@ describe('Stream', function() {
 
   it('constructor', function() {
     var plugin = sinon.createStubInstance(PluginAbstract);
-    var stream = new Stream('foo', 'bar', 'zoo', plugin);
+    var stream = new Stream('foo', 'channel', plugin);
 
     assert.strictEqual(stream.id, 'foo');
-    assert.strictEqual(stream.channelName, 'bar');
-    assert.strictEqual(stream.channelData, 'zoo');
+    assert.strictEqual(stream.channel, 'channel');
     assert.strictEqual(stream.plugin, plugin);
     assert.closeTo(stream.start.getTime(), Date.now(), 1);
   });
 
   it('generate', function() {
     var plugin = sinon.createStubInstance(PluginAbstract);
-    var stream = Stream.generate('foo', 'bar', plugin);
+
+    var stream = Stream.generate('channel', plugin);
 
     assert.strictEqual(_.isString(stream.id), true);
-    assert.strictEqual(stream.channelName, 'foo');
-    assert.strictEqual(stream.channelData, 'bar');
+    assert.strictEqual(stream.channel, 'channel');
     assert.strictEqual(stream.plugin, plugin);
   });
 });
