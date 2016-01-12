@@ -164,6 +164,25 @@ describe('Audio plugin', function() {
     assert(onChangeroomStub.calledWith(changeroomRequest));
   });
 
+  it('when processes "destroyed" message.', function() {
+    var onDestroyedStub = sinon.stub(plugin, 'onDestroyed', function() {
+      return Promise.resolve();
+    });
+    var destroyedRequest = {
+      janus: 'event',
+      plugindata: {
+        plugin: 'janus.plugin.cm.audioroom',
+        data: {
+          audioroom: 'destroyed'
+        }
+      }
+    };
+    plugin.processMessage(destroyedRequest);
+
+    assert(onDestroyedStub.calledOnce);
+    assert(onDestroyedStub.calledWith(destroyedRequest));
+  });
+
   it('join room', function(done) {
     var joinRequest = {
       janus: 'message',
@@ -270,6 +289,34 @@ describe('Audio plugin', function() {
         expect(streams.add.called).to.be.equal(false);
         done();
       });
+    });
+  });
+
+  it.only('destroy room', function(done) {
+    streams.has.returns(true);
+    sinon.stub(channels, 'remove', function() {
+    });
+    sinon.stub(channels, 'contains', function() {
+      return true;
+    });
+    var destroyedRequest = {
+      janus: 'event',
+      plugindata: {
+        plugin: 'janus.plugin.cm.audioroom',
+        data: {
+          audioroom: 'destroyed'
+        }
+      }
+    };
+    var channel = {};
+    var stream = {channel: channel};
+    plugin.stream = stream;
+    plugin.channel = channel;
+    plugin.processMessage(destroyedRequest).then(function() {
+      expect(streams.remove.calledWith(stream)).to.be.equal(true);
+      expect(channels.remove.calledWith(channel)).to.be.equal(true);
+      channels.remove.restore();
+      done();
     });
   });
 
