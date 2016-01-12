@@ -8,6 +8,7 @@ var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
+var Channel = require('../../../../lib/channel');
 var Channels = require('../../../../lib/channels');
 var CmApiClient = require('../../../../lib/cm-api-client');
 var Logger = require('../../../../lib/logger');
@@ -33,7 +34,10 @@ describe('Video plugin', function() {
     serviceLocator.register('http-client', httpClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
-    channels = sinon.createStubInstance(Channels);
+    channels = new Channels;
+    sinon.stub(channels, 'getByNameAndData', function(name, data) {
+      return Channel.generate(name, data);
+    });
     serviceLocator.register('channels', channels);
 
     connection.session = session;
@@ -119,10 +123,18 @@ describe('Video plugin', function() {
         });
       });
 
+      it('should set channel', function(done) {
+        executeTransactionCallback().finally(function() {
+          expect(plugin.channel).to.be.instanceOf(Channel);
+          expect(plugin.channel.name).to.be.equal('channel-name');
+          done();
+        });
+      });
+
       it('should set stream', function(done) {
         executeTransactionCallback().finally(function() {
           expect(plugin.stream).to.be.instanceOf(Stream);
-          expect(plugin.stream.channel.name).to.be.equal('channel-name');
+          expect(plugin.stream.channel).to.be.equal(plugin.channel);
           expect(plugin.stream.plugin).to.be.equal(plugin);
           done();
         });

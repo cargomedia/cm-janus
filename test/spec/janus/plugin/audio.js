@@ -10,6 +10,7 @@ var PluginAudio = require('../../../../lib/janus/plugin/audio');
 var Logger = require('../../../../lib/logger');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
+var Channel = require('../../../../lib/channel');
 var Channels = require('../../../../lib/channels');
 var CmApiClient = require('../../../../lib/cm-api-client');
 var serviceLocator = require('../../../../lib/service-locator');
@@ -33,7 +34,10 @@ describe('Audio plugin', function() {
     serviceLocator.register('cm-api-client', cmApiClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
-    channels = sinon.createStubInstance(Channels);
+    channels = new Channels;
+    sinon.stub(channels, 'getByNameAndData', function(name, data) {
+      return Channel.generate(name, data);
+    });
     serviceLocator.register('channels', channels);
 
     connection.session = session;
@@ -73,6 +77,61 @@ describe('Audio plugin', function() {
       done();
     });
 
+  });
+
+  context('when processes "create" message', function() {
+    var transaction;
+
+    beforeEach(function() {
+      sinon.spy(connection.transactions, 'add');
+      plugin.processMessage({
+        janus: 'message',
+        body: {
+          request: 'create',
+          id: 'channel-name',
+          channel_data: 'channel-data'
+        },
+        transaction: 'transaction-id'
+      });
+      transaction = connection.transactions.add.firstCall.args[1];
+    });
+
+    it('transaction should be added', function() {
+      expect(connection.transactions.add.calledOnce).to.be.equal(true);
+    });
+
+    context('on unsuccessful transaction response', function() {
+      it('should resolve', function(done) {
+        transaction({}).then(function() {
+          done();
+        }, done);
+      });
+    });
+
+    context('on successful transaction response', function() {
+      var executeTransactionCallback;
+
+      beforeEach(function() {
+        executeTransactionCallback = function() {
+          return transaction({
+            janus: 'success',
+            plugindata: {
+              data: {
+                id: 'plugin-id'
+              }
+            }
+          });
+        };
+      });
+
+      it('should set channel', function(done) {
+        executeTransactionCallback().finally(function() {
+          expect(plugin.channel).to.be.instanceOf(Channel);
+          expect(plugin.channel.name).to.be.equal('channel-name');
+          done();
+        });
+      });
+    });
   });
 
   it('when processes "join" message.', function() {
