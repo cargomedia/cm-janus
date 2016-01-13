@@ -92,7 +92,8 @@ describe('CmApiClient unit tests', function() {
 
   describe('publish()', function() {
     var cmApiClient = new CMApiClient('http://cm.dev/', 'apiKey');
-    var streamChannelKey = 'scKey';
+    var channelMediaId = 'media-id';
+    var channelName = 'scKey';
     var streamKey = 'stKey';
     var sessionData = 'session-data';
     var channelData = 'channel-data';
@@ -101,17 +102,18 @@ describe('CmApiClient unit tests', function() {
       var requestStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(true));
 
       var plugin = {session: {data: sessionData}};
-      var channel = {name: streamChannelKey, data: channelData};
+      var channel = {id: channelMediaId, name: channelName, data: channelData};
       var stream = new Stream(streamKey, channel, plugin);
       cmApiClient.publish(stream);
-      assert.isTrue(requestStub.withArgs('publish', [streamChannelKey, streamKey, stream.start.getTime() / 1000, sessionData, channelData]).calledOnce);
+      assert.isTrue(requestStub.withArgs('publish', [sessionData, channelName, channelMediaId, channelData, streamKey, stream.start.getTime() / 1000]).calledOnce);
       requestStub.restore();
     });
   });
 
   describe('subscribe()', function() {
     var cmApiClient = new CMApiClient('http://cm.dev/', 'apiKey');
-    var streamChannelKey = 'scKey';
+    var channelMediaId = 'media-id';
+    var channelName = 'scKey';
     var streamKey = 'stKey';
     var sessionData = 'session-data';
     var channelData = 'channel-data';
@@ -119,10 +121,10 @@ describe('CmApiClient unit tests', function() {
     it('passes params to request correctly', function() {
       var requestStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(true));
       var plugin = {session: {data: sessionData}};
-      var channel = {name: streamChannelKey, data: channelData};
+      var channel = {id: channelMediaId, name: channelName, data: channelData};
       var stream = new Stream(streamKey, channel, plugin);
       cmApiClient.subscribe(stream);
-      assert.isTrue(requestStub.withArgs('subscribe', [streamChannelKey, streamKey, stream.start.getTime() / 1000, sessionData, channelData]).calledOnce);
+      assert.isTrue(requestStub.withArgs('subscribe', [sessionData, channelName, channelMediaId, channelData, streamKey, stream.start.getTime() / 1000]).calledOnce);
       requestStub.restore();
     });
   });

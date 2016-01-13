@@ -39,10 +39,11 @@ describe('CmApiClient spec tests', function() {
     var action = 'publish';
     var apiKey = 'test';
     var plugin = {session: {data: 'sessionData'}};
-    var channel = {name: 'streamChannelKey', data: 'channelData'};
+    var channel = {id: 'channelMediaId', name: 'channelKey', data: 'channelData'};
     var stream = new Stream('streamKey', channel, plugin);
     var params = [stream];
-    var httpParams = ['streamChannelKey', 'streamKey', stream.start.getTime() / 1000, 'sessionData', 'channelData'];
+
+    var httpParams = ['sessionData', 'channelKey', 'channelMediaId', 'channelData', 'streamKey', stream.start.getTime() / 1000];
 
     mockRequest(url, action, apiKey, httpParams);
 
@@ -58,10 +59,10 @@ describe('CmApiClient spec tests', function() {
     var action = 'subscribe';
     var apiKey = 'test';
     var plugin = {session: {data: 'sessionData'}};
-    var channel = {name: 'streamChannelKey', data: 'channelData'};
+    var channel = {id: 'channelMediaId', name: 'channelKey', data: 'channelData'};
     var stream = new Stream('streamKey', channel, plugin);
     var params = [stream];
-    var httpParams = ['streamChannelKey', 'streamKey', stream.start.getTime() / 1000, 'sessionData', 'channelData'];
+    var httpParams = ['sessionData', 'channelKey', 'channelMediaId', 'channelData', 'streamKey', stream.start.getTime() / 1000];
 
     mockRequest(url, action, apiKey, httpParams);
 
