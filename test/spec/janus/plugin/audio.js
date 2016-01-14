@@ -125,10 +125,9 @@ describe('Audio plugin', function() {
         };
       });
 
-      it('should set channel', function(done) {
+      it('should add channel', function(done) {
         executeTransactionCallback().finally(function() {
-          expect(plugin.channel).to.be.instanceOf(Channel);
-          expect(plugin.channel.name).to.be.equal('channel-name');
+          expect(channels.add.calledOnce).to.be.equal(true);
           done();
         });
       });
@@ -279,7 +278,8 @@ describe('Audio plugin', function() {
       transaction: changeroomRequest.transaction
     };
 
-    var previousStream = new Stream();
+    var previousChannel = new Channel('channel-id', 'channel-name', 'channel-data');
+    var previousStream = new Stream('stream-id', previousChannel, plugin);
     plugin.stream = previousStream;
     plugin.processMessage(changeroomRequest).then(function() {
       connection.transactions.execute(changeroomRequest.transaction, changeroomResponse).then(function() {
