@@ -126,7 +126,7 @@ describe('Video plugin', function() {
 
       it('should add channel', function(done) {
         executeTransactionCallback().finally(function() {
-          expect(channels.add.withArgs('channel-name', 'channel-data').calledOnce);
+          expect(channels.add.calledOnce).to.be.equal(true);
           done();
         });
       });
