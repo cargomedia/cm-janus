@@ -35,7 +35,6 @@ describe('Video plugin', function() {
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
     channels = new Channels;
-    sinon.spy(channels, 'add');
     sinon.stub(channels, 'getByNameAndData', function(name, data) {
       return Channel.generate(name, data);
     });
@@ -125,8 +124,10 @@ describe('Video plugin', function() {
       });
 
       it('should add channel', function(done) {
+        sinon.spy(channels, 'add');
         executeTransactionCallback().finally(function() {
           expect(channels.add.calledOnce).to.be.equal(true);
+          channels.add.restore();
           done();
         });
       });
@@ -313,6 +314,57 @@ describe('Video plugin', function() {
         expect(streams.add.called).to.be.equal(false);
         done();
       });
+    });
+  });
+
+  it('when processes "stopped" message.', function() {
+    var onStoppedStub = sinon.stub(plugin, 'onStopped', function() {
+      return Promise.resolve();
+    });
+    var stoppedRequest = {
+      janus: 'event',
+      plugindata: {
+        data: {
+          streaming: 'event',
+          result: {
+            status: 'stopped'
+          }
+        }
+      }
+    };
+    plugin.processMessage(stoppedRequest);
+
+    assert(onStoppedStub.calledOnce);
+    assert(onStoppedStub.calledWith(stoppedRequest));
+  });
+
+  it('stop mountpoint', function(done) {
+    streams.has.returns(true);
+    sinon.stub(channels, 'contains', function() {
+      return true;
+    });
+    sinon.spy(channels, 'remove');
+    var stoppedRequest = {
+      janus: 'event',
+      plugindata: {
+        data: {
+          streaming: 'event',
+          result: {
+            status: 'stopped'
+          }
+        }
+      }
+    };
+    var channel = {};
+    var stream = {channel: channel};
+    plugin.stream = stream;
+    plugin.channel = channel;
+    plugin.processMessage(stoppedRequest).then(function() {
+      expect(streams.remove.calledWith(stream)).to.be.equal(true);
+      expect(channels.remove.calledWith(channel)).to.be.equal(true);
+      channels.contains.restore();
+      channels.remove.restore();
+      done();
     });
   });
 
