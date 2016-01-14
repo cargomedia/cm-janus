@@ -119,6 +119,21 @@ describe('JanusConnection', function() {
     });
   });
 
+  context('when processes "timeout" message"', function() {
+    beforeEach(function() {
+      var message = {
+        janus: 'timeout',
+        sessionId: 'session-id'
+      };
+      connection.session = sinon.createStubInstance(Session);
+      connection.processMessage(message);
+    });
+
+    it('should remove session', function() {
+      expect(connection.session).to.be.equal(null);
+    });
+  });
+
   context('when processes session-related message', function() {
     var message = {
       janus: 'event',
