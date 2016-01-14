@@ -34,8 +34,7 @@ describe('Video plugin', function() {
     serviceLocator.register('http-client', httpClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
-    channels = sinon.createStubInstance(Channels);
-    channels.getByNameAndData.restore();
+    channels = new Channels;
     sinon.stub(channels, 'getByNameAndData', function(name, data) {
       return Channel.generate(name, data);
     });
@@ -125,8 +124,10 @@ describe('Video plugin', function() {
       });
 
       it('should add channel', function(done) {
+        sinon.spy(channels, 'add');
         executeTransactionCallback().finally(function() {
           expect(channels.add.calledOnce).to.be.equal(true);
+          channels.add.restore();
           done();
         });
       });
@@ -339,7 +340,10 @@ describe('Video plugin', function() {
 
   it('stop mountpoint', function(done) {
     streams.has.returns(true);
-    channels.contains.returns(true);
+    sinon.stub(channels, 'contains', function() {
+      return true;
+    });
+    sinon.spy(channels, 'remove');
     var stoppedRequest = {
       janus: 'event',
       plugindata: {
@@ -358,6 +362,8 @@ describe('Video plugin', function() {
     plugin.processMessage(stoppedRequest).then(function() {
       expect(streams.remove.calledWith(stream)).to.be.equal(true);
       expect(channels.remove.calledWith(channel)).to.be.equal(true);
+      channels.contains.restore();
+      channels.remove.restore();
       done();
     });
   });
