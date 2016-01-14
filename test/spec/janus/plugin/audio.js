@@ -299,7 +299,6 @@ describe('Audio plugin', function() {
     var destroyedRequest = {
       janus: 'event',
       plugindata: {
-        plugin: 'janus.plugin.cm.audioroom',
         data: {
           audioroom: 'destroyed'
         }
@@ -312,7 +311,6 @@ describe('Audio plugin', function() {
     plugin.processMessage(destroyedRequest).then(function() {
       expect(streams.remove.calledWith(stream)).to.be.equal(true);
       expect(channels.remove.calledWith(channel)).to.be.equal(true);
-      channels.remove.restore();
       done();
     });
   });
