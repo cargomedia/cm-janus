@@ -124,10 +124,9 @@ describe('Video plugin', function() {
         });
       });
 
-      it('should set channel', function(done) {
+      it('should add channel', function(done) {
         executeTransactionCallback().finally(function() {
-          expect(plugin.channel).to.be.instanceOf(Channel);
-          expect(plugin.channel.name).to.be.equal('channel-name');
+          expect(channels.add.calledOnce).to.be.equal(true);
           done();
         });
       });
@@ -135,7 +134,7 @@ describe('Video plugin', function() {
       it('should set stream', function(done) {
         executeTransactionCallback().finally(function() {
           expect(plugin.stream).to.be.instanceOf(Stream);
-          expect(plugin.stream.channel).to.be.equal(plugin.channel);
+          expect(channels.contains(plugin.stream.channel)).to.be.equal(true);
           expect(plugin.stream.plugin).to.be.equal(plugin);
           done();
         });
@@ -302,7 +301,8 @@ describe('Video plugin', function() {
       transaction: switchRequest.transaction
     };
 
-    var previousStream = new Stream();
+    var previousChannel = new Channel('channel-id', 'channel-name', 'channel-data');
+    var previousStream = new Stream('stream-id', previousChannel, plugin);
     plugin.stream = previousStream;
     plugin.processMessage(switchRequest).then(function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
