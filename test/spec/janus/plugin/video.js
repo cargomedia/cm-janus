@@ -189,10 +189,12 @@ describe('Video plugin', function() {
       janus: 'event',
       plugindata: {
         data: {
-          status: 'preparing',
-          stream: {
-            id: 'channel-name',
-            uid: 'channel-uid'
+          result: {
+            status: 'preparing',
+            stream: {
+              id: 'channel-name',
+              uid: 'channel-uid'
+            }
           }
         }
       },
@@ -263,14 +265,15 @@ describe('Video plugin', function() {
       plugindata: {
         data: {
           streaming: 'event',
-          result: {},
-          current: {
-            id: 'previous-channel-name',
-            uid: 'previous-channel-uid'
-          },
-          next: {
-            id: 'channel-name',
-            uid: 'channel-uid'
+          result: {
+            current: {
+              id: 'previous-channel-name',
+              uid: 'previous-channel-uid'
+            },
+            next: {
+              id: 'channel-name',
+              uid: 'channel-uid'
+            }
           }
         }
       },
