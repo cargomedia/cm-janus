@@ -123,19 +123,9 @@ describe('Video plugin', function() {
         });
       });
 
-      it('should add channel', function(done) {
-        sinon.spy(channels, 'add');
-        executeTransactionCallback().finally(function() {
-          expect(channels.add.calledOnce).to.be.equal(true);
-          channels.add.restore();
-          done();
-        });
-      });
-
       it('should set stream', function(done) {
         executeTransactionCallback().finally(function() {
           expect(plugin.stream).to.be.instanceOf(Stream);
-          expect(channels.contains(plugin.stream.channel)).to.be.equal(true);
           expect(plugin.stream.plugin).to.be.equal(plugin);
           done();
         });
@@ -309,7 +299,7 @@ describe('Video plugin', function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
         expect(cmApiClient.removeStream.calledWith(previousStream)).to.be.equal(true);
         expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
-        assert.equal(plugin.stream.channel.name, switchRequest.body.id);
+        expect(plugin.stream).to.be.equal(null);
         expect(cmApiClient.subscribe.called).to.be.equal(false);
         expect(streams.add.called).to.be.equal(false);
         done();
@@ -340,9 +330,6 @@ describe('Video plugin', function() {
 
   it('stop mountpoint', function(done) {
     streams.has.returns(true);
-    sinon.stub(channels, 'contains', function() {
-      return true;
-    });
     sinon.spy(channels, 'remove');
     var stoppedRequest = {
       janus: 'event',
@@ -361,9 +348,6 @@ describe('Video plugin', function() {
     plugin.channel = channel;
     plugin.processMessage(stoppedRequest).then(function() {
       expect(streams.remove.calledWith(stream)).to.be.equal(true);
-      expect(channels.remove.calledWith(channel)).to.be.equal(true);
-      channels.contains.restore();
-      channels.remove.restore();
       done();
     });
   });

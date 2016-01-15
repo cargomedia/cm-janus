@@ -124,13 +124,6 @@ describe('Audio plugin', function() {
           });
         };
       });
-
-      it('should add channel', function(done) {
-        executeTransactionCallback().finally(function() {
-          expect(channels.add.calledOnce).to.be.equal(true);
-          done();
-        });
-      });
     });
   });
 
@@ -285,7 +278,7 @@ describe('Audio plugin', function() {
       connection.transactions.execute(changeroomRequest.transaction, changeroomResponse).then(function() {
         expect(cmApiClient.removeStream.calledWith(previousStream)).to.be.equal(true);
         expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
-        assert.equal(plugin.stream.channel.name, changeroomRequest.body.id);
+        expect(plugin.stream).to.be.equal(null);
         expect(cmApiClient.subscribe.called).to.be.equal(false);
         expect(streams.add.called).to.be.equal(false);
         done();
@@ -295,7 +288,6 @@ describe('Audio plugin', function() {
 
   it('destroy room', function(done) {
     streams.has.returns(true);
-    channels.contains.returns(true);
     var destroyedRequest = {
       janus: 'event',
       plugindata: {
@@ -310,7 +302,6 @@ describe('Audio plugin', function() {
     plugin.channel = channel;
     plugin.processMessage(destroyedRequest).then(function() {
       expect(streams.remove.calledWith(stream)).to.be.equal(true);
-      expect(channels.remove.calledWith(channel)).to.be.equal(true);
       done();
     });
   });
