@@ -10,13 +10,12 @@ var Connection = require('../../../../lib/janus/connection');
 var Session = require('../../../../lib/janus/session');
 var Logger = require('../../../../lib/logger');
 var CmApiClient = require('../../../../lib/cm-api-client');
-var Channels = require('../../../../lib/channels');
 var Streams = require('../../../../lib/streams');
 var JanusHttpClient = require('../../../../lib/janus/http-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('PluginStreaming', function() {
-  var plugin, session, connection, cmApiClient, streams, channels, httpClient;
+  var plugin, session, connection, cmApiClient, streams, httpClient;
 
   beforeEach(function() {
     serviceLocator.register('logger', sinon.stub(new Logger));
@@ -27,8 +26,6 @@ describe('PluginStreaming', function() {
 
     cmApiClient = sinon.createStubInstance(CmApiClient);
     serviceLocator.register('cm-api-client', cmApiClient);
-    channels = sinon.createStubInstance(Channels);
-    serviceLocator.register('channels', channels);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
     httpClient = sinon.createStubInstance(JanusHttpClient);

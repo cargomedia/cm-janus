@@ -11,12 +11,11 @@ var Logger = require('../../../../lib/logger');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
 var Channel = require('../../../../lib/channel');
-var Channels = require('../../../../lib/channels');
 var CmApiClient = require('../../../../lib/cm-api-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Audio plugin', function() {
-  var plugin, session, connection, cmApiClient, streams, channels;
+  var plugin, session, connection, cmApiClient, streams;
 
   this.timeout(2000);
 
@@ -34,12 +33,6 @@ describe('Audio plugin', function() {
     serviceLocator.register('cm-api-client', cmApiClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
-    channels = sinon.createStubInstance(Channels);
-    channels.getByNameAndData.restore();
-    sinon.stub(channels, 'getByNameAndData', function(name, data) {
-      return Channel.generate(name, data);
-    });
-    serviceLocator.register('channels', channels);
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;

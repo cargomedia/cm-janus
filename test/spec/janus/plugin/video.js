@@ -9,14 +9,13 @@ var PluginVideo = require('../../../../lib/janus/plugin/video');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
 var Channel = require('../../../../lib/channel');
-var Channels = require('../../../../lib/channels');
 var CmApiClient = require('../../../../lib/cm-api-client');
 var Logger = require('../../../../lib/logger');
 var JanusHttpClient = require('../../../../lib/janus/http-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Video plugin', function() {
-  var plugin, session, connection, cmApiClient, httpClient, streams, channels;
+  var plugin, session, connection, cmApiClient, httpClient, streams;
 
   this.timeout(2000);
 
@@ -34,11 +33,6 @@ describe('Video plugin', function() {
     serviceLocator.register('http-client', httpClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
-    channels = new Channels;
-    sinon.stub(channels, 'getByNameAndData', function(name, data) {
-      return Channel.generate(name, data);
-    });
-    serviceLocator.register('channels', channels);
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
@@ -330,7 +324,6 @@ describe('Video plugin', function() {
 
   it('stop mountpoint', function(done) {
     streams.has.returns(true);
-    sinon.spy(channels, 'remove');
     var stoppedRequest = {
       janus: 'event',
       plugindata: {
