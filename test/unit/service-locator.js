@@ -50,6 +50,15 @@ describe('serviceLocator', function() {
     assert.throws(function() {
       serviceLocator.get(serviceKey);
     });
+
+    serviceLocator.register(serviceKey, function() {
+      return 'bar';
+    });
+    assert(serviceLocator.get(serviceKey));
+    serviceLocator.unregister(serviceKey);
+    assert.throws(function() {
+      serviceLocator.get(serviceKey);
+    });
   });
 
 });
