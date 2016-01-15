@@ -6,6 +6,7 @@ var sinon = require('sinon');
 var Promise = require('bluebird');
 var Stream = require('../../../../lib/stream');
 var PluginStreaming = require('../../../../lib/janus/plugin/streaming');
+var JanusError = require('../../../../lib/janus/error');
 var Connection = require('../../../../lib/janus/connection');
 var Session = require('../../../../lib/janus/session');
 var Logger = require('../../../../lib/logger');
@@ -71,7 +72,7 @@ describe('PluginStreaming', function() {
       beforeEach(function() {
         cmApiClient.subscribe.restore();
         sinon.stub(cmApiClient, 'subscribe', function() {
-          return Promise.reject(new Error('Cannot subscribe'));
+        return Promise.reject(new JanusError.Error('Cannot subscribe'));
         });
       });
 

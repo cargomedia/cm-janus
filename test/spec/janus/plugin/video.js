@@ -6,6 +6,7 @@ require('../../../helpers/global-error-handler');
 var Connection = require('../../../../lib/janus/connection');
 var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
+var JanusError = require('../../../../lib/janus/error');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
 var Channel = require('../../../../lib/channel');
@@ -145,7 +146,7 @@ describe('Video plugin', function() {
         beforeEach(function() {
           cmApiClient.publish.restore();
           sinon.stub(cmApiClient, 'publish', function() {
-            return Promise.reject(new Error('Cannot publish'));
+            return Promise.reject(new JanusError.Error('Cannot publish'));
           });
         });
 
