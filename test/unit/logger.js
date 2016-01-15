@@ -1,6 +1,5 @@
 var assert = require('chai').assert;
 var sinon = require('sinon');
-var Promise = require('bluebird');
 var path = require('path');
 var fs = require("fs");
 var tmpNameSync = require('tmp').tmpNameSync;

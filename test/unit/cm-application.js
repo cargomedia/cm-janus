@@ -13,7 +13,7 @@ describe('CmApplication', function() {
       callback(null);
     });
     cmApplication.runCommand('packageName', 'action', ['arg1', 'arg2']).then(function() {
-      assert(exec.withArgs('bin/cm packageName action arg1 arg2', {cwd: 'applicationRootPath'}).calledOnce)
+      assert(exec.withArgs('bin/cm packageName action arg1 arg2', {cwd: 'applicationRootPath'}).calledOnce);
       done();
     })
   });
@@ -26,7 +26,7 @@ describe('CmApplication', function() {
     cmApplication.runCommand('packageName', 'action', ['arg1', 'arg2']).catch(function(error) {
       assert.instanceOf(error, Error);
       assert.equal(error.message, 'foo message');
-      assert(exec.withArgs('bin/cm packageName action arg1 arg2', {cwd: 'applicationRootPath'}).calledOnce)
+      assert(exec.withArgs('bin/cm packageName action arg1 arg2', {cwd: 'applicationRootPath'}).calledOnce);
       done();
     })
   });
