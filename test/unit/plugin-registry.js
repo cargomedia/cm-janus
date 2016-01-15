@@ -1,6 +1,6 @@
 var assert = require('chai').assert;
 var util = require('util');
-require('../helpers/global-error-handler');
+require('../helpers/globals');
 var PluginAbstract = require('../../lib/janus/plugin/abstract');
 var PluginRegistry = require('../../lib/janus/plugin-registry');
 

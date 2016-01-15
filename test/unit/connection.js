@@ -1,26 +1,13 @@
 var assert = require('chai').assert;
-require('../helpers/global-error-handler');
+require('../helpers/globals');
 var WebSocketServer = require('../helpers/websocket').Server;
 var WebSocket = require('../helpers/websocket').Client;
-var Logger = require('../../lib/logger');
-var serviceLocator = require('../../lib/service-locator');
 
 var Connection = require('../../lib/connection');
 
 describe('Connection Unit tests', function() {
 
   this.timeout(2000);
-
-  before(function() {
-    serviceLocator.reset();
-    serviceLocator.register('logger', function() {
-      return new Logger();
-    });
-  });
-
-  after(function() {
-    serviceLocator.reset();
-  });
 
   beforeEach(function() {
     this.webSocketServer = new WebSocketServer('ws://localhost:8080');

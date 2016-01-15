@@ -1,5 +1,5 @@
 var assert = require('chai').assert;
-require('../helpers/global-error-handler');
+require('../helpers/globals');
 var CmApplication = require('../../lib/cm-application');
 var sinon = require('sinon');
 

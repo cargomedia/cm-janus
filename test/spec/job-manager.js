@@ -1,22 +1,16 @@
 var assert = require('chai').assert;
 var sinon = require('sinon');
-require('../helpers/global-error-handler');
+require('../helpers/globals');
 var path = require('path');
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require("fs"));
 var rimraf = require('rimraf');
 var tmp = require('tmp');
-
 var JobManager = require('../../lib/job/manager');
 var JobHandler = require('../../lib/job/handler');
 var AbstractJob = require('../../lib/job/model/abstract');
 var TestJobSuccess = require('../helpers/test-jobs').Success;
 var TestJobSleep = require('../helpers/test-jobs').Sleep;
-var Logger = require('../../lib/logger');
-var serviceLocator = require('../../lib/service-locator');
-serviceLocator.register('logger', function() {
-  return new Logger();
-});
 
 describe('JobManager', function() {
 

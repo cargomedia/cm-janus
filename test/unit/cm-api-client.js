@@ -1,6 +1,5 @@
 var assert = require('chai').assert;
-require('../helpers/global-error-handler');
-var Logger = require('../../lib/logger');
+require('../helpers/globals');
 var CMApiClient = require('../../lib/cm-api-client');
 var Stream = require('../../lib/stream');
 var Promise = require('bluebird');
@@ -24,20 +23,8 @@ describe('CmApiClient unit tests', function() {
     var baseUri = 'http://cm.dev/';
     var apiKey = 'fooKey';
     var cmApiClient = new CMApiClient(baseUri, apiKey);
-    var serviceLocator = require('../../lib/service-locator.js');
     var action = 'foo';
     var sentData = ['bar', 'baz'];
-
-    before(function() {
-      serviceLocator.reset();
-      serviceLocator.register('logger', function() {
-        return new Logger();
-      });
-    });
-
-    after(function() {
-      serviceLocator.reset();
-    });
 
     it('works with successful response', function(done) {
       var requestPromiseMock = sinon.stub(cmApiClient, '_requestPromise', function(options) {

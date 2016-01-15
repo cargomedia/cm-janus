@@ -1,25 +1,12 @@
 var assert = require('chai').assert;
 var nock = require('nock');
-require('../helpers/global-error-handler');
-var Logger = require('../../lib/logger');
-var serviceLocator = require('../../lib/service-locator');
+require('../helpers/globals');
 
 var JanusHttpClient = require('../../lib/janus/http-client');
 
 describe('JanusHttpClient spec tests', function() {
 
   this.timeout(2000);
-
-  before(function() {
-    serviceLocator.reset();
-    serviceLocator.register('logger', function() {
-      return new Logger();
-    });
-  });
-
-  after(function() {
-    serviceLocator.reset();
-  });
 
   context('stop stream', function() {
     var url = 'http://localhost:8080';
