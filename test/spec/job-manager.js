@@ -6,7 +6,6 @@ var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require("fs"));
 var rimraf = require('rimraf');
 var tmp = require('tmp');
-var exec = require('child_process').exec;
 
 var JobManager = require('../../lib/job/manager');
 var JobHandler = require('../../lib/job/handler');
