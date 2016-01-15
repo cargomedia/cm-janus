@@ -73,53 +73,6 @@ describe('Audio plugin', function() {
 
   });
 
-  context('when processes "create" message', function() {
-    var transaction;
-
-    beforeEach(function() {
-      sinon.spy(connection.transactions, 'add');
-      plugin.processMessage({
-        janus: 'message',
-        body: {
-          request: 'create',
-          id: 'channel-name',
-          channel_data: 'channel-data'
-        },
-        transaction: 'transaction-id'
-      });
-      transaction = connection.transactions.add.firstCall.args[1];
-    });
-
-    it('transaction should be added', function() {
-      expect(connection.transactions.add.calledOnce).to.be.equal(true);
-    });
-
-    context('on unsuccessful transaction response', function() {
-      it('should resolve', function(done) {
-        transaction({}).then(function() {
-          done();
-        }, done);
-      });
-    });
-
-    context('on successful transaction response', function() {
-      var executeTransactionCallback;
-
-      beforeEach(function() {
-        executeTransactionCallback = function() {
-          return transaction({
-            janus: 'success',
-            plugindata: {
-              data: {
-                id: 'plugin-id'
-              }
-            }
-          });
-        };
-      });
-    });
-  });
-
   it('when processes "join" message.', function() {
     var onJoinStub = sinon.stub(plugin, 'onJoin', function() {
       return Promise.resolve();
