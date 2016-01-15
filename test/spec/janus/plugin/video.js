@@ -6,17 +6,17 @@ require('../../../helpers/global-error-handler');
 var Connection = require('../../../../lib/janus/connection');
 var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
+var JanusError = require('../../../../lib/janus/error');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
 var Channel = require('../../../../lib/channel');
-var Channels = require('../../../../lib/channels');
 var CmApiClient = require('../../../../lib/cm-api-client');
 var Logger = require('../../../../lib/logger');
 var JanusHttpClient = require('../../../../lib/janus/http-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Video plugin', function() {
-  var plugin, session, connection, cmApiClient, httpClient, streams, channels;
+  var plugin, session, connection, cmApiClient, httpClient, streams;
 
   this.timeout(2000);
 
@@ -34,11 +34,6 @@ describe('Video plugin', function() {
     serviceLocator.register('http-client', httpClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
-    channels = new Channels;
-    sinon.stub(channels, 'getByNameAndData', function(name, data) {
-      return Channel.generate(name, data);
-    });
-    serviceLocator.register('channels', channels);
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
@@ -123,19 +118,9 @@ describe('Video plugin', function() {
         });
       });
 
-      it('should add channel', function(done) {
-        sinon.spy(channels, 'add');
-        executeTransactionCallback().finally(function() {
-          expect(channels.add.calledOnce).to.be.equal(true);
-          channels.add.restore();
-          done();
-        });
-      });
-
       it('should set stream', function(done) {
         executeTransactionCallback().finally(function() {
           expect(plugin.stream).to.be.instanceOf(Stream);
-          expect(channels.contains(plugin.stream.channel)).to.be.equal(true);
           expect(plugin.stream.plugin).to.be.equal(plugin);
           done();
         });
@@ -161,7 +146,7 @@ describe('Video plugin', function() {
         beforeEach(function() {
           cmApiClient.publish.restore();
           sinon.stub(cmApiClient, 'publish', function() {
-            return Promise.reject(new Error('Cannot publish'));
+            return Promise.reject(new JanusError.Error('Cannot publish'));
           });
         });
 
@@ -196,20 +181,29 @@ describe('Video plugin', function() {
   it('watch stream', function(done) {
     var watchRequest = {
       janus: 'message',
-      body: {request: 'watch', id: 'streamId'},
+      body: {request: 'watch', id: 'channel-name'},
       handle_id: plugin.id,
       transaction: 'transaction-id'
     };
     var watchResponse = {
       janus: 'event',
-      plugindata: {data: {status: 'preparing'}},
+      plugindata: {
+        data: {
+          status: 'preparing',
+          stream: {
+            id: 'channel-name',
+            uid: 'channel-uid'
+          }
+        }
+      },
       sender: plugin.id,
       transaction: watchRequest.transaction
     };
 
     plugin.processMessage(watchRequest).then(function() {
       connection.transactions.execute(watchRequest.transaction, watchResponse).then(function() {
-        assert.equal(plugin.stream.channel.name, watchRequest.body.id);
+        assert.equal(plugin.stream.channel.name, 'channel-name');
+        assert.equal(plugin.stream.channel.id, 'channel-uid');
         done();
       });
     });
@@ -260,20 +254,34 @@ describe('Video plugin', function() {
 
     var switchRequest = {
       janus: 'message',
-      body: {request: 'switch', id: 'streamId'},
+      body: {request: 'switch', id: 'channel-name'},
       handle_id: plugin.id,
       transaction: 'transaction-id'
     };
     var switchResponse = {
       janus: 'event',
-      plugindata: {data: {streaming: 'event', result: {}}},
+      plugindata: {
+        data: {
+          streaming: 'event',
+          result: {},
+          current: {
+            id: 'previous-channel-name',
+            uid: 'previous-channel-uid'
+          },
+          next: {
+            id: 'channel-name',
+            uid: 'channel-uid'
+          }
+        }
+      },
       sender: plugin.id,
       transaction: switchRequest.transaction
     };
 
     plugin.processMessage(switchRequest).then(function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
-        assert.equal(plugin.stream.channel.name, switchRequest.body.id);
+        assert.equal(plugin.stream.channel.name, 'channel-name');
+        assert.equal(plugin.stream.channel.id, 'channel-uid');
         expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
         expect(cmApiClient.subscribe.firstCall.args[0]).to.be.equal(plugin.stream);
         expect(streams.add.withArgs(plugin.stream).calledOnce).to.be.equal(true);
@@ -297,7 +305,11 @@ describe('Video plugin', function() {
     };
     var switchResponse = {
       janus: 'event',
-      plugindata: {data: {error: 'error', error_code: 455}},
+      plugindata: {
+        data: {
+          error: 'error', error_code: 455
+        }
+      },
       sender: plugin.id,
       transaction: switchRequest.transaction
     };
@@ -309,7 +321,7 @@ describe('Video plugin', function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
         expect(cmApiClient.removeStream.calledWith(previousStream)).to.be.equal(true);
         expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
-        assert.equal(plugin.stream.channel.name, switchRequest.body.id);
+        expect(plugin.stream).to.be.equal(null);
         expect(cmApiClient.subscribe.called).to.be.equal(false);
         expect(streams.add.called).to.be.equal(false);
         done();
@@ -340,10 +352,6 @@ describe('Video plugin', function() {
 
   it('stop mountpoint', function(done) {
     streams.has.returns(true);
-    sinon.stub(channels, 'contains', function() {
-      return true;
-    });
-    sinon.spy(channels, 'remove');
     var stoppedRequest = {
       janus: 'event',
       plugindata: {
@@ -361,9 +369,6 @@ describe('Video plugin', function() {
     plugin.channel = channel;
     plugin.processMessage(stoppedRequest).then(function() {
       expect(streams.remove.calledWith(stream)).to.be.equal(true);
-      expect(channels.remove.calledWith(channel)).to.be.equal(true);
-      channels.contains.restore();
-      channels.remove.restore();
       done();
     });
   });

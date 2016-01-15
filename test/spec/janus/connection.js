@@ -43,7 +43,7 @@ describe('JanusConnection', function() {
 
   context('when processes transaction-related message', function() {
     beforeEach(function() {
-      connection.transactions.add('transaction-id', new Function())
+      connection.transactions.add('transaction-id', new Function());
       sinon.stub(connection.transactions, 'execute', function() {
         return Promise.resolve('transaction-resolved');
       })

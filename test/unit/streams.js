@@ -1,7 +1,6 @@
 var assert = require('chai').assert;
 var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
-var JanusConnection = require('../../lib/janus/connection');
 var sinon = require('sinon');
 var _ = require('underscore');
 

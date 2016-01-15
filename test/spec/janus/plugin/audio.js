@@ -11,12 +11,11 @@ var Logger = require('../../../../lib/logger');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
 var Channel = require('../../../../lib/channel');
-var Channels = require('../../../../lib/channels');
 var CmApiClient = require('../../../../lib/cm-api-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Audio plugin', function() {
-  var plugin, session, connection, cmApiClient, streams, channels;
+  var plugin, session, connection, cmApiClient, streams;
 
   this.timeout(2000);
 
@@ -34,12 +33,6 @@ describe('Audio plugin', function() {
     serviceLocator.register('cm-api-client', cmApiClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
-    channels = sinon.createStubInstance(Channels);
-    channels.getByNameAndData.restore();
-    sinon.stub(channels, 'getByNameAndData', function(name, data) {
-      return Channel.generate(name, data);
-    });
-    serviceLocator.register('channels', channels);
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
@@ -78,60 +71,6 @@ describe('Audio plugin', function() {
       done();
     });
 
-  });
-
-  context('when processes "create" message', function() {
-    var transaction;
-
-    beforeEach(function() {
-      sinon.spy(connection.transactions, 'add');
-      plugin.processMessage({
-        janus: 'message',
-        body: {
-          request: 'create',
-          id: 'channel-name',
-          channel_data: 'channel-data'
-        },
-        transaction: 'transaction-id'
-      });
-      transaction = connection.transactions.add.firstCall.args[1];
-    });
-
-    it('transaction should be added', function() {
-      expect(connection.transactions.add.calledOnce).to.be.equal(true);
-    });
-
-    context('on unsuccessful transaction response', function() {
-      it('should resolve', function(done) {
-        transaction({}).then(function() {
-          done();
-        }, done);
-      });
-    });
-
-    context('on successful transaction response', function() {
-      var executeTransactionCallback;
-
-      beforeEach(function() {
-        executeTransactionCallback = function() {
-          return transaction({
-            janus: 'success',
-            plugindata: {
-              data: {
-                id: 'plugin-id'
-              }
-            }
-          });
-        };
-      });
-
-      it('should add channel', function(done) {
-        executeTransactionCallback().finally(function() {
-          expect(channels.add.calledOnce).to.be.equal(true);
-          done();
-        });
-      });
-    });
   });
 
   it('when processes "join" message.', function() {
@@ -285,7 +224,7 @@ describe('Audio plugin', function() {
       connection.transactions.execute(changeroomRequest.transaction, changeroomResponse).then(function() {
         expect(cmApiClient.removeStream.calledWith(previousStream)).to.be.equal(true);
         expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
-        assert.equal(plugin.stream.channel.name, changeroomRequest.body.id);
+        expect(plugin.stream).to.be.equal(null);
         expect(cmApiClient.subscribe.called).to.be.equal(false);
         expect(streams.add.called).to.be.equal(false);
         done();
@@ -295,7 +234,6 @@ describe('Audio plugin', function() {
 
   it('destroy room', function(done) {
     streams.has.returns(true);
-    channels.contains.returns(true);
     var destroyedRequest = {
       janus: 'event',
       plugindata: {
@@ -310,7 +248,6 @@ describe('Audio plugin', function() {
     plugin.channel = channel;
     plugin.processMessage(destroyedRequest).then(function() {
       expect(streams.remove.calledWith(stream)).to.be.equal(true);
-      expect(channels.remove.calledWith(channel)).to.be.equal(true);
       done();
     });
   });
