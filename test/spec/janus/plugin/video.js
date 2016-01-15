@@ -180,20 +180,29 @@ describe('Video plugin', function() {
   it('watch stream', function(done) {
     var watchRequest = {
       janus: 'message',
-      body: {request: 'watch', id: 'streamId'},
+      body: {request: 'watch', id: 'channel-name'},
       handle_id: plugin.id,
       transaction: 'transaction-id'
     };
     var watchResponse = {
       janus: 'event',
-      plugindata: {data: {status: 'preparing'}},
+      plugindata: {
+        data: {
+          status: 'preparing',
+          stream: {
+            id: 'channel-name',
+            uid: 'channel-uid'
+          }
+        }
+      },
       sender: plugin.id,
       transaction: watchRequest.transaction
     };
 
     plugin.processMessage(watchRequest).then(function() {
       connection.transactions.execute(watchRequest.transaction, watchResponse).then(function() {
-        assert.equal(plugin.stream.channel.name, watchRequest.body.id);
+        assert.equal(plugin.stream.channel.name, 'channel-name');
+        assert.equal(plugin.stream.channel.id, 'channel-uid');
         done();
       });
     });
@@ -244,20 +253,34 @@ describe('Video plugin', function() {
 
     var switchRequest = {
       janus: 'message',
-      body: {request: 'switch', id: 'streamId'},
+      body: {request: 'switch', id: 'channel-name'},
       handle_id: plugin.id,
       transaction: 'transaction-id'
     };
     var switchResponse = {
       janus: 'event',
-      plugindata: {data: {streaming: 'event', result: {}}},
+      plugindata: {
+        data: {
+          streaming: 'event',
+          result: {},
+          current: {
+            id: 'previous-channel-name',
+            uid: 'previous-channel-uid'
+          },
+          next: {
+            id: 'channel-name',
+            uid: 'channel-uid'
+          }
+        }
+      },
       sender: plugin.id,
       transaction: switchRequest.transaction
     };
 
     plugin.processMessage(switchRequest).then(function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
-        assert.equal(plugin.stream.channel.name, switchRequest.body.id);
+        assert.equal(plugin.stream.channel.name, 'channel-name');
+        assert.equal(plugin.stream.channel.id, 'channel-uid');
         expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
         expect(cmApiClient.subscribe.firstCall.args[0]).to.be.equal(plugin.stream);
         expect(streams.add.withArgs(plugin.stream).calledOnce).to.be.equal(true);
@@ -281,7 +304,11 @@ describe('Video plugin', function() {
     };
     var switchResponse = {
       janus: 'event',
-      plugindata: {data: {error: 'error', error_code: 455}},
+      plugindata: {
+        data: {
+          error: 'error', error_code: 455
+        }
+      },
       sender: plugin.id,
       transaction: switchRequest.transaction
     };
