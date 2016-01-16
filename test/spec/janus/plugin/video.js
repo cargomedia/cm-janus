@@ -107,7 +107,10 @@ describe('Video plugin', function() {
             janus: 'success',
             plugindata: {
               data: {
-                id: 'plugin-id'
+                stream: {
+                  id: 'channel-name',
+                  uid: 'channel-uid'
+                }
               }
             }
           });
@@ -118,10 +121,12 @@ describe('Video plugin', function() {
         });
       });
 
-      it('should set stream', function(done) {
+      it('should set stream with channel', function(done) {
         executeTransactionCallback().finally(function() {
           expect(plugin.stream).to.be.instanceOf(Stream);
           expect(plugin.stream.plugin).to.be.equal(plugin);
+          expect(plugin.stream.channel.name).to.be.equal('channel-name');
+          expect(plugin.stream.channel.id).to.be.equal('channel-uid');
           done();
         });
       });
