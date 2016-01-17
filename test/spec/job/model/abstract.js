@@ -42,8 +42,10 @@ describe.only('AbstractJob', function() {
     var job;
 
     beforeEach(function() {
+      var workingDirectory = tmpName();
+      mkdirp.sync(workingDirectory);
+
       job = new AbstractJob();
-      var workingDirectory = mkdirp.sync(tmpName());
       job.setWorkingDirectory(workingDirectory);
     });
 
@@ -65,6 +67,26 @@ describe.only('AbstractJob', function() {
       job.cleanup();
       assert.isTrue(kill.withArgs('SIGKILL').calledOnce);
       assert.isNull(job._process);
+    });
+  });
+
+  context('when running job script', function() {
+    var workingDirectory, jobPromise;
+
+    beforeEach(function() {
+      workingDirectory = tmpName();
+      mkdirp.sync(workingDirectory);
+
+      var job = new AbstractJob();
+      job.setWorkingDirectory(workingDirectory);
+      jobPromise = job._runJobScript('pwd', []);
+    });
+
+    it('should run within job working directory', function(done) {
+      jobPromise.then(function(output) {
+        assert.equal(output.trim(), workingDirectory);
+        done();
+      })
     });
   });
 });
