@@ -26,7 +26,7 @@ describe('imports archive', function() {
     it('with missing jobData.audio it should reject', function() {
       var jobData = {
         video: 'video-file',
-        streamChannelId: 'stream-channel-id'
+        uid: 'stream-channel-id'
       };
       assert.throws(function() {
         new RtpbroadcastRecordingJob(jobData);
@@ -42,7 +42,7 @@ describe('imports archive', function() {
       var jobData = {
         audio: 'audio-file',
         video: 'video-file',
-        streamChannelId: 'stream-channel-id'
+        uid: 'stream-channel-id'
       };
       var configuration = {
         mergeCommand: 'record <%= videoMjrFile %> <%= audioMjrFile %> <%= webmFile %>'
