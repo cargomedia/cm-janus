@@ -30,7 +30,7 @@ describe('RtpbroadcastRecordingJob', function() {
         uid: 'stream-channel-id'
       };
       assert.throws(function() {
-        new RtpbroadcastRecordingJob(jobData);
+        new RtpbroadcastRecordingJob('job-id', jobData);
       }, /No `audio` parameter provided/);
     });
   });
@@ -50,7 +50,7 @@ describe('RtpbroadcastRecordingJob', function() {
       };
       var workingDirectory = tmpName();
 
-      job = new RtpbroadcastRecordingJob(jobData, configuration);
+      job = new RtpbroadcastRecordingJob('job-id', jobData, configuration);
       job.setWorkingDirectory(workingDirectory);
       sinon.stub(job, '_exec', function(command, options, callback) {
         callback(null);
