@@ -26,7 +26,7 @@ describe('imports archive', function() {
   describe('given invalid jobData ', function() {
     it('with missing jobData.thumb it should reject', function() {
       var jobData = {
-        id: 'stream-channel-id'
+        uid: 'stream-channel-id'
       };
       assert.throws(function() {
         new RtpbroadcastThumbnailJob(jobData);
@@ -41,7 +41,7 @@ describe('imports archive', function() {
     before(function(done) {
       var jobData = {
         thumb: 'video-file',
-        id: 'stream-channel-id'
+        uid: 'stream-channel-id'
       };
       var configuration = {
         createThumbnailCommand: 'thumbnail <%= videoMjrFile %> -param value <%= pngFile %>'
