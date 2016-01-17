@@ -11,6 +11,9 @@ var Promise = require('bluebird');
 
 
 describe('AbstractJob', function() {
+  before(function() {
+    serviceLocator.register('logger', new Logger());
+  });
 
   context('on cancel', function() {
 

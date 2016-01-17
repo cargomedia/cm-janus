@@ -103,6 +103,9 @@ describe('JobManager', function() {
       var manager = new JobManager(tmpDirPath, tempJobsDir);
       manager.start();
       var job = sinon.createStubInstance(AbstractJob);
+      job.run = function() {
+        return Promise.resolve();
+      };
       manager.processJob(job);
       sinon.stub(manager, 'stopJob');
       manager.stop().then(function() {
