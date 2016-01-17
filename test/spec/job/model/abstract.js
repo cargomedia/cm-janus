@@ -10,7 +10,7 @@ var mkdirp = require('mkdirp');
 var Promise = require('bluebird');
 
 
-describe.only('AbstractJob', function() {
+describe('AbstractJob', function() {
 
   context('on cancel', function() {
 
