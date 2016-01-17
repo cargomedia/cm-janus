@@ -25,7 +25,7 @@ describe('imports archive', function() {
   describe('given invalid jobData ', function() {
     it('with missing jobData.audio it should reject', function() {
       var jobData = {
-        streamChannelId: 'stream-channel-id'
+        uid: 'stream-channel-id'
       };
       assert.throws(function() {
         new AudioroomRecordingJob(jobData);
@@ -40,7 +40,7 @@ describe('imports archive', function() {
     before(function(done) {
       var jobData = {
         audio: 'audio-file',
-        streamChannelId: 'stream-channel-id'
+        uid: 'stream-channel-id'
       };
       var configuration = {
         convertCommand: 'foo <%= wavFile %> bar <%= mp3File%>'
