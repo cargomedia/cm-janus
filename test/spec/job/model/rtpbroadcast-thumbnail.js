@@ -9,7 +9,7 @@ var Logger = require('../../../../lib/logger');
 
 var tmpName = require('tmp').tmpNameSync;
 
-describe('imports archive', function() {
+describe('RtpbroadcastThumbnailJob', function() {
 
   var cmApplication;
 
@@ -49,7 +49,7 @@ describe('imports archive', function() {
       var workingDirectory = tmpName();
       job = new RtpbroadcastThumbnailJob(jobData, configuration);
       job.setWorkingDirectory(workingDirectory);
-      sinon.stub(job, '_exec', function(command, callback) {
+      sinon.stub(job, '_exec', function(command, options, callback) {
         callback(null);
       });
       job.run().then(done);

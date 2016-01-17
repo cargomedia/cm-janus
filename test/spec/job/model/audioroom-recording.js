@@ -11,7 +11,7 @@ var Promise = require('bluebird');
 var tmpName = require('tmp').tmpNameSync;
 
 
-describe('imports archive', function() {
+describe('AudioroomRecordingJob', function() {
 
   var cmApplication;
 
@@ -52,7 +52,7 @@ describe('imports archive', function() {
 
       job = new AudioroomRecordingJob(jobData, configuration);
       job.setWorkingDirectory(workingDirectory);
-      sinon.stub(job, '_exec', function(command, callback) {
+      sinon.stub(job, '_exec', function(command, options, callback) {
         callback(null);
       });
       job.run().then(done);
