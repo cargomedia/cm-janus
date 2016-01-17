@@ -21,4 +21,4 @@ jobManager:
     'janus.plugin.cm.rtpbroadcast:recording-finished':
       mergeCommand: 'mjr2webm <%= audioMjrFile %> <%= videoMjrFile %> <%= webmFile %>'
     'janus.plugin.cm.rtpbroadcast:thumbnailing-finished':
-      createThumbnailCommand: 'mjr2png <%= videoMjrFile %> <%= width %> <%= height %> <%= pngFile %>'
+      createThumbnailCommand: 'mjr2png <%= videoMjrFile %> 1920 540 <%= pngFile %>'
