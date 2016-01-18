@@ -36,7 +36,7 @@ describe('JobHandlerRegistry', function() {
 
   it('registerFromConfiguration', function() {
     var config = {
-      'janus.plugin.cm.audioroom:audio-recording-finished': {
+      'janus.plugin.cm.audioroom:archive-finished': {
         convertCommand: 'ls -al'
       }
     };
