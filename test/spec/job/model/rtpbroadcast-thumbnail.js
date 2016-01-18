@@ -29,7 +29,7 @@ describe('RtpbroadcastThumbnailJob', function() {
         uid: 'stream-channel-id'
       };
       assert.throws(function() {
-        new RtpbroadcastThumbnailJob(jobData);
+        new RtpbroadcastThumbnailJob('job-id', jobData);
       }, /No `thumb` parameter provided/);
     });
   });
@@ -47,7 +47,7 @@ describe('RtpbroadcastThumbnailJob', function() {
         createThumbnailCommand: 'thumbnail <%= videoMjrFile %> -param value <%= pngFile %>'
       };
       var workingDirectory = tmpName();
-      job = new RtpbroadcastThumbnailJob(jobData, configuration);
+      job = new RtpbroadcastThumbnailJob('job-id', jobData, configuration);
       job.setWorkingDirectory(workingDirectory);
       sinon.stub(job, '_exec', function(command, options, callback) {
         callback(null);

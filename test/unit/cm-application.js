@@ -2,8 +2,13 @@ var assert = require('chai').assert;
 require('../helpers/global-error-handler');
 var CmApplication = require('../../lib/cm-application');
 var sinon = require('sinon');
+var serviceLocator = require('../../lib/service-locator');
+var Logger = require('../../lib/logger');
 
 describe('CmApplication', function() {
+  before(function() {
+    serviceLocator.register('logger', new Logger());
+  });
 
   this.timeout(1000);
 

@@ -30,7 +30,7 @@ describe('AudioroomRecordingJob', function() {
         uid: 'stream-channel-id'
       };
       assert.throws(function() {
-        new AudioroomRecordingJob(jobData);
+        new AudioroomRecordingJob('job-id', jobData);
       }, /No `audio` parameter provided/);
     });
   });
@@ -49,7 +49,7 @@ describe('AudioroomRecordingJob', function() {
       };
       var workingDirectory = tmpName();
 
-      job = new AudioroomRecordingJob(jobData, configuration);
+      job = new AudioroomRecordingJob('job-id', jobData, configuration);
       job.setWorkingDirectory(workingDirectory);
       sinon.stub(job, '_exec', function(command, options, callback) {
         callback(null);
