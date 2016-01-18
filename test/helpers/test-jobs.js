@@ -51,12 +51,20 @@ TestJobSleep.getEvent = function() {
   return 'test';
 };
 
-TestJobSleep.prototype._run = function(tmpDir) {
+TestJobSleep.prototype._run = function() {
   this._process = spawn('/bin/sleep', ['100']);
-  require('fs').writeFile(tmpDir + '/jobsleep.txt', 'I sleep', function (err) {
-    if (err) throw err;
-  });
-  return Promise.delay(100 * 1000);
+  var self = this;
+  return new Promise(function(resolve, reject) {
+    self._tmpFilename('txt').then(function(txtFilename) {
+      require('fs').writeFile(txtFilename, 'I sleep', function (err) {
+        if (err) reject(err);
+      });
+      setTimeout(function() {
+        resolve(txtFilename);
+      }, 100 * 1000);
+    })
+
+  })
 };
 
 module.exports = {

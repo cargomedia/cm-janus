@@ -7,8 +7,10 @@ var AudioroomRecordingJob = require('../../../../lib/job/model/audioroom-recordi
 var CmApplication = require('../../../../lib/cm-application');
 var Logger = require('../../../../lib/logger');
 
+var tmpName = require('tmp').tmpNameSync;
 
-describe('imports archive', function() {
+
+describe('AudioroomRecordingJob', function() {
 
   var cmApplication;
 
@@ -45,9 +47,11 @@ describe('imports archive', function() {
       var configuration = {
         convertCommand: 'foo <%= wavFile %> bar <%= mp3File%>'
       };
+      var workingDirectory = tmpName();
 
       job = new AudioroomRecordingJob(jobData, configuration);
-      sinon.stub(job, '_exec', function(command, callback) {
+      job.setWorkingDirectory(workingDirectory);
+      sinon.stub(job, '_exec', function(command, options, callback) {
         callback(null);
       });
       job.run().then(done);

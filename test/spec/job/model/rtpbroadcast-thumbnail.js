@@ -7,8 +7,9 @@ var RtpbroadcastThumbnailJob = require('../../../../lib/job/model/rtpbroadcast-t
 var CmApplication = require('../../../../lib/cm-application');
 var Logger = require('../../../../lib/logger');
 
+var tmpName = require('tmp').tmpNameSync;
 
-describe('imports archive', function() {
+describe('RtpbroadcastThumbnailJob', function() {
 
   var cmApplication;
 
@@ -45,8 +46,10 @@ describe('imports archive', function() {
       var configuration = {
         createThumbnailCommand: 'thumbnail <%= videoMjrFile %> -param value <%= pngFile %>'
       };
+      var workingDirectory = tmpName();
       job = new RtpbroadcastThumbnailJob(jobData, configuration);
-      sinon.stub(job, '_exec', function(command, callback) {
+      job.setWorkingDirectory(workingDirectory);
+      sinon.stub(job, '_exec', function(command, options, callback) {
         callback(null);
       });
       job.run().then(done);

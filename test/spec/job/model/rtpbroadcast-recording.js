@@ -7,8 +7,9 @@ var RtpbroadcastRecordingJob = require('../../../../lib/job/model/rtpbroadcast-r
 var CmApplication = require('../../../../lib/cm-application');
 var Logger = require('../../../../lib/logger');
 
+var tmpName = require('tmp').tmpNameSync;
 
-describe('imports archive', function() {
+describe('RtpbroadcastRecordingJob', function() {
 
   var cmApplication;
 
@@ -47,8 +48,11 @@ describe('imports archive', function() {
       var configuration = {
         mergeCommand: 'record <%= videoMjrFile %> <%= audioMjrFile %> <%= webmFile %>'
       };
+      var workingDirectory = tmpName();
+
       job = new RtpbroadcastRecordingJob(jobData, configuration);
-      sinon.stub(job, '_exec', function(command, callback) {
+      job.setWorkingDirectory(workingDirectory);
+      sinon.stub(job, '_exec', function(command, options, callback) {
         callback(null);
       });
       job.run().then(done);

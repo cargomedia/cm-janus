@@ -5,18 +5,15 @@ var path = require('path');
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require("fs"));
 var rimraf = require('rimraf');
+var mkdirp = require('mkdirp');
 var tmp = require('tmp');
 
 var JobManager = require('../../lib/job/manager');
 var JobHandler = require('../../lib/job/handler');
 var AbstractJob = require('../../lib/job/model/abstract');
 var TestJobSuccess = require('../helpers/test-jobs').Success;
-var TestJobSleep = require('../helpers/test-jobs').Sleep;
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
-serviceLocator.register('logger', function() {
-  return new Logger();
-});
 
 describe('JobManager', function() {
 
@@ -53,9 +50,10 @@ describe('JobManager', function() {
     };
   }
 
-  before(function(done) {
-    fs.mkdirAsync(globalTmpDir).then(function() {
-      done();
+  before(function() {
+    mkdirp.sync(globalTmpDir);
+    serviceLocator.register('logger', function() {
+      return new Logger();
     });
   });
 
@@ -98,36 +96,30 @@ describe('JobManager', function() {
     });
   });
 
-  it('cleanups after shutdown', function(done) {
+  it('stops job on shutdown', function(done) {
     createLocalTmpDir().then(function(tmpDirPath) {
-      var jobData = randomTestJobData();
-      var delayToStop = 1000;
-
-      var manager = new JobManager(tmpDirPath, tempJobsDir, [new JobHandler(TestJobSleep)]);
-      sinon.spy(manager, '_addJob');
+      var manager = new JobManager(tmpDirPath, tempJobsDir);
       manager.start();
-
-      createJobFile(tmpDirPath, jobData).then(function() {
-        setTimeout(function() {
-          assert.strictEqual(fs.readdirSync(tempJobsDir).length, 1);
-          var args = manager._addJob.firstCall.args;
-          var job = args[0];
-          var jobPromise = job._promise;
-          assert.isTrue(jobPromise.isPending());
-          assert.isTrue(!!job._process.pid);
-
-          manager.stop().then(function() {
-            assert.isTrue(jobPromise.isCancelled());
-            assert.isNull(job._promise);
-            assert.isNull(job._process);
-            assert.throws(function() {
-              fs.accessSync(tempJobsDir);
-            });
-            done();
-          });
-        }, delayToStop);
+      var job = sinon.createStubInstance(AbstractJob);
+      manager.processJob(job);
+      sinon.stub(manager, 'stopJob');
+      manager.stop().then(function() {
+        assert.isTrue(manager.stopJob.withArgs(job).calledOnce);
+        done();
       });
     });
   });
+
+  it('cancels and removes job on stopJob', function(done) {
+    createLocalTmpDir().then(function(tmpDirPath) {
+      var manager = new JobManager(tmpDirPath);
+      sinon.stub(manager, '_removeJob');
+      var job = sinon.createStubInstance(AbstractJob);
+      manager.stopJob(job);
+      assert.isTrue(manager._removeJob.withArgs(job.id).calledOnce);
+      assert.isTrue(job.cancel.calledOnce);
+      done();
+    });
+  })
 
 });
