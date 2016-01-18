@@ -5,8 +5,9 @@ var serviceLocator = require('../../../../lib/service-locator');
 var RtpbroadcastRecordingJob = require('../../../../lib/job/model/rtpbroadcast-recording');
 var CmApplication = require('../../../../lib/cm-application');
 
+var tmpName = require('tmp').tmpNameSync;
 
-describe('imports archive', function() {
+describe('RtpbroadcastRecordingJob', function() {
 
   var cmApplication;
 
@@ -23,10 +24,10 @@ describe('imports archive', function() {
     it('with missing jobData.audio it should reject', function() {
       var jobData = {
         video: 'video-file',
-        streamChannelId: 'stream-channel-id'
+        uid: 'stream-channel-id'
       };
       assert.throws(function() {
-        new RtpbroadcastRecordingJob(jobData);
+        new RtpbroadcastRecordingJob('job-id', jobData);
       }, /No `audio` parameter provided/);
     });
   });
@@ -39,13 +40,16 @@ describe('imports archive', function() {
       var jobData = {
         audio: 'audio-file',
         video: 'video-file',
-        streamChannelId: 'stream-channel-id'
+        uid: 'stream-channel-id'
       };
       var configuration = {
         mergeCommand: 'record <%= videoMjrFile %> <%= audioMjrFile %> <%= webmFile %>'
       };
-      job = new RtpbroadcastRecordingJob(jobData, configuration);
-      sinon.stub(job, '_exec', function(command, callback) {
+      var workingDirectory = tmpName();
+
+      job = new RtpbroadcastRecordingJob('job-id', jobData, configuration);
+      job.setWorkingDirectory(workingDirectory);
+      sinon.stub(job, '_exec', function(command, options, callback) {
         callback(null);
       });
       job.run().then(done);

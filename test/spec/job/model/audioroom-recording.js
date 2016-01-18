@@ -5,8 +5,10 @@ var serviceLocator = require('../../../../lib/service-locator');
 var AudioroomRecordingJob = require('../../../../lib/job/model/audioroom-recording');
 var CmApplication = require('../../../../lib/cm-application');
 
+var tmpName = require('tmp').tmpNameSync;
 
-describe('imports archive', function() {
+
+describe('AudioroomRecordingJob', function() {
 
   var cmApplication;
 
@@ -22,10 +24,10 @@ describe('imports archive', function() {
   describe('given invalid jobData ', function() {
     it('with missing jobData.audio it should reject', function() {
       var jobData = {
-        streamChannelId: 'stream-channel-id'
+        uid: 'stream-channel-id'
       };
       assert.throws(function() {
-        new AudioroomRecordingJob(jobData);
+        new AudioroomRecordingJob('job-id', jobData);
       }, /No `audio` parameter provided/);
     });
   });
@@ -37,14 +39,16 @@ describe('imports archive', function() {
     before(function(done) {
       var jobData = {
         audio: 'audio-file',
-        streamChannelId: 'stream-channel-id'
+        uid: 'stream-channel-id'
       };
       var configuration = {
         convertCommand: 'foo <%= wavFile %> bar <%= mp3File%>'
       };
+      var workingDirectory = tmpName();
 
-      job = new AudioroomRecordingJob(jobData, configuration);
-      sinon.stub(job, '_exec', function(command, callback) {
+      job = new AudioroomRecordingJob('job-id', jobData, configuration);
+      job.setWorkingDirectory(workingDirectory);
+      sinon.stub(job, '_exec', function(command, options, callback) {
         callback(null);
       });
       job.run().then(done);

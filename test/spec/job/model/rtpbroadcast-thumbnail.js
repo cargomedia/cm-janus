@@ -5,8 +5,9 @@ var serviceLocator = require('../../../../lib/service-locator');
 var RtpbroadcastThumbnailJob = require('../../../../lib/job/model/rtpbroadcast-thumbnail');
 var CmApplication = require('../../../../lib/cm-application');
 
+var tmpName = require('tmp').tmpNameSync;
 
-describe('imports archive', function() {
+describe('RtpbroadcastThumbnailJob', function() {
 
   var cmApplication;
 
@@ -22,10 +23,10 @@ describe('imports archive', function() {
   describe('given invalid jobData ', function() {
     it('with missing jobData.thumb it should reject', function() {
       var jobData = {
-        id: 'stream-channel-id'
+        uid: 'stream-channel-id'
       };
       assert.throws(function() {
-        new RtpbroadcastThumbnailJob(jobData);
+        new RtpbroadcastThumbnailJob('job-id', jobData);
       }, /No `thumb` parameter provided/);
     });
   });
@@ -37,13 +38,15 @@ describe('imports archive', function() {
     before(function(done) {
       var jobData = {
         thumb: 'video-file',
-        id: 'stream-channel-id'
+        uid: 'stream-channel-id'
       };
       var configuration = {
         createThumbnailCommand: 'thumbnail <%= videoMjrFile %> -param value <%= pngFile %>'
       };
-      job = new RtpbroadcastThumbnailJob(jobData, configuration);
-      sinon.stub(job, '_exec', function(command, callback) {
+      var workingDirectory = tmpName();
+      job = new RtpbroadcastThumbnailJob('job-id', jobData, configuration);
+      job.setWorkingDirectory(workingDirectory);
+      sinon.stub(job, '_exec', function(command, options, callback) {
         callback(null);
       });
       job.run().then(done);
