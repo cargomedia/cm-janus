@@ -41,12 +41,12 @@ cmApplication:
 jobManager:
   jobsPath: '/tmp/jobs' # place where job definitions are stored
   tempFilesPath: '/tmp/jobs/temp-files/' # jobs handlers' temp files
-  handlersConfiguration: # configuration of jobs handlers. Names in `<%= %>` delimiters are placeholders for commands arguments.
-    'janus.plugin.cm.audioroom:audio-recording-finished': # audio recording job handler
-      convertCommand: 'lame <%= wavFile %> <%= mp3File %>' # a command to use for audio recording.
-    'janus.plugin.cm.rtpbroadcast:recording-finished': # video recording job handler
-      mergeCommand: 'mjr2webm <%= videoMjrFile %> <%= audioMjrFile %> <%= webmFile %>' # a command to use for video recording.
+  handlersConfiguration: # configuration of jobs handlers. Names in `<%= %>` delimiters are placeholders for commands arguments
+    'janus.plugin.cm.audioroom:archive-finished': # audio recording job handler
+      convertCommand: 'lame <%= wavFile %> <%= mp3File %>' # a command to use for converting wav into mp3
+    'janus.plugin.cm.rtpbroadcast:archive-finished': # video recording job handler
+      mergeCommand: 'mjr2webm <%= videoMjrFile %> <%= audioMjrFile %> <%= webmFile %>' # a command to use for merging video/audio mjr into single webm 
     'janus.plugin.cm.rtpbroadcast:thumbnailing-finished': # video thumbnail job handler
-      createThumbnailCommand: 'mjr2png <%= videoMjrFile %> <%= width %> <%= height %> <%= pngFile %>' # a command to use for thumbnailing video.
+      createThumbnailCommand: 'mjr2png <%= videoMjrFile %> 1920 560 <%= pngFile %>' # a command to use for converting mjr into png 
 ```
 
