@@ -7,7 +7,6 @@ var AudioroomRecordingJob = require('../../../../lib/job/model/audioroom-recordi
 var CmApplication = require('../../../../lib/cm-application');
 var Logger = require('../../../../lib/logger');
 
-var Promise = require('bluebird');
 var tmpName = require('tmp').tmpNameSync;
 
 

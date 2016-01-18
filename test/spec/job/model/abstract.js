@@ -2,9 +2,7 @@ var sinon = require('sinon');
 var fs = require('fs');
 var assert = require('chai').assert;
 
-var serviceLocator = require('../../../../lib/service-locator');
 var AbstractJob = require('../../../../lib/job/model/abstract');
-var Logger = require('../../../../lib/logger');
 var tmpName = require('tmp').tmpNameSync;
 var mkdirp = require('mkdirp');
 var Promise = require('bluebird');

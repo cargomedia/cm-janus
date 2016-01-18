@@ -1,6 +1,5 @@
 var assert = require('chai').assert;
 var sinon = require('sinon');
-var _ = require('underscore');
 require('../helpers/global-error-handler');
 var path = require('path');
 var Promise = require('bluebird');
@@ -13,7 +12,6 @@ var JobManager = require('../../lib/job/manager');
 var JobHandler = require('../../lib/job/handler');
 var AbstractJob = require('../../lib/job/model/abstract');
 var TestJobSuccess = require('../helpers/test-jobs').Success;
-var TestJobSleep = require('../helpers/test-jobs').Sleep;
 var Logger = require('../../lib/logger');
 var serviceLocator = require('../../lib/service-locator');
 
