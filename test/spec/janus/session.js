@@ -150,8 +150,10 @@ describe('Session', function() {
 
     it('should resolve on non-existing plugin', function(done) {
       session.processMessage(message).then(function() {
+        done(new Error('Should not resolve for unregistered plugin'));
+      }, function() {
         done();
-      }, done);
+      })
     });
 
     it('should proxy message to plugin', function() {
