@@ -2,12 +2,11 @@ var assert = require('chai').assert;
 var expect = require('chai').expect;
 var sinon = require('sinon');
 var Promise = require('bluebird');
-require('../../../helpers/global-error-handler');
+require('../../../helpers/globals');
 var Connection = require('../../../../lib/janus/connection');
 var Session = require('../../../../lib/janus/session');
 var PluginAudio = require('../../../../lib/janus/plugin/audio');
 
-var Logger = require('../../../../lib/logger');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
 var Channel = require('../../../../lib/channel');
@@ -20,9 +19,11 @@ describe('Audio plugin', function() {
   this.timeout(2000);
 
   before(function() {
-    serviceLocator.reset();
-    serviceLocator.register('logger', new Logger());
     serviceLocator.register('streams', new Streams());
+  });
+
+  after(function() {
+    serviceLocator.unregister('streams');
   });
 
   beforeEach(function() {
@@ -36,10 +37,6 @@ describe('Audio plugin', function() {
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
-  });
-
-  after(function() {
-    serviceLocator.reset();
   });
 
   it('when processes invalid message', function(done) {

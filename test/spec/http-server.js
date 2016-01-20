@@ -8,7 +8,6 @@ var requestPromise = require('request-promise');
 var Promise = require('bluebird');
 
 var HttpServer = require('../../lib/http-server');
-var Logger = require('../../lib/logger');
 var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
 var serviceLocator = require('../../lib/service-locator');
@@ -37,7 +36,6 @@ describe('HttpServer', function() {
   var httpServer;
 
   before(function() {
-    serviceLocator.register('logger', sinon.stub(new Logger));
     httpServer = new HttpServer(port, apiKey);
   });
 
@@ -68,6 +66,10 @@ describe('HttpServer', function() {
         serviceLocator.register('streams', streams);
       });
 
+      after(function() {
+        serviceLocator.unregister('streams');
+      });
+
       it('should return error on invalid stream id', function(done) {
         var response = authenticatedRequest('POST', 'stopStream', {streamId: 'invalid-stream-id'});
         expect(response).to.eventually.have.property('error', 'Unknown stream: invalid-stream-id').and.eventually.notify(done)
@@ -83,6 +85,10 @@ describe('HttpServer', function() {
           var channel = {name: 'channel-name', data: 'channel-data'};
           var stream = new Stream('stream-id', channel, plugin);
           streams.add(stream);
+        });
+
+        after(function() {
+          serviceLocator.unregister('http-client');
         });
 
         it('should return error on failure close', function(done) {
@@ -120,6 +126,10 @@ describe('HttpServer', function() {
         var stream = new Stream('stream-id', channel);
         streams.add(stream);
         serviceLocator.register('streams', streams);
+      });
+
+      after(function() {
+        serviceLocator.unregister('streams');
       });
 
       it('should return status', function(done) {

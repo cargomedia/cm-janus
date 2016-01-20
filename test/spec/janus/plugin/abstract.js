@@ -1,12 +1,9 @@
 var chai = require('chai');
 var expect = chai.expect;
 var sinon = require('sinon');
-
-
-require('../../../helpers/global-error-handler');
+require('../../../helpers/globals');
 var PluginAbstract = require('../../../../lib/janus/plugin/abstract');
 var Session = require('../../../../lib/janus/session');
-var Logger = require('../../../../lib/logger');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('PluginAbstract', function() {
@@ -66,12 +63,11 @@ describe('PluginAbstract', function() {
 
   context('when removed', function() {
     it('should log about it', function() {
-      var logger = new Logger();
-      serviceLocator.register('logger', logger);
-      sinon.stub(logger, 'info');
-
+      var logger = serviceLocator.get('logger');
+      sinon.spy(logger, 'info');
       plugin.onRemove();
       expect(logger.info.withArgs('removed plugin plugin-id').calledOnce);
+      logger.info.restore();
     });
   })
 });

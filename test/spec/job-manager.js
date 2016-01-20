@@ -1,19 +1,16 @@
 var assert = require('chai').assert;
 var sinon = require('sinon');
-require('../helpers/global-error-handler');
+require('../helpers/globals');
 var path = require('path');
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require("fs"));
 var rimraf = require('rimraf');
 var mkdirp = require('mkdirp');
 var tmp = require('tmp');
-
 var JobManager = require('../../lib/job/manager');
 var JobHandler = require('../../lib/job/handler');
 var AbstractJob = require('../../lib/job/model/abstract');
 var TestJobSuccess = require('../helpers/test-jobs').Success;
-var Logger = require('../../lib/logger');
-var serviceLocator = require('../../lib/service-locator');
 
 describe('JobManager', function() {
 
@@ -52,9 +49,6 @@ describe('JobManager', function() {
 
   before(function() {
     mkdirp.sync(globalTmpDir);
-    serviceLocator.register('logger', function() {
-      return new Logger();
-    });
   });
 
   after(function(done) {

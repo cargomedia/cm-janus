@@ -1,11 +1,8 @@
 var sinon = require('sinon');
 var expect = require('chai').expect;
-
 var Promise = require('bluebird');
 var WebSocket = require('ws');
 var JanusProxy = require('../../../lib/janus/proxy');
-var Logger = require('../../../lib/logger');
-var serviceLocator = require('../../../lib/service-locator');
 var EventEmitter = require('events');
 
 describe('JanusProxy', function() {
@@ -13,12 +10,7 @@ describe('JanusProxy', function() {
   var proxy;
 
   beforeEach(function() {
-    serviceLocator.register('logger', sinon.stub(new Logger()));
     proxy = new JanusProxy(8883, 'ws://localhost:8889');
-  });
-
-  after(function() {
-    serviceLocator.reset();
   });
 
   it('should store listen port and janus address', function() {

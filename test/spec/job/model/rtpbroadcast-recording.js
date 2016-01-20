@@ -1,11 +1,9 @@
 var sinon = require('sinon');
 var fs = require('fs');
 var assert = require('chai').assert;
-
 var serviceLocator = require('../../../../lib/service-locator');
 var RtpbroadcastRecordingJob = require('../../../../lib/job/model/rtpbroadcast-recording');
 var CmApplication = require('../../../../lib/cm-application');
-var Logger = require('../../../../lib/logger');
 
 var tmpName = require('tmp').tmpNameSync;
 
@@ -15,12 +13,11 @@ describe('RtpbroadcastRecordingJob', function() {
 
   before(function() {
     cmApplication = sinon.createStubInstance(CmApplication);
-    serviceLocator.register('logger', sinon.stub(new Logger));
     serviceLocator.register('cm-application', cmApplication);
   });
 
   after(function() {
-    serviceLocator.reset();
+    serviceLocator.unregister('cm-application');
   });
 
   describe('given invalid jobData ', function() {

@@ -1,5 +1,5 @@
 var assert = require('chai').assert;
-require('../helpers/global-error-handler');
+require('../helpers/globals');
 var serviceLocator = require('../../lib/service-locator');
 var sinon = require('sinon');
 
@@ -39,6 +39,26 @@ describe('serviceLocator', function() {
     assert.strictEqual(serviceLocator.get(serviceKeyValue), serviceValueValue);
 
     delete serviceLocator.instances[serviceKeyValue];
+  });
+
+  it('Unregisters', function() {
+    var serviceKey = 'val';
+
+    serviceLocator.register(serviceKey, 'bar');
+    assert(serviceLocator.get(serviceKey));
+    serviceLocator.unregister(serviceKey);
+    assert.throws(function() {
+      serviceLocator.get(serviceKey);
+    });
+
+    serviceLocator.register(serviceKey, function() {
+      return 'bar';
+    });
+    assert(serviceLocator.get(serviceKey));
+    serviceLocator.unregister(serviceKey);
+    assert.throws(function() {
+      serviceLocator.get(serviceKey);
+    });
   });
 
 });
