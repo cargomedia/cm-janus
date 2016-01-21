@@ -38,7 +38,8 @@ describe('RtpbroadcastThumbnailJob', function() {
     before(function(done) {
       var jobData = {
         thumb: 'video-file',
-        uid: 'stream-channel-id'
+        uid: 'stream-channel-id',
+        createdAt: 1453395041
       };
       var configuration = {
         createThumbnailCommand: 'thumbnail <%= videoMjrFile %> -param value <%= pngFile %>'
@@ -66,6 +67,7 @@ describe('RtpbroadcastThumbnailJob', function() {
       assert(cmApplication.importVideoStreamThumbnail.calledOnce, 'importVideoStreamThumbnail was not called');
       assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[0], 'stream-channel-id');
       assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[1], commandArgs[4]);
+      assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[2], 1453395041);
     });
 
   });
