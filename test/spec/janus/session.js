@@ -100,22 +100,6 @@ describe('Session', function() {
     });
   });
 
-  context('when processes "hangup" message', function() {
-    beforeEach(function() {
-      var message = {
-        janus: 'hangup',
-        sender: 'plugin-id',
-        token: 'token'
-      };
-      sinon.stub(session, '_removePlugin');
-      session.processMessage(message);
-    });
-
-    it('should remove plugin', function() {
-      assert(session._removePlugin.withArgs('plugin-id').calledOnce);
-    });
-  });
-
   context('when removes plugin', function() {
     beforeEach(function() {
       session.plugins['plugin-id'] = sinon.createStubInstance(PluginAbstract);

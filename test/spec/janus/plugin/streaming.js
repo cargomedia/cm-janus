@@ -84,6 +84,23 @@ describe('PluginStreaming', function() {
     })
   });
 
+  context('when processes "hangup" message', function() {
+    beforeEach(function() {
+      var message = {
+        janus: 'hangup',
+        sender: 'plugin-id',
+        token: 'token'
+      };
+      sinon.stub(plugin, 'removeStream');
+      plugin.processMessage(message);
+    });
+
+    it('should remove stream', function() {
+      expect(plugin.removeStream.callCount).to.be.equal(1)
+    });
+  });
+
+
   context('when removed', function() {
     it('should remove stream', function() {
       sinon.stub(plugin, 'removeStream');
