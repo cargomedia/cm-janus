@@ -144,10 +144,12 @@ describe('JanusConnection', function() {
       assert(connection.session.processMessage.withArgs(message).calledOnce);
     });
 
-    it('should resolve on non-existing session', function(done) {
+    it('should reject on non-existing session', function(done) {
       connection.processMessage(message).then(function() {
+        done(new Error('Should not resolve for unregistered session'));
+      }, function() {
         done();
-      }, done)
+      });
     });
   });
 
