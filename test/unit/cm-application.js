@@ -35,8 +35,8 @@ describe('CmApplication', function() {
     var cmApplication = new CmApplication('applicationRootPath');
     var runCommand = sinon.stub(cmApplication, 'runCommand');
     runCommand.returns(Promise.resolve());
-    assert.instanceOf(cmApplication.importVideoStreamThumbnail('streamChannelId', 'thumb'), Promise);
-    assert(runCommand.withArgs('media-streams', 'import-video-thumbnail', ['streamChannelId', 'thumb']).calledOnce);
+    assert.instanceOf(cmApplication.importVideoStreamThumbnail('streamChannelId', 'thumb', 1453395041), Promise);
+    assert(runCommand.withArgs('media-streams', 'import-video-thumbnail', ['streamChannelId', 'thumb', 1453395041]).calledOnce);
 
   });
 
