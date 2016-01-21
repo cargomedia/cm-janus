@@ -1,5 +1,5 @@
 var assert = require('chai').assert;
-require('../helpers/global-error-handler');
+require('../helpers/globals');
 var Transactions = require('../../lib/janus/transactions');
 var Promise = require('bluebird');
 

@@ -1,15 +1,12 @@
 var chai = require('chai');
 var expect = chai.expect;
 var sinon = require('sinon');
-
-
 var Promise = require('bluebird');
 var Stream = require('../../../../lib/stream');
 var PluginStreaming = require('../../../../lib/janus/plugin/streaming');
 var JanusError = require('../../../../lib/janus/error');
 var Connection = require('../../../../lib/janus/connection');
 var Session = require('../../../../lib/janus/session');
-var Logger = require('../../../../lib/logger');
 var CmApiClient = require('../../../../lib/cm-api-client');
 var Streams = require('../../../../lib/streams');
 var JanusHttpClient = require('../../../../lib/janus/http-client');
@@ -19,7 +16,6 @@ describe('PluginStreaming', function() {
   var plugin, session, connection, cmApiClient, streams, httpClient;
 
   beforeEach(function() {
-    serviceLocator.register('logger', sinon.stub(new Logger));
     connection = new Connection('connection-id');
     session = new Session(connection, 'session-id', 'session-data');
     plugin = new PluginStreaming('plugin-id', 'plugin-type', session);
@@ -87,6 +83,23 @@ describe('PluginStreaming', function() {
       });
     })
   });
+
+  context('when processes "hangup" message', function() {
+    beforeEach(function() {
+      var message = {
+        janus: 'hangup',
+        sender: 'plugin-id',
+        token: 'token'
+      };
+      sinon.stub(plugin, 'removeStream');
+      plugin.processMessage(message);
+    });
+
+    it('should remove stream', function() {
+      expect(plugin.removeStream.callCount).to.be.equal(1)
+    });
+  });
+
 
   context('when removed', function() {
     it('should remove stream', function() {

@@ -2,7 +2,7 @@ var assert = require('chai').assert;
 var expect = require('chai').expect;
 var sinon = require('sinon');
 var Promise = require('bluebird');
-require('../../../helpers/global-error-handler');
+require('../../../helpers/globals');
 var Connection = require('../../../../lib/janus/connection');
 var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
@@ -11,7 +11,6 @@ var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
 var Channel = require('../../../../lib/channel');
 var CmApiClient = require('../../../../lib/cm-api-client');
-var Logger = require('../../../../lib/logger');
 var JanusHttpClient = require('../../../../lib/janus/http-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
@@ -19,10 +18,6 @@ describe('Video plugin', function() {
   var plugin, session, connection, cmApiClient, httpClient, streams;
 
   this.timeout(2000);
-
-  before(function() {
-    serviceLocator.register('logger', new Logger());
-  });
 
   beforeEach(function() {
     connection = new Connection('connection-id');
@@ -39,8 +34,10 @@ describe('Video plugin', function() {
     session.plugins[plugin.id] = plugin;
   });
 
-  after(function() {
-    serviceLocator.reset();
+  afterEach(function() {
+    serviceLocator.unregister('cm-api-client');
+    serviceLocator.unregister('http-client');
+    serviceLocator.unregister('streams');
   });
 
   it('when processes invalid message', function(done) {

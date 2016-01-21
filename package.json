@@ -1,7 +1,7 @@
 {
   "name": "cm-janus",
   "description": "",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "author": "Cargomedia",
   "license": "MIT",
   "main": "",
@@ -27,12 +27,12 @@
     "inotify": "^1.4.0",
     "js-yaml": "^3.4.3",
     "jsonschema": "^1.0.2",
-    "minilog": "^2.1.0",
+    "log4js": "^0.6.29",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
     "node-uuid": "^1.4.3",
-    "rimraf": "^2.4.4",
     "request-promise": "^1.0.2",
+    "rimraf": "^2.4.4",
     "tmp": "^0.0.28",
     "underscore": "^1.8.3",
     "ws": "~0.8.0"

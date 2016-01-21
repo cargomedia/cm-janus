@@ -4,16 +4,10 @@ var mkdirp = require('mkdirp');
 var tmpName = require('tmp').tmpNameSync;
 var assert = require('chai').assert;
 var Promise = require('bluebird');
-var serviceLocator = require('../../../../lib/service-locator');
 var AbstractJob = require('../../../../lib/job/model/abstract');
-var Logger = require('../../../../lib/logger');
 
 
 describe('AbstractJob', function() {
-  before(function() {
-    serviceLocator.register('logger', new Logger());
-  });
-
   context('on cancel', function() {
 
     var job;

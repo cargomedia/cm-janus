@@ -1,7 +1,7 @@
 var _ = require('underscore');
 var assert = require('chai').assert;
 var sinon = require('sinon');
-require('../helpers/global-error-handler');
+require('../helpers/globals');
 
 var Stream = require('../../lib/stream');
 var PluginAbstract = require('../../lib/janus/plugin/abstract');

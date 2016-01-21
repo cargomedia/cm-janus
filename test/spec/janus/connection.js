@@ -5,22 +5,18 @@ var expect = chai.expect;
 var chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
 var sinon = require('sinon');
-
 var Promise = require('bluebird');
-require('../../helpers/global-error-handler');
+require('../../helpers/globals');
 var JanusConnection = require('../../../lib/janus/connection');
 var Connection = require('../../../lib/connection');
 var Transactions = require('../../../lib/janus/transactions');
-var Logger = require('../../../lib/logger');
 var Session = require('../../../lib/janus/session');
-var serviceLocator = require('../../../lib/service-locator');
 
 
 describe('JanusConnection', function() {
   var connection, browserConnection, janusConnection;
 
   beforeEach(function() {
-    serviceLocator.register('logger', sinon.stub(new Logger));
     browserConnection = sinon.createStubInstance(Connection);
     janusConnection = sinon.createStubInstance(Connection);
     connection = new JanusConnection('connection-id', browserConnection, janusConnection);
