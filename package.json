@@ -27,6 +27,7 @@
     "inotify": "^1.4.0",
     "js-yaml": "^3.4.3",
     "jsonschema": "^1.0.2",
+    "kue": "^0.10.5",
     "log4js": "^0.6.29",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
