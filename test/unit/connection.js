@@ -4,6 +4,7 @@ var WebSocketServer = require('../helpers/websocket').Server;
 var WebSocket = require('../helpers/websocket').Client;
 
 var Connection = require('../../lib/connection');
+var JanusError = require('../../lib/janus/error');
 
 describe('Connection Unit tests', function() {
 
@@ -39,6 +40,14 @@ describe('Connection Unit tests', function() {
     this.webSocketServer.on('connection', function() {
       self.webSocketServer.send(JSON.stringify(self.sampleMessage));
     });
+  });
+
+  it('emits error on invalid JSON', function(done) {
+    this.connection.on('error', function(error) {
+      assert.instanceOf(error, JanusError.Warning);
+      done();
+    });
+    this.webSocket.emit('message', 'Not a JSON');
   });
 
 });
