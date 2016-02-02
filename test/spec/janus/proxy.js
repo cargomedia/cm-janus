@@ -89,10 +89,12 @@ describe('JanusProxy', function() {
 
         it('should be handled as error', function(done) {
           fromClientConnection.emit('message', 'body');
-          connection.processMessage.firstCall.returnValue.catch(function() {
-            expect(proxy.handleError.withArgs('error-instance').calledOnce).to.be.equal(true);
-            done();
-          })
+          setTimeout(function() {
+            connection.processMessage.firstCall.returnValue.catch(function() {
+              expect(proxy.handleError.withArgs('error-instance').calledOnce).to.be.equal(true);
+              done();
+            });
+          }, 0);
         });
       });
     });
@@ -128,10 +130,12 @@ describe('JanusProxy', function() {
 
         it('should be handled as error', function(done) {
           toJanusConnection.emit('message', 'body');
-          connection.processMessage.firstCall.returnValue.catch(function() {
-            expect(proxy.handleError.withArgs('error-instance').calledOnce).to.be.equal(true);
-            done();
-          });
+          setTimeout(function() {
+            connection.processMessage.firstCall.returnValue.catch(function() {
+              expect(proxy.handleError.withArgs('error-instance').calledOnce).to.be.equal(true);
+              done();
+            });
+          }, 0);
         });
       });
     });
