@@ -41,4 +41,12 @@ describe('Connection Unit tests', function() {
     });
   });
 
+  it('emits error on invalid JSON', function(done) {
+    this.connection.on('error', function(error) {
+      assert.instanceOf(error, Error);
+      done();
+    });
+    this.webSocket.emit('message', 'Not a JSON');
+  });
+
 });
