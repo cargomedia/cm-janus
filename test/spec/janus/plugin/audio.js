@@ -10,11 +10,10 @@ var PluginAudio = require('../../../../lib/janus/plugin/audio');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
 var Channel = require('../../../../lib/channel');
-var CmApiClient = require('../../../../lib/cm-api-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Audio plugin', function() {
-  var plugin, session, connection, cmApiClient, streams;
+  var plugin, session, connection, streams;
 
   this.timeout(2000);
 
@@ -30,8 +29,6 @@ describe('Audio plugin', function() {
     connection = new Connection('connection-id');
     session = new Session(connection, 'session-id', 'session-data');
     plugin = new PluginAudio('id', 'type', session);
-    cmApiClient = sinon.createStubInstance(CmApiClient);
-    serviceLocator.register('cm-api-client', cmApiClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
 
@@ -164,8 +161,8 @@ describe('Audio plugin', function() {
   });
 
   it('change room', function(done) {
-    cmApiClient.subscribe.restore();
-    sinon.stub(cmApiClient, 'subscribe', function() {
+    streams.addSubscribe.restore();
+    sinon.stub(streams, 'addSubscribe', function() {
       return Promise.resolve();
     });
 
@@ -185,9 +182,8 @@ describe('Audio plugin', function() {
     plugin.processMessage(changeroomRequest).then(function() {
       connection.transactions.execute(changeroomRequest.transaction, changeroomResponse).then(function() {
         assert.equal(plugin.stream.channel.name, changeroomRequest.body.id);
-        expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
-        expect(cmApiClient.subscribe.firstCall.args[0]).to.be.equal(plugin.stream);
-        expect(streams.add.withArgs(plugin.stream).calledOnce).to.be.equal(true);
+        expect(streams.addSubscribe.calledOnce).to.be.equal(true);
+        expect(streams.addSubscribe.firstCall.args[0]).to.be.equal(plugin.stream);
         done();
       });
     });
@@ -195,8 +191,8 @@ describe('Audio plugin', function() {
   });
 
   it('change room fail', function(done) {
-    cmApiClient.subscribe.restore();
-    sinon.stub(cmApiClient, 'subscribe', function() {
+    streams.addSubscribe.restore();
+    sinon.stub(streams, 'addSubscribe', function() {
       return Promise.resolve();
     });
     streams.has.returns(true);
@@ -219,11 +215,9 @@ describe('Audio plugin', function() {
     plugin.stream = previousStream;
     plugin.processMessage(changeroomRequest).then(function() {
       connection.transactions.execute(changeroomRequest.transaction, changeroomResponse).then(function() {
-        expect(cmApiClient.removeStream.calledWith(previousStream)).to.be.equal(true);
         expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
         expect(plugin.stream).to.be.equal(null);
-        expect(cmApiClient.subscribe.called).to.be.equal(false);
-        expect(streams.add.called).to.be.equal(false);
+        expect(streams.addSubscribe.called).to.be.equal(false);
         done();
       });
     });

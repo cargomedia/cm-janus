@@ -1,3 +1,4 @@
+require('../helpers/globals');
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
@@ -84,7 +85,7 @@ describe('HttpServer', function() {
           var plugin = 'plugin';
           var channel = {name: 'channel-name', data: 'channel-data'};
           var stream = new Stream('stream-id', channel, plugin);
-          streams.add(stream);
+          sinon.stub(streams, 'find').returns(stream);
         });
 
         after(function() {
@@ -124,7 +125,7 @@ describe('HttpServer', function() {
         var streams = new Streams();
         var channel = {name: 'channel-name', data: 'channel-data'};
         var stream = new Stream('stream-id', channel);
-        streams.add(stream);
+        sinon.stub(streams, 'getAll').returns([stream]);
         serviceLocator.register('streams', streams);
       });
 
