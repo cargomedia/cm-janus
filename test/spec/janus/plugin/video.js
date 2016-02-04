@@ -8,11 +8,9 @@ var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
 var JanusError = require('../../../../lib/janus/error');
 var Stream = require('../../../../lib/stream');
-var JanusHttpClient = require('../../../../lib/janus/http-client');
-var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Video plugin', function() {
-  var plugin, session, connection, httpClient;
+  var plugin, session, connection;
 
   this.timeout(2000);
 
@@ -23,16 +21,9 @@ describe('Video plugin', function() {
     sinon.stub(plugin, 'publish');
     sinon.stub(plugin, 'subscribe');
     sinon.stub(plugin, 'removeStream');
-    httpClient = sinon.createStubInstance(JanusHttpClient);
-    serviceLocator.register('http-client', httpClient);
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
-  });
-
-  afterEach(function() {
-    serviceLocator.unregister('cm-api-client');
-    serviceLocator.unregister('http-client');
   });
 
   it('when processes invalid message', function(done) {
@@ -138,7 +129,7 @@ describe('Video plugin', function() {
           });
         });
 
-        it('should should sreject', function(done) {
+        it('should reject', function(done) {
           executeTransactionCallback().then(function() {
             done(new Error('Should not resolve'));
           }, function(error) {
