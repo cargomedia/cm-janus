@@ -10,12 +10,11 @@ var JanusError = require('../../../../lib/janus/error');
 var Stream = require('../../../../lib/stream');
 var Streams = require('../../../../lib/streams');
 var Channel = require('../../../../lib/channel');
-var CmApiClient = require('../../../../lib/cm-api-client');
 var JanusHttpClient = require('../../../../lib/janus/http-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Video plugin', function() {
-  var plugin, session, connection, cmApiClient, httpClient, streams;
+  var plugin, session, connection, httpClient, streams;
 
   this.timeout(2000);
 
@@ -23,8 +22,6 @@ describe('Video plugin', function() {
     connection = new Connection('connection-id');
     session = new Session(connection, 'session-id', 'session-data');
     plugin = new PluginVideo('id', 'type', session);
-    cmApiClient = sinon.createStubInstance(CmApiClient);
-    serviceLocator.register('cm-api-client', cmApiClient);
     httpClient = sinon.createStubInstance(JanusHttpClient);
     serviceLocator.register('http-client', httpClient);
     streams = sinon.createStubInstance(Streams);
@@ -112,8 +109,8 @@ describe('Video plugin', function() {
             }
           });
         };
-        cmApiClient.publish.restore();
-        sinon.stub(cmApiClient, 'publish', function() {
+        streams.addPublish.restore();
+        sinon.stub(streams, 'addPublish', function() {
           return Promise.resolve();
         });
       });
@@ -130,8 +127,8 @@ describe('Video plugin', function() {
 
       it('should publish', function(done) {
         executeTransactionCallback().finally(function() {
-          expect(cmApiClient.publish.calledOnce).to.be.equal(true);
-          expect(cmApiClient.publish.firstCall.args[0]).to.be.equal(plugin.stream);
+          expect(streams.addPublish.calledOnce).to.be.equal(true);
+          expect(streams.addPublish.firstCall.args[0]).to.be.equal(plugin.stream);
           done();
         });
       });
@@ -146,8 +143,8 @@ describe('Video plugin', function() {
 
       context('on unsuccessful publish', function() {
         beforeEach(function() {
-          cmApiClient.publish.restore();
-          sinon.stub(cmApiClient, 'publish', function() {
+          streams.addPublish.restore();
+          sinon.stub(streams, 'addPublish', function() {
             return Promise.reject(new JanusError.Error('Cannot publish'));
           });
         });
@@ -251,8 +248,8 @@ describe('Video plugin', function() {
   });
 
   it('switch stream', function(done) {
-    cmApiClient.subscribe.restore();
-    sinon.stub(cmApiClient, 'subscribe', function() {
+    streams.addSubscribe.restore();
+    sinon.stub(streams, 'addSubscribe', function() {
       return Promise.resolve();
     });
 
@@ -287,17 +284,16 @@ describe('Video plugin', function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
         assert.equal(plugin.stream.channel.name, 'channel-name');
         assert.equal(plugin.stream.channel.id, 'channel-uid');
-        expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
-        expect(cmApiClient.subscribe.firstCall.args[0]).to.be.equal(plugin.stream);
-        expect(streams.add.withArgs(plugin.stream).calledOnce).to.be.equal(true);
+        expect(streams.addSubscribe.calledOnce).to.be.equal(true);
+        expect(streams.addSubscribe.firstCall.args[0]).to.be.equal(plugin.stream);
         done();
       });
     });
   });
 
   it('switch stream fail', function(done) {
-    cmApiClient.subscribe.restore();
-    sinon.stub(cmApiClient, 'subscribe', function() {
+    streams.addSubscribe.restore();
+    sinon.stub(streams, 'addSubscribe', function() {
       return Promise.resolve();
     });
     streams.has.returns(true);
@@ -324,11 +320,9 @@ describe('Video plugin', function() {
     plugin.stream = previousStream;
     plugin.processMessage(switchRequest).then(function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
-        expect(cmApiClient.removeStream.calledWith(previousStream)).to.be.equal(true);
         expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
         expect(plugin.stream).to.be.equal(null);
-        expect(cmApiClient.subscribe.called).to.be.equal(false);
-        expect(streams.add.called).to.be.equal(false);
+        expect(streams.addSubscribe.called).to.be.equal(false);
         done();
       });
     });
