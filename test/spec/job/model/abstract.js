@@ -56,7 +56,7 @@ describe('AbstractJob', function() {
     });
 
     it('should kill running process', function(done) {
-      job._runJobScript('sleep', ['0.01']).catch(function() {
+      job._runJobScript('sleep 0.01').catch(function() {
         done();
       });
       var kill = sinon.spy(job._process, 'kill');
@@ -75,7 +75,7 @@ describe('AbstractJob', function() {
 
       var job = new AbstractJob();
       job.setWorkingDirectory(workingDirectory);
-      jobPromise = job._runJobScript('pwd', []);
+      jobPromise = job._runJobScript('pwd');
     });
 
     it('should run within job working directory', function(done) {
