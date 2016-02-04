@@ -45,8 +45,18 @@ jobManager:
     'janus.plugin.cm.audioroom:archive-finished': # audio recording job handler
       convertCommand: 'lame <%= wavFile %> <%= mp3File %>' # a command to use for converting wav into mp3
     'janus.plugin.cm.rtpbroadcast:archive-finished': # video recording job handler
-      mergeCommand: 'mjr2webm <%= videoMjrFile %> <%= audioMjrFile %> <%= webmFile %>' # a command to use for merging video/audio mjr into single webm 
+      mergeCommand: 'mjr2webm <%= videoMjrFile %> <%= audioMjrFile %> <%= webmFile %>' # a command to use for merging video/audio mjr into single webm
     'janus.plugin.cm.rtpbroadcast:thumbnailing-finished': # video thumbnail job handler
-      createThumbnailCommand: 'mjr2png <%= videoMjrFile %> 1920 560 <%= pngFile %>' # a command to use for converting mjr into png 
+      createThumbnailCommand: 'mjr2png <%= videoMjrFile %> 1920 560 <%= pngFile %>' # a command to use for converting mjr into png
 ```
 
+## Testing
+cm-janus uses [node-inotify](https://github.com/c4milo/node-inotify) that works only in GNU/Linux. To run tests on any other platform you need to setup a virtual Linux environment. For Vagrant users there is a prepared vagrant file.
+ - So start vagrant `vagrant up`
+ - Tunnel `vagrant ssh`
+ - Go to cm-janus dir `cd ./cm-janus`
+ - Run tests `npm run-script test`
+If you are already in Linux then run only last two steps.
+
+## Publishing
+If for some reason automatic publish didn't happen, you should create a git tag manually and publish it to npm manually `npm publish https://github.com/cargomedia/cm-janus/archive/GitTag.tar.gz`.
