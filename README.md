@@ -7,6 +7,14 @@ Bridge between cm-application and janus-gateway. Once running it should:
 - Provide HTTP Server for accepting [cm-application](https://github.com/cargomedia/cm) requests.
 - Send cm-application api requests on certain events.
 
+## Dependency Installation
+Because cm-janus uses [node-inotify](https://github.com/c4milo/node-inotify) that works only in GNU/Linux, dependency installation may fall on any other OS. To solve this you need install dependencies in Linux environment. For Vagrant users there is a prepared vagrant file.
+ - So start vagrant `vagrant up`
+ - Tunnel `vagrant ssh`
+ - Go to cm-janus dir `cd ./cm-janus`
+ - Run `npm install`
+
+
 ## Installation
 Install as npm package:
 ```
