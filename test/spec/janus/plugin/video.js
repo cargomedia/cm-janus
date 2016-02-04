@@ -8,13 +8,11 @@ var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
 var JanusError = require('../../../../lib/janus/error');
 var Stream = require('../../../../lib/stream');
-var Streams = require('../../../../lib/streams');
-var Channel = require('../../../../lib/channel');
 var JanusHttpClient = require('../../../../lib/janus/http-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Video plugin', function() {
-  var plugin, session, connection, httpClient, streams;
+  var plugin, session, connection, httpClient;
 
   this.timeout(2000);
 
@@ -22,10 +20,11 @@ describe('Video plugin', function() {
     connection = new Connection('connection-id');
     session = new Session(connection, 'session-id', 'session-data');
     plugin = new PluginVideo('id', 'type', session);
+    sinon.stub(plugin, 'publish');
+    sinon.stub(plugin, 'subscribe');
+    sinon.stub(plugin, 'removeStream');
     httpClient = sinon.createStubInstance(JanusHttpClient);
     serviceLocator.register('http-client', httpClient);
-    streams = sinon.createStubInstance(Streams);
-    serviceLocator.register('streams', streams);
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
@@ -34,7 +33,6 @@ describe('Video plugin', function() {
   afterEach(function() {
     serviceLocator.unregister('cm-api-client');
     serviceLocator.unregister('http-client');
-    serviceLocator.unregister('streams');
   });
 
   it('when processes invalid message', function(done) {
@@ -109,8 +107,8 @@ describe('Video plugin', function() {
             }
           });
         };
-        streams.addPublish.restore();
-        sinon.stub(streams, 'addPublish', function() {
+        plugin.publish.restore();
+        sinon.stub(plugin, 'publish', function() {
           return Promise.resolve();
         });
       });
@@ -127,34 +125,24 @@ describe('Video plugin', function() {
 
       it('should publish', function(done) {
         executeTransactionCallback().finally(function() {
-          expect(streams.addPublish.calledOnce).to.be.equal(true);
-          expect(streams.addPublish.firstCall.args[0]).to.be.equal(plugin.stream);
+          expect(plugin.publish.calledOnce).to.be.equal(true);
           done();
-        });
-      });
-
-      context('on successful publish', function() {
-        it('should add stream to streams', function(done) {
-          executeTransactionCallback().finally(function() {
-            done();
-          });
         });
       });
 
       context('on unsuccessful publish', function() {
         beforeEach(function() {
-          streams.addPublish.restore();
-          sinon.stub(streams, 'addPublish', function() {
+          plugin.publish.restore();
+          sinon.stub(plugin, 'publish', function() {
             return Promise.reject(new JanusError.Error('Cannot publish'));
           });
         });
 
-        it('should detach and should reject', function(done) {
+        it('should should sreject', function(done) {
           executeTransactionCallback().then(function() {
             done(new Error('Should not resolve'));
           }, function(error) {
-            expect(httpClient.detach.callCount).to.be.equal(1);
-            expect(error.message).to.include('error: Cannot publish');
+            expect(error.message).to.include('Cannot publish');
             done();
           });
         });
@@ -248,8 +236,8 @@ describe('Video plugin', function() {
   });
 
   it('switch stream', function(done) {
-    streams.addSubscribe.restore();
-    sinon.stub(streams, 'addSubscribe', function() {
+    plugin.subscribe.restore();
+    sinon.stub(plugin, 'subscribe', function() {
       return Promise.resolve();
     });
 
@@ -284,19 +272,15 @@ describe('Video plugin', function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
         assert.equal(plugin.stream.channel.name, 'channel-name');
         assert.equal(plugin.stream.channel.id, 'channel-uid');
-        expect(streams.addSubscribe.calledOnce).to.be.equal(true);
-        expect(streams.addSubscribe.firstCall.args[0]).to.be.equal(plugin.stream);
+        expect(plugin.subscribe.calledOnce).to.be.equal(true);
         done();
       });
     });
   });
 
   it('switch stream fail', function(done) {
-    streams.addSubscribe.restore();
-    sinon.stub(streams, 'addSubscribe', function() {
-      return Promise.resolve();
-    });
-    streams.has.returns(true);
+    plugin.subscribe.restore();
+    sinon.stub(plugin, 'subscribe');
 
     var switchRequest = {
       janus: 'message',
@@ -315,14 +299,10 @@ describe('Video plugin', function() {
       transaction: switchRequest.transaction
     };
 
-    var previousChannel = new Channel('channel-id', 'channel-name', 'channel-data');
-    var previousStream = new Stream('stream-id', previousChannel, plugin);
-    plugin.stream = previousStream;
     plugin.processMessage(switchRequest).then(function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
-        expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
-        expect(plugin.stream).to.be.equal(null);
-        expect(streams.addSubscribe.called).to.be.equal(false);
+        expect(plugin.removeStream.calledOnce).to.be.equal(true);
+        expect(plugin.subscribe.called).to.be.equal(false);
         done();
       });
     });
@@ -350,7 +330,6 @@ describe('Video plugin', function() {
   });
 
   it('stop mountpoint', function(done) {
-    streams.has.returns(true);
     var stoppedRequest = {
       janus: 'event',
       plugindata: {
@@ -362,12 +341,8 @@ describe('Video plugin', function() {
         }
       }
     };
-    var channel = {};
-    var stream = {channel: channel};
-    plugin.stream = stream;
-    plugin.channel = channel;
     plugin.processMessage(stoppedRequest).then(function() {
-      expect(streams.remove.calledWith(stream)).to.be.equal(true);
+      expect(plugin.removeStream.calledOnce).to.be.equal(true);
       done();
     });
   });
