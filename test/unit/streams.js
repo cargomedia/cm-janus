@@ -25,6 +25,10 @@ describe('streams', function() {
     serviceLocator.register('cm-api-client', cmApiClient);
   });
 
+  after(function() {
+    serviceLocator.unregister('cm-api-client');
+  });
+
   it('addPublish', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_add');
