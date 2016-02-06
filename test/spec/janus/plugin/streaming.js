@@ -39,11 +39,7 @@ describe('PluginStreaming', function() {
           janus: 'webrtcup'
         });
       };
-
-      streams.addSubscribe.restore();
-      sinon.stub(streams, 'addSubscribe', function() {
-        return Promise.resolve();
-      });
+      streams.addSubscribe.returns(Promise.resolve());
     });
 
     it('should subscribe', function(done) {
@@ -64,10 +60,7 @@ describe('PluginStreaming', function() {
 
     context('on unsuccessful subscribe', function() {
       beforeEach(function() {
-        streams.addSubscribe.restore();
-        sinon.stub(streams, 'addSubscribe', function() {
-        return Promise.reject(new JanusError.Error('Cannot subscribe'));
-        });
+        streams.addSubscribe.returns(Promise.reject(new JanusError.Error('Cannot subscribe')));
       });
 
       it('should detach and should reject', function(done) {
@@ -101,7 +94,9 @@ describe('PluginStreaming', function() {
 
   context('when removed', function() {
     it('should remove stream', function() {
-      sinon.stub(plugin, 'removeStream');
+      sinon.stub(plugin, 'removeStream', function() {
+        return Promise.resolve();
+      });
       plugin.onRemove();
       expect(plugin.removeStream.calledOnce).to.be.equal(true);
     });
@@ -116,8 +111,11 @@ describe('PluginStreaming', function() {
       streams.has.returns(true);
     });
     context('when removes stream', function() {
-      beforeEach(function() {
-        plugin.removeStream();
+      beforeEach(function(done) {
+        streams.remove.returns(Promise.resolve());
+        plugin.removeStream().then(function() {
+          done()
+        });
       });
 
       it('should remove stream reference', function() {

@@ -30,6 +30,7 @@ describe('Audio plugin', function() {
     session = new Session(connection, 'session-id', 'session-data');
     plugin = new PluginAudio('id', 'type', session);
     streams = sinon.createStubInstance(Streams);
+    streams.remove.returns(Promise.resolve());
     serviceLocator.register('streams', streams);
 
     connection.session = session;
@@ -161,10 +162,7 @@ describe('Audio plugin', function() {
   });
 
   it('change room', function(done) {
-    streams.addSubscribe.restore();
-    sinon.stub(streams, 'addSubscribe', function() {
-      return Promise.resolve();
-    });
+    streams.addSubscribe.returns(Promise.resolve());
 
     var changeroomRequest = {
       janus: 'message',
@@ -191,10 +189,7 @@ describe('Audio plugin', function() {
   });
 
   it('change room fail', function(done) {
-    streams.addSubscribe.restore();
-    sinon.stub(streams, 'addSubscribe', function() {
-      return Promise.resolve();
-    });
+    streams.addSubscribe.returns(Promise.resolve());
     streams.has.returns(true);
 
     var changeroomRequest = {
