@@ -50,13 +50,13 @@ describe('RtpbroadcastRecordingJob', function() {
 
       job = new RtpbroadcastRecordingJob('job-id', jobData, configuration);
       job.setWorkingDirectory(workingDirectory);
-      sinon.stub(job, '_exec', testJobs.execStub);
+      sinon.stub(job, '_spawn', testJobs.execStub);
       job.run().then(done);
     });
 
     it('should merge video and audio file into mpeg file', function() {
-      var command = job._exec.firstCall.args[0];
-      var commandArgs = job._exec.firstCall.args[1];
+      var command = job._spawn.firstCall.args[0];
+      var commandArgs = job._spawn.firstCall.args[1];
       assert.equal(command, 'record');
       assert.equal(commandArgs[0], 'video-file');
       assert.equal(commandArgs[1], 'audio-file');
@@ -64,7 +64,7 @@ describe('RtpbroadcastRecordingJob', function() {
     });
 
     it('should import mpeg file into cm-application', function() {
-      var commandArgs = job._exec.firstCall.args[1];
+      var commandArgs = job._spawn.firstCall.args[1];
       assert(cmApplication.importMediaStreamArchive.calledOnce, 'importMediaStreamArchive was not called');
       assert.equal(cmApplication.importMediaStreamArchive.firstCall.args[0], 'stream-channel-id');
       assert.equal(cmApplication.importMediaStreamArchive.firstCall.args[1], commandArgs[2]);

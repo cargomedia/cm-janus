@@ -47,13 +47,13 @@ describe('RtpbroadcastThumbnailJob', function() {
       var workingDirectory = tmpName();
       job = new RtpbroadcastThumbnailJob('job-id', jobData, configuration);
       job.setWorkingDirectory(workingDirectory);
-      sinon.stub(job, '_exec', testJobs.execStub);
+      sinon.stub(job, '_spawn', testJobs.execStub);
       job.run().then(done);
     });
 
     it('should extract png thumbnail from video file', function() {
-      var command = job._exec.firstCall.args[0];
-      var commandArgs = job._exec.firstCall.args[1];
+      var command = job._spawn.firstCall.args[0];
+      var commandArgs = job._spawn.firstCall.args[1];
       assert.equal(command, 'thumbnail');
       assert.equal(commandArgs[0], 'video-file');
       assert.equal(commandArgs[1], '-param');
@@ -62,7 +62,7 @@ describe('RtpbroadcastThumbnailJob', function() {
     });
 
     it('should import png file into cm-application', function() {
-      var commandArgs = job._exec.firstCall.args[1];
+      var commandArgs = job._spawn.firstCall.args[1];
       assert(cmApplication.importVideoStreamThumbnail.calledOnce, 'importVideoStreamThumbnail was not called');
       assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[0], 'stream-channel-id');
       assert.equal(cmApplication.importVideoStreamThumbnail.firstCall.args[1], commandArgs[3]);
