@@ -1,10 +1,10 @@
 var sinon = require('sinon');
 var fs = require('fs');
 var assert = require('chai').assert;
+var Promise = require('bluebird');
 var serviceLocator = require('../../../../lib/service-locator');
 var RtpbroadcastThumbnailJob = require('../../../../lib/job/model/rtpbroadcast-thumbnail');
 var CmApplication = require('../../../../lib/cm-application');
-var testJobs = require('../../../helpers/test-jobs');
 var tmpName = require('tmp').tmpNameSync;
 
 describe('RtpbroadcastThumbnailJob', function() {
@@ -47,7 +47,13 @@ describe('RtpbroadcastThumbnailJob', function() {
       var workingDirectory = tmpName();
       job = new RtpbroadcastThumbnailJob('job-id', jobData, configuration);
       job.setWorkingDirectory(workingDirectory);
-      sinon.stub(job, '_spawn', testJobs.execStub);
+      sinon.stub(job, '_spawn', function() {
+        return {
+          progress: function() {
+            return Promise.resolve({stdout: ''});
+          }
+        };
+      });
       job.run().then(done);
     });
 

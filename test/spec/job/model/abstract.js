@@ -56,13 +56,16 @@ describe('AbstractJob', function() {
     });
 
     it('should kill running process', function(done) {
-      job._runJobScript('sleep 0.01').catch(function() {
-        done();
-      });
-      var kill = sinon.spy(job._process, 'kill');
-      job.cleanup();
-      assert.isTrue(kill.withArgs('SIGKILL').calledOnce);
-      assert.isNull(job._process);
+      job._runJobScript('sleep 0.01')
+        .catch(function() {
+          done();
+        })
+        .progress(function() {
+          var kill = sinon.spy(job._process, 'kill');
+          job.cleanup();
+          assert.isTrue(kill.withArgs('SIGKILL').calledOnce);
+          assert.isNull(job._process);
+        });
     });
   });
 

@@ -1,10 +1,10 @@
 var sinon = require('sinon');
 var fs = require('fs');
 var assert = require('chai').assert;
+var Promise = require('bluebird');
 var serviceLocator = require('../../../../lib/service-locator');
 var AudioroomRecordingJob = require('../../../../lib/job/model/audioroom-recording');
 var CmApplication = require('../../../../lib/cm-application');
-var testJobs = require('../../../helpers/test-jobs');
 var tmpName = require('tmp').tmpNameSync;
 
 
@@ -42,14 +42,20 @@ describe('AudioroomRecordingJob', function() {
         uid: 'stream-channel-id'
       };
       var configuration = {
-        convertCommand: 'foo <%= wavFile %> bar <%= mp3File%>'
+        convertCommand: 'foo <%= wavFile %> bar <%= mp3File %>'
       };
       var workingDirectory = tmpName();
 
       job = new AudioroomRecordingJob('job-id', jobData, configuration);
       job.setWorkingDirectory(workingDirectory);
 
-      sinon.stub(job, '_spawn', testJobs.execStub);
+      sinon.stub(job, '_spawn', function() {
+        return {
+          progress: function() {
+            return Promise.resolve({stdout: ''});
+          }
+        };
+      });
       job.run().then(done);
     });
 

@@ -1,5 +1,4 @@
 var util = require('util');
-var EventEmitter = require('events').EventEmitter;
 var Promise = require('bluebird');
 var spawn = require('child_process').spawn;
 var fs = require('fs');
@@ -71,13 +70,5 @@ TestJobSleep.prototype._run = function() {
 module.exports = {
   Success: TestJobSuccess,
   Failed: TestJobFailed,
-  Sleep: TestJobSleep,
-  execStub: function() {
-    var spawnStub = new EventEmitter;
-    spawnStub.stdout = new EventEmitter;
-    setTimeout(function() {
-      spawnStub.emit('close', 0);
-    }, 0);
-    return spawnStub;
-  }
+  Sleep: TestJobSleep
 };
