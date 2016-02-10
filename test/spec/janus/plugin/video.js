@@ -227,10 +227,8 @@ describe('Video plugin', function() {
   });
 
   it('switch stream', function(done) {
-    plugin.subscribe.restore();
-    sinon.stub(plugin, 'subscribe', function() {
-      return Promise.resolve();
-    });
+    plugin.removeStream.returns(Promise.resolve());
+    plugin.subscribe.returns(Promise.resolve());
 
     var switchRequest = {
       janus: 'message',
@@ -263,6 +261,7 @@ describe('Video plugin', function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
         assert.equal(plugin.stream.channel.name, 'channel-name');
         assert.equal(plugin.stream.channel.id, 'channel-uid');
+        expect(plugin.removeStream.calledOnce).to.be.equal(true);
         expect(plugin.subscribe.calledOnce).to.be.equal(true);
         done();
       });
@@ -270,8 +269,6 @@ describe('Video plugin', function() {
   });
 
   it('switch stream fail', function(done) {
-    plugin.subscribe.restore();
-    sinon.stub(plugin, 'subscribe');
 
     var switchRequest = {
       janus: 'message',
@@ -292,7 +289,7 @@ describe('Video plugin', function() {
 
     plugin.processMessage(switchRequest).then(function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
-        expect(plugin.removeStream.calledOnce).to.be.equal(true);
+        expect(plugin.removeStream.called).to.be.equal(false);
         expect(plugin.subscribe.called).to.be.equal(false);
         done();
       });
