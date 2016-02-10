@@ -15,7 +15,8 @@ describe('AbstractJob', function() {
     beforeEach(function() {
       job = new AbstractJob();
       job._run = function() {
-        return new Promise(function(resolve, reject) {});
+        return new Promise(function(resolve, reject) {
+        });
       };
       job.run();
     });
@@ -83,6 +84,32 @@ describe('AbstractJob', function() {
         assert.equal(output.trim(), workingDirectory);
         done();
       })
+    });
+  });
+
+  context('timeout cancel', function() {
+    var job, jobRunTime = 2000;
+
+    beforeEach(function() {
+      job = new AbstractJob();
+      job._run = function() {
+        return Promise.delay(jobRunTime);
+      };
+    });
+
+    it('charges timeout cancellation', function() {
+      sinon.spy(job, '_setTimeoutCancel');
+      job.run();
+      assert.isTrue(job._setTimeoutCancel.calledOnce);
+    });
+
+    it('cancel overran jobs', function(done) {
+      sinon.spy(job, 'cancel');
+      job._maxRunningTime = jobRunTime / 2;
+      job.run().finally(function() {
+        assert.isTrue(job.cancel.calledOnce);
+        done();
+      });
     });
   });
 });
