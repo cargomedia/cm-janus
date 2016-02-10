@@ -114,10 +114,11 @@ describe('PluginStreaming', function() {
       stream = new Stream('stream-id', 'channel', plugin);
       plugin.stream = stream;
       streams.has.returns(true);
+      streams.remove.returns(Promise.resolve());
     });
     context('when removes stream', function() {
-      beforeEach(function() {
-        plugin.removeStream();
+      beforeEach(function(done) {
+        plugin.removeStream().finally(done);
       });
 
       it('should remove stream reference', function() {

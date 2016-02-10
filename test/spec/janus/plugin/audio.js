@@ -165,6 +165,10 @@ describe('Audio plugin', function() {
     sinon.stub(streams, 'addSubscribe', function() {
       return Promise.resolve();
     });
+    streams.remove.restore();
+    sinon.stub(streams, 'remove', function() {
+      return Promise.resolve();
+    });
 
     var changeroomRequest = {
       janus: 'message',
@@ -195,7 +199,6 @@ describe('Audio plugin', function() {
     sinon.stub(streams, 'addSubscribe', function() {
       return Promise.resolve();
     });
-    streams.has.returns(true);
 
     var changeroomRequest = {
       janus: 'message',
@@ -215,8 +218,7 @@ describe('Audio plugin', function() {
     plugin.stream = previousStream;
     plugin.processMessage(changeroomRequest).then(function() {
       connection.transactions.execute(changeroomRequest.transaction, changeroomResponse).then(function() {
-        expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
-        expect(plugin.stream).to.be.equal(null);
+        expect(plugin.stream).to.be.equal(previousStream);
         expect(streams.addSubscribe.called).to.be.equal(false);
         done();
       });
@@ -224,7 +226,10 @@ describe('Audio plugin', function() {
   });
 
   it('destroy room', function(done) {
-    streams.has.returns(true);
+    streams.remove.restore();
+    sinon.stub(streams, 'remove', function() {
+      return Promise.resolve();
+    });
     var destroyedRequest = {
       janus: 'event',
       plugindata: {
