@@ -9,7 +9,6 @@ var PluginAudio = require('../../../../lib/janus/plugin/audio');
 
 var Stream = require('../../../../lib/stream');
 var Channel = require('../../../../lib/channel');
-var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Audio plugin', function() {
   var plugin, session, connection;
@@ -57,9 +56,7 @@ describe('Audio plugin', function() {
   });
 
   it('when processes "join" message.', function() {
-    var onJoinStub = sinon.stub(plugin, 'onJoin', function() {
-      return Promise.resolve();
-    });
+    var onJoinStub = sinon.stub(plugin, 'onJoin', Promise.resolve);
     var joinRequest = {
       janus: 'message',
       body: {request: 'join'},
@@ -72,9 +69,7 @@ describe('Audio plugin', function() {
   });
 
   it('when processes "changeroom" message.', function() {
-    var onChangeroomStub = sinon.stub(plugin, 'onChangeroom', function() {
-      return Promise.resolve();
-    });
+    var onChangeroomStub = sinon.stub(plugin, 'onChangeroom', Promise.resolve);
     var changeroomRequest = {
       janus: 'message',
       body: {request: 'changeroom'},
@@ -87,9 +82,7 @@ describe('Audio plugin', function() {
   });
 
   it('when processes "destroyed" message.', function() {
-    var onDestroyedStub = sinon.stub(plugin, 'onDestroyed', function() {
-      return Promise.resolve();
-    });
+    var onDestroyedStub = sinon.stub(plugin, 'onDestroyed', Promise.resolve);
     var destroyedRequest = {
       janus: 'event',
       plugindata: {
@@ -150,12 +143,8 @@ describe('Audio plugin', function() {
   });
 
   it('change room', function(done) {
-    sinon.stub(plugin, 'subscribe', function() {
-      return Promise.resolve();
-    });
-    sinon.stub(plugin, 'removeStream', function() {
-      return Promise.resolve();
-    });
+    sinon.stub(plugin, 'subscribe', Promise.resolve);
+    sinon.stub(plugin, 'removeStream', Promise.resolve);
 
     var changeroomRequest = {
       janus: 'message',
@@ -181,9 +170,7 @@ describe('Audio plugin', function() {
   });
 
   it('change room fail', function(done) {
-    sinon.stub(plugin, 'subscribe', function() {
-      return Promise.resolve();
-    });
+    sinon.stub(plugin, 'subscribe', Promise.resolve);
 
     var changeroomRequest = {
       janus: 'message',
@@ -211,9 +198,7 @@ describe('Audio plugin', function() {
   });
 
   it('destroy room', function(done) {
-    sinon.stub(plugin, 'removeStream', function() {
-      return Promise.resolve();
-    });
+    sinon.stub(plugin, 'removeStream', Promise.resolve);
     var destroyedRequest = {
       janus: 'event',
       plugindata: {

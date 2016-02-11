@@ -40,10 +40,7 @@ describe('PluginStreaming', function() {
         });
       };
 
-      streams.addSubscribe.restore();
-      sinon.stub(streams, 'addSubscribe', function() {
-        return Promise.resolve();
-      });
+      streams.addSubscribe.returns(Promise.resolve());
     });
 
     it('should subscribe', function(done) {
@@ -66,7 +63,7 @@ describe('PluginStreaming', function() {
       beforeEach(function() {
         streams.addSubscribe.restore();
         sinon.stub(streams, 'addSubscribe', function() {
-        return Promise.reject(new JanusError.Error('Cannot subscribe'));
+          return Promise.reject(new JanusError.Error('Cannot subscribe'));
         });
       });
 
@@ -94,7 +91,7 @@ describe('PluginStreaming', function() {
     });
 
     it('should remove stream', function() {
-      expect(plugin.removeStream.callCount).to.be.equal(1)
+      expect(plugin.removeStream.calledOnce).to.be.equal(true);
     });
   });
 
@@ -113,7 +110,6 @@ describe('PluginStreaming', function() {
     beforeEach(function() {
       stream = new Stream('stream-id', 'channel', plugin);
       plugin.stream = stream;
-      streams.has.returns(true);
       streams.remove.returns(Promise.resolve());
     });
     context('when removes stream', function() {

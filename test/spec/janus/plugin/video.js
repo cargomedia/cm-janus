@@ -98,10 +98,7 @@ describe('Video plugin', function() {
             }
           });
         };
-        plugin.publish.restore();
-        sinon.stub(plugin, 'publish', function() {
-          return Promise.resolve();
-        });
+        plugin.publish.returns(Promise.resolve());
       });
 
       it('should set stream with channel', function(done) {
@@ -123,10 +120,7 @@ describe('Video plugin', function() {
 
       context('on unsuccessful publish', function() {
         beforeEach(function() {
-          plugin.publish.restore();
-          sinon.stub(plugin, 'publish', function() {
-            return Promise.reject(new JanusError.Error('Cannot publish'));
-          });
+          plugin.publish.returns(Promise.reject(new JanusError.Error('Cannot publish')));
         });
 
         it('should reject', function(done) {
@@ -142,9 +136,7 @@ describe('Video plugin', function() {
   });
 
   it('when processes "watch" message', function() {
-    var onWatchStub = sinon.stub(plugin, 'onWatch', function() {
-      return Promise.resolve();
-    });
+    var onWatchStub = sinon.stub(plugin, 'onWatch', Promise.resolve);
     var watchRequest = {
       janus: 'message',
       body: {request: 'watch'},
@@ -212,9 +204,7 @@ describe('Video plugin', function() {
   });
 
   it('when processes "switch" message', function() {
-    var onSwitchStub = sinon.stub(plugin, 'onSwitch', function() {
-      return Promise.resolve();
-    });
+    var onSwitchStub = sinon.stub(plugin, 'onSwitch', Promise.resolve);
     var switchRequest = {
       janus: 'message',
       body: {request: 'switch'},
@@ -297,9 +287,7 @@ describe('Video plugin', function() {
   });
 
   it('when processes "stopped" message.', function() {
-    var onStoppedStub = sinon.stub(plugin, 'onStopped', function() {
-      return Promise.resolve();
-    });
+    var onStoppedStub = sinon.stub(plugin, 'onStopped', Promise.resolve);
     var stoppedRequest = {
       janus: 'event',
       plugindata: {
