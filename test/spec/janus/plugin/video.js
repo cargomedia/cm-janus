@@ -329,6 +329,8 @@ describe('Video plugin', function() {
         }
       }
     };
+
+    plugin.removeStream.returns(Promise.resolve());
     plugin.processMessage(stoppedRequest).then(function() {
       expect(plugin.removeStream.calledOnce).to.be.equal(true);
       done();

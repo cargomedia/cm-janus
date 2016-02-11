@@ -89,7 +89,7 @@ describe('PluginStreaming', function() {
         sender: 'plugin-id',
         token: 'token'
       };
-      sinon.stub(plugin, 'removeStream');
+      sinon.stub(plugin, 'removeStream', Promise.resolve);
       plugin.processMessage(message);
     });
 
