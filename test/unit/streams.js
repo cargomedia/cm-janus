@@ -20,8 +20,8 @@ assert.equalArray = function(array1, array2) {
 describe('streams', function() {
   var cmApiClient;
 
-  before(function() {
-    cmApiClient = sinon.createStubInstance(CmApiClient);
+  beforeEach(function() {
+    cmApiClient = new CmApiClient();
     serviceLocator.register('cm-api-client', cmApiClient);
   });
 
@@ -32,7 +32,6 @@ describe('streams', function() {
   it('addPublish', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_add');
-    cmApiClient.publish.restore();
     sinon.stub(cmApiClient, 'publish', function() {
       return Promise.resolve();
     });
@@ -42,13 +41,12 @@ describe('streams', function() {
       assert.equal(cmApiClient.publish.calledWith(stream), true);
       assert.equal(streams._add.calledOnce, true);
       done();
-    }, done);
+    }).catch(done);
   });
 
   it('addPublish fails', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_add');
-    cmApiClient.publish.restore();
     sinon.stub(cmApiClient, 'publish', function() {
       return Promise.reject(new Error('Reason'));
     });
@@ -66,7 +64,6 @@ describe('streams', function() {
   it('addSubscribe', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_add');
-    cmApiClient.subscribe.restore();
     sinon.stub(cmApiClient, 'subscribe', function() {
       return Promise.resolve();
     });
@@ -76,13 +73,12 @@ describe('streams', function() {
       assert.equal(cmApiClient.subscribe.withArgs(stream).calledOnce, true);
       assert.equal(streams._add.calledOnce, true);
       done();
-    }, done);
+    }).catch(done);
   });
 
   it('addSubscribe fails', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_add');
-    cmApiClient.subscribe.restore();
     sinon.stub(cmApiClient, 'subscribe', function() {
       return Promise.reject(new Error('Reason'));
     });
@@ -100,7 +96,6 @@ describe('streams', function() {
   it('remove', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_remove');
-    cmApiClient.removeStream.restore();
     sinon.stub(cmApiClient, 'removeStream', function() {
       return Promise.resolve();
     });
@@ -110,7 +105,30 @@ describe('streams', function() {
       assert.equal(cmApiClient.removeStream.withArgs(stream).calledOnce, true);
       assert.equal(streams._remove.calledOnce, true);
       done();
-    }, done);
+    }).catch(done);
+  });
+
+  it('removeAll', function(done) {
+    var streams = new Streams();
+    sinon.stub(streams, '_removeAll');
+    sinon.stub(cmApiClient, 'removeAllStreams', function() {
+      return Promise.resolve();
+    });
+
+    streams.removeAll().then(function() {
+      assert.equal(cmApiClient.removeAllStreams.calledOnce, true);
+      assert.equal(streams._removeAll.calledOnce, true);
+      done();
+    }).catch(done);
+  });
+
+  it('find', function() {
+    var streams = new Streams();
+    var stream = sinon.createStubInstance(Stream);
+    stream.id = 'foo';
+    streams.list[stream.id] = stream;
+    assert.strictEqual(streams.find('foo'), stream);
+    assert.strictEqual(streams.find('bar'), null);
   });
 
   it('_add', function() {
@@ -146,12 +164,16 @@ describe('streams', function() {
     assert.strictEqual(_.size(streams.list), 0);
   });
 
-  it('find', function() {
-    var streams = new Streams();
+  it('_removeAll', function() {
     var stream = sinon.createStubInstance(Stream);
     stream.id = 'foo';
-    streams.list[stream.id] = stream;
-    assert.strictEqual(streams.find('foo'), stream);
-    assert.strictEqual(streams.find('bar'), null);
+
+    var streams = new Streams();
+    streams.list['foo'] = stream;
+    streams.list['bar'] = stream;
+    assert.strictEqual(_.size(streams.list), 2);
+
+    streams._removeAll(stream);
+    assert.strictEqual(_.size(streams.list), 0);
   });
 });

@@ -77,4 +77,19 @@ describe('CmApiClient spec tests', function() {
       done();
     });
   });
+
+  it('removeAllStreams', function(done) {
+    var url = 'http://localhost:8080';
+    var action = 'removeAllStreams';
+    var apiKey = 'test';
+    var httpParams = [];
+
+    mockRequest(url, action, apiKey, httpParams);
+
+    var client = new CmApiClient(url, apiKey);
+    client.removeAllStreams().then(function(result) {
+      assert.isTrue(result);
+      done();
+    });
+  });
 });

@@ -130,4 +130,15 @@ describe('CmApiClient unit tests', function() {
       requestStub.restore();
     });
   });
+
+  describe('removeAllStreams()', function() {
+    var cmApiClient = new CMApiClient('http://cm.dev/', 'apiKey');
+
+    it('passes params to request correctly', function() {
+      var requestStub = sinon.stub(cmApiClient, '_request').returns(Promise.resolve(true));
+      cmApiClient.removeAllStreams();
+      assert.isTrue(requestStub.withArgs('removeAllStreams', []).calledOnce);
+      requestStub.restore();
+    });
+  });
 });
