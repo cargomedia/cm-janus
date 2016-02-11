@@ -116,10 +116,7 @@ describe('streams', function() {
   it('removeAll', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_removeAll');
-    cmApiClient.removeAllStreams.restore();
-    sinon.stub(cmApiClient, 'removeAllStreams', function() {
-      return Promise.resolve();
-    });
+    cmApiClient.removeAllStreams.returns(Promise.resolve());
 
     streams.removeAll().then(function() {
       assert.equal(cmApiClient.removeAllStreams.calledOnce, true);

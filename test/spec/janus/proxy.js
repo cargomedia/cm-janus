@@ -19,6 +19,10 @@ describe('JanusProxy', function() {
     proxy = new JanusProxy(8883, 'ws://localhost:8889');
   });
 
+  after(function() {
+    serviceLocator.unregister('streams');
+  });
+
   it('should store listen port and janus address', function() {
     expect(proxy.port).to.be.equal(8883);
     expect(proxy.janusAddress).to.be.equal('ws://localhost:8889');
@@ -27,9 +31,7 @@ describe('JanusProxy', function() {
   context('when started', function() {
 
     beforeEach(function(done) {
-      sinon.stub(streams, 'removeAll', function() {
-        return Promise.resolve();
-      });
+      sinon.stub(streams, 'removeAll', Promise.resolve);
       proxy.start().then(done, done);
     });
 
