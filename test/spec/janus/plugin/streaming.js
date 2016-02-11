@@ -60,7 +60,10 @@ describe('PluginStreaming', function() {
 
     context('on unsuccessful subscribe', function() {
       beforeEach(function() {
-        streams.addSubscribe.returns(Promise.reject(new JanusError.Error('Cannot subscribe')));
+        streams.addSubscribe.restore();
+        sinon.stub(streams, 'addSubscribe', function() {
+          return Promise.reject(new JanusError.Error('Cannot subscribe'));
+        });
       });
 
       it('should detach and should reject', function(done) {
@@ -82,12 +85,12 @@ describe('PluginStreaming', function() {
         sender: 'plugin-id',
         token: 'token'
       };
-      sinon.stub(plugin, 'removeStream');
+      sinon.stub(plugin, 'removeStream', Promise.resolve);
       plugin.processMessage(message);
     });
 
     it('should remove stream', function() {
-      expect(plugin.removeStream.callCount).to.be.equal(1)
+      expect(plugin.removeStream.calledOnce).to.be.equal(true);
     });
   });
 
@@ -108,14 +111,11 @@ describe('PluginStreaming', function() {
     beforeEach(function() {
       stream = new Stream('stream-id', 'channel', plugin);
       plugin.stream = stream;
-      streams.has.returns(true);
+      streams.remove.returns(Promise.resolve());
     });
     context('when removes stream', function() {
       beforeEach(function(done) {
-        streams.remove.returns(Promise.resolve());
-        plugin.removeStream().then(function() {
-          done()
-        });
+        plugin.removeStream().finally(done);
       });
 
       it('should remove stream reference', function() {

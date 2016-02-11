@@ -8,30 +8,17 @@ var Session = require('../../../../lib/janus/session');
 var PluginAudio = require('../../../../lib/janus/plugin/audio');
 
 var Stream = require('../../../../lib/stream');
-var Streams = require('../../../../lib/streams');
 var Channel = require('../../../../lib/channel');
-var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Audio plugin', function() {
-  var plugin, session, connection, streams;
+  var plugin, session, connection;
 
   this.timeout(2000);
-
-  before(function() {
-    serviceLocator.register('streams', new Streams());
-  });
-
-  after(function() {
-    serviceLocator.unregister('streams');
-  });
 
   beforeEach(function() {
     connection = new Connection('connection-id');
     session = new Session(connection, 'session-id', 'session-data');
     plugin = new PluginAudio('id', 'type', session);
-    streams = sinon.createStubInstance(Streams);
-    streams.remove.returns(Promise.resolve());
-    serviceLocator.register('streams', streams);
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
@@ -69,9 +56,7 @@ describe('Audio plugin', function() {
   });
 
   it('when processes "join" message.', function() {
-    var onJoinStub = sinon.stub(plugin, 'onJoin', function() {
-      return Promise.resolve();
-    });
+    var onJoinStub = sinon.stub(plugin, 'onJoin', Promise.resolve);
     var joinRequest = {
       janus: 'message',
       body: {request: 'join'},
@@ -84,9 +69,7 @@ describe('Audio plugin', function() {
   });
 
   it('when processes "changeroom" message.', function() {
-    var onChangeroomStub = sinon.stub(plugin, 'onChangeroom', function() {
-      return Promise.resolve();
-    });
+    var onChangeroomStub = sinon.stub(plugin, 'onChangeroom', Promise.resolve);
     var changeroomRequest = {
       janus: 'message',
       body: {request: 'changeroom'},
@@ -99,9 +82,7 @@ describe('Audio plugin', function() {
   });
 
   it('when processes "destroyed" message.', function() {
-    var onDestroyedStub = sinon.stub(plugin, 'onDestroyed', function() {
-      return Promise.resolve();
-    });
+    var onDestroyedStub = sinon.stub(plugin, 'onDestroyed', Promise.resolve);
     var destroyedRequest = {
       janus: 'event',
       plugindata: {
@@ -162,7 +143,8 @@ describe('Audio plugin', function() {
   });
 
   it('change room', function(done) {
-    streams.addSubscribe.returns(Promise.resolve());
+    sinon.stub(plugin, 'subscribe', Promise.resolve);
+    sinon.stub(plugin, 'removeStream', Promise.resolve);
 
     var changeroomRequest = {
       janus: 'message',
@@ -180,8 +162,7 @@ describe('Audio plugin', function() {
     plugin.processMessage(changeroomRequest).then(function() {
       connection.transactions.execute(changeroomRequest.transaction, changeroomResponse).then(function() {
         assert.equal(plugin.stream.channel.name, changeroomRequest.body.id);
-        expect(streams.addSubscribe.calledOnce).to.be.equal(true);
-        expect(streams.addSubscribe.firstCall.args[0]).to.be.equal(plugin.stream);
+        expect(plugin.subscribe.calledOnce).to.be.equal(true);
         done();
       });
     });
@@ -189,8 +170,7 @@ describe('Audio plugin', function() {
   });
 
   it('change room fail', function(done) {
-    streams.addSubscribe.returns(Promise.resolve());
-    streams.has.returns(true);
+    sinon.stub(plugin, 'subscribe', Promise.resolve);
 
     var changeroomRequest = {
       janus: 'message',
@@ -210,16 +190,15 @@ describe('Audio plugin', function() {
     plugin.stream = previousStream;
     plugin.processMessage(changeroomRequest).then(function() {
       connection.transactions.execute(changeroomRequest.transaction, changeroomResponse).then(function() {
-        expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
-        expect(plugin.stream).to.be.equal(null);
-        expect(streams.addSubscribe.called).to.be.equal(false);
+        expect(plugin.stream).to.be.equal(previousStream);
+        expect(plugin.subscribe.called).to.be.equal(false);
         done();
       });
     });
   });
 
   it('destroy room', function(done) {
-    streams.has.returns(true);
+    sinon.stub(plugin, 'removeStream', Promise.resolve);
     var destroyedRequest = {
       janus: 'event',
       plugindata: {
@@ -228,12 +207,8 @@ describe('Audio plugin', function() {
         }
       }
     };
-    var channel = {};
-    var stream = {channel: channel};
-    plugin.stream = stream;
-    plugin.channel = channel;
     plugin.processMessage(destroyedRequest).then(function() {
-      expect(streams.remove.calledWith(stream)).to.be.equal(true);
+      expect(plugin.removeStream.calledOnce).to.be.equal(true);
       done();
     });
   });
