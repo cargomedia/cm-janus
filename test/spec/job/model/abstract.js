@@ -105,6 +105,9 @@ describe('AbstractJob', function() {
 
     it('cancel overran jobs', function(done) {
       sinon.spy(job, 'cancel');
+      sinon.stub(job, 'getName', function() {
+        return ''
+      });
       job._maxRunningTime = jobRunTime / 2;
       job.run().finally(function() {
         assert.isTrue(job.cancel.calledOnce);
