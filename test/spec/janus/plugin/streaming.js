@@ -39,7 +39,6 @@ describe('PluginStreaming', function() {
           janus: 'webrtcup'
         });
       };
-
       streams.addSubscribe.returns(Promise.resolve());
     });
 
@@ -98,7 +97,9 @@ describe('PluginStreaming', function() {
 
   context('when removed', function() {
     it('should remove stream', function() {
-      sinon.stub(plugin, 'removeStream');
+      sinon.stub(plugin, 'removeStream', function() {
+        return Promise.resolve();
+      });
       plugin.onRemove();
       expect(plugin.removeStream.calledOnce).to.be.equal(true);
     });
