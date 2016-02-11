@@ -94,6 +94,7 @@ describe('JanusConnection', function() {
       };
       sinon.spy(connection.transactions, 'add');
       connection.session = sinon.createStubInstance(Session);
+      connection.session.onRemove.returns(Promise.resolve());
       connection.processMessage(message);
     });
 
@@ -102,10 +103,12 @@ describe('JanusConnection', function() {
     });
 
     context('on successful transaction response', function() {
-      beforeEach(function() {
+      beforeEach(function(done) {
         var transactionCallback = connection.transactions.add.firstCall.args[1];
         transactionCallback({
           janus: 'success'
+        }).then(function() {
+          done()
         });
       });
 
@@ -116,13 +119,16 @@ describe('JanusConnection', function() {
   });
 
   context('when processes "timeout" message"', function() {
-    beforeEach(function() {
+    beforeEach(function(done) {
       var message = {
         janus: 'timeout',
         sessionId: 'session-id'
       };
       connection.session = sinon.createStubInstance(Session);
-      connection.processMessage(message);
+      connection.session.onRemove.returns(Promise.resolve());
+      connection.processMessage(message).then(function() {
+        done()
+      });
     });
 
     it('should remove session', function() {
@@ -158,6 +164,7 @@ describe('JanusConnection', function() {
     context('when session exists', function() {
       beforeEach(function() {
         connection.session = sinon.createStubInstance(Session);
+        connection.session.onRemove.returns(Promise.resolve());
       });
 
       it('should trigger session onRemove', function() {
@@ -167,8 +174,9 @@ describe('JanusConnection', function() {
       });
 
       it('should clear session', function() {
-        connection.onRemove();
-        expect(connection.session).to.be.equal(null);
+        connection.onRemove().then(function() {
+          expect(connection.session).to.be.equal(null);
+        });
       });
     });
   });

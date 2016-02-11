@@ -103,16 +103,19 @@ describe('Session', function() {
   context('when removes plugin', function() {
     beforeEach(function() {
       session.plugins['plugin-id'] = sinon.createStubInstance(PluginAbstract);
+      session.plugins['plugin-id'].onRemove.returns(Promise.resolve());
       session.plugins['other-plugin-id'] = sinon.createStubInstance(PluginAbstract);
+      session.plugins['other-plugin-id'].onRemove.returns(Promise.resolve());
     });
 
 
     it('should remove it from plugins collection', function() {
       expect(_.size(session.plugins), 2);
       expect(session.plugins).to.have.property('plugin-id');
-      session._removePlugin('plugin-id');
-      expect(_.size(session.plugins), 1);
-      expect(session.plugins).to.not.have.property('plugin-id');
+      session._removePlugin('plugin-id').then(function() {
+        expect(_.size(session.plugins), 1);
+        expect(session.plugins).to.not.have.property('plugin-id');
+      });
     });
 
     it('should trigger onRemove', function() {
@@ -139,10 +142,7 @@ describe('Session', function() {
     it('should proxy message to plugin', function() {
       var plugin = sinon.createStubInstance(PluginAbstract);
       session.plugins['plugin-id'] = plugin;
-      plugin.processMessage.restore();
-      sinon.stub(plugin, 'processMessage', function() {
-        return Promise.resolve();
-      });
+      plugin.processMessage.returns(Promise.resolve());
       session.processMessage(message);
       assert(plugin.processMessage.withArgs(message).calledOnce);
     });
