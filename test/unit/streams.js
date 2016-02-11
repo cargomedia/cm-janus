@@ -20,8 +20,8 @@ assert.equalArray = function(array1, array2) {
 describe('streams', function() {
   var cmApiClient;
 
-  before(function() {
-    cmApiClient = sinon.createStubInstance(CmApiClient);
+  beforeEach(function() {
+    cmApiClient = new CmApiClient();
     serviceLocator.register('cm-api-client', cmApiClient);
   });
 
@@ -32,7 +32,6 @@ describe('streams', function() {
   it('addPublish', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_add');
-    cmApiClient.publish.restore();
     sinon.stub(cmApiClient, 'publish', function() {
       return Promise.resolve();
     });
@@ -48,7 +47,6 @@ describe('streams', function() {
   it('addPublish fails', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_add');
-    cmApiClient.publish.restore();
     sinon.stub(cmApiClient, 'publish', function() {
       return Promise.reject(new Error('Reason'));
     });
@@ -66,7 +64,6 @@ describe('streams', function() {
   it('addSubscribe', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_add');
-    cmApiClient.subscribe.restore();
     sinon.stub(cmApiClient, 'subscribe', function() {
       return Promise.resolve();
     });
@@ -82,7 +79,6 @@ describe('streams', function() {
   it('addSubscribe fails', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_add');
-    cmApiClient.subscribe.restore();
     sinon.stub(cmApiClient, 'subscribe', function() {
       return Promise.reject(new Error('Reason'));
     });
@@ -100,7 +96,6 @@ describe('streams', function() {
   it('remove', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_remove');
-    cmApiClient.removeStream.restore();
     sinon.stub(cmApiClient, 'removeStream', function() {
       return Promise.resolve();
     });
@@ -116,7 +111,9 @@ describe('streams', function() {
   it('removeAll', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_removeAll');
-    cmApiClient.removeAllStreams.returns(Promise.resolve());
+    sinon.stub(cmApiClient, 'removeAllStreams', function() {
+      return Promise.resolve();
+    });
 
     streams.removeAll().then(function() {
       assert.equal(cmApiClient.removeAllStreams.calledOnce, true);
