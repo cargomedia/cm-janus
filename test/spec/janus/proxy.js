@@ -2,14 +2,20 @@ var sinon = require('sinon');
 var expect = require('chai').expect;
 var Promise = require('bluebird');
 var WebSocket = require('ws');
-var JanusProxy = require('../../../lib/janus/proxy');
 var EventEmitter = require('events');
+
+require('../../helpers/globals');
+var JanusProxy = require('../../../lib/janus/proxy');
+var Streams = require('../../../lib/streams');
+var serviceLocator = require('../../../lib/service-locator');
 
 describe('JanusProxy', function() {
 
-  var proxy;
+  var proxy, streams;
 
   beforeEach(function() {
+    streams = new Streams();
+    serviceLocator.register('streams', streams);
     proxy = new JanusProxy(8883, 'ws://localhost:8889');
   });
 
@@ -20,8 +26,11 @@ describe('JanusProxy', function() {
 
   context('when started', function() {
 
-    beforeEach(function() {
-      proxy.start();
+    beforeEach(function(done) {
+      sinon.stub(streams, 'removeAll', function() {
+        return Promise.resolve();
+      });
+      proxy.start().then(done, done);
     });
 
     it('when receives connection from client should open connection to janus', function(done) {
