@@ -42,7 +42,7 @@ describe('streams', function() {
       assert.equal(cmApiClient.publish.calledWith(stream), true);
       assert.equal(streams._add.calledOnce, true);
       done();
-    }, done);
+    }).catch(done);
   });
 
   it('addPublish fails', function(done) {
@@ -76,7 +76,7 @@ describe('streams', function() {
       assert.equal(cmApiClient.subscribe.withArgs(stream).calledOnce, true);
       assert.equal(streams._add.calledOnce, true);
       done();
-    }, done);
+    }).catch(done);
   });
 
   it('addSubscribe fails', function(done) {
@@ -110,7 +110,7 @@ describe('streams', function() {
       assert.equal(cmApiClient.removeStream.withArgs(stream).calledOnce, true);
       assert.equal(streams._remove.calledOnce, true);
       done();
-    }, done);
+    }).catch(done);
   });
 
   it('removeAll', function(done) {
