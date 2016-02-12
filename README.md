@@ -72,5 +72,5 @@ If you are already in Linux then run only last two steps.
 
 After that the npm release should be done automatically. If it didn't happen then release it manually:
 ```
-npm publish https://github.com/cargomedia/cm-janus/archive/GitTagWithUpdatedPackageJson.tar.gz
+npm publish https://github.com/cargomedia/cm-janus/archive/<GitTagWithUpdatedPackageJson>.tar.gz
 ```
