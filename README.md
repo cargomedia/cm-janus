@@ -67,4 +67,10 @@ cm-janus uses [node-inotify](https://github.com/c4milo/node-inotify) that works 
 If you are already in Linux then run only last two steps.
 
 ## Publishing
-If for some reason automatic publish didn't happen, you should create a git tag manually and publish it to npm manually `npm publish https://github.com/cargomedia/cm-janus/archive/GitTag.tar.gz`.
+ - update package.json with a new version
+ - release a new git tag with the updated package.json
+
+After that the npm release should be done automatically. If it didn't happen then release it manually:
+```
+npm publish https://github.com/cargomedia/cm-janus/archive/GitTagWithUpdatedPackageJson.tar.gz
+```
