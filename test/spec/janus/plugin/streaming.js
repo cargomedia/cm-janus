@@ -2,18 +2,18 @@ var chai = require('chai');
 var expect = chai.expect;
 var sinon = require('sinon');
 var Promise = require('bluebird');
+require('../../../helpers/globals');
 var Stream = require('../../../../lib/stream');
 var PluginStreaming = require('../../../../lib/janus/plugin/streaming');
 var JanusError = require('../../../../lib/janus/error');
 var Connection = require('../../../../lib/janus/connection');
 var Session = require('../../../../lib/janus/session');
-var CmApiClient = require('../../../../lib/cm-api-client');
 var Streams = require('../../../../lib/streams');
 var JanusHttpClient = require('../../../../lib/janus/http-client');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('PluginStreaming', function() {
-  var plugin, session, connection, cmApiClient, streams, httpClient;
+  var plugin, session, connection, streams, httpClient;
 
   beforeEach(function() {
     connection = new Connection('connection-id');
@@ -21,8 +21,6 @@ describe('PluginStreaming', function() {
     plugin = new PluginStreaming('plugin-id', 'plugin-type', session);
     session.plugins[plugin.id] = plugin;
 
-    cmApiClient = sinon.createStubInstance(CmApiClient);
-    serviceLocator.register('cm-api-client', cmApiClient);
     streams = sinon.createStubInstance(Streams);
     serviceLocator.register('streams', streams);
     httpClient = sinon.createStubInstance(JanusHttpClient);
@@ -41,17 +39,13 @@ describe('PluginStreaming', function() {
           janus: 'webrtcup'
         });
       };
-
-      cmApiClient.subscribe.restore();
-      sinon.stub(cmApiClient, 'subscribe', function() {
-        return Promise.resolve();
-      });
+      streams.addSubscribe.returns(Promise.resolve());
     });
 
     it('should subscribe', function(done) {
       processWebrtcupMessage().finally(function() {
-        expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
-        expect(cmApiClient.subscribe.firstCall.args[0]).to.be.equal(plugin.stream);
+        expect(streams.addSubscribe.calledOnce).to.be.equal(true);
+        expect(streams.addSubscribe.firstCall.args[0]).to.be.equal(plugin.stream);
         done();
       });
     });
@@ -66,9 +60,9 @@ describe('PluginStreaming', function() {
 
     context('on unsuccessful subscribe', function() {
       beforeEach(function() {
-        cmApiClient.subscribe.restore();
-        sinon.stub(cmApiClient, 'subscribe', function() {
-        return Promise.reject(new JanusError.Error('Cannot subscribe'));
+        streams.addSubscribe.restore();
+        sinon.stub(streams, 'addSubscribe', function() {
+          return Promise.reject(new JanusError.Error('Cannot subscribe'));
         });
       });
 
@@ -91,19 +85,21 @@ describe('PluginStreaming', function() {
         sender: 'plugin-id',
         token: 'token'
       };
-      sinon.stub(plugin, 'removeStream');
+      sinon.stub(plugin, 'removeStream', Promise.resolve);
       plugin.processMessage(message);
     });
 
     it('should remove stream', function() {
-      expect(plugin.removeStream.callCount).to.be.equal(1)
+      expect(plugin.removeStream.calledOnce).to.be.equal(true);
     });
   });
 
 
   context('when removed', function() {
     it('should remove stream', function() {
-      sinon.stub(plugin, 'removeStream');
+      sinon.stub(plugin, 'removeStream', function() {
+        return Promise.resolve();
+      });
       plugin.onRemove();
       expect(plugin.removeStream.calledOnce).to.be.equal(true);
     });
@@ -115,11 +111,11 @@ describe('PluginStreaming', function() {
     beforeEach(function() {
       stream = new Stream('stream-id', 'channel', plugin);
       plugin.stream = stream;
-      streams.has.returns(true);
+      streams.remove.returns(Promise.resolve());
     });
     context('when removes stream', function() {
-      beforeEach(function() {
-        plugin.removeStream();
+      beforeEach(function(done) {
+        plugin.removeStream().finally(done);
       });
 
       it('should remove stream reference', function() {
@@ -127,13 +123,8 @@ describe('PluginStreaming', function() {
       });
 
       it('should remove stream from streams', function() {
-        expect(streams.has.withArgs(stream.id).calledOnce).to.be.equal(true);
-        expect(streams.remove.withArgs(stream).calledOnce).to.be.equal(true);
-      });
-
-      it('should call cmApiClient removeStream', function() {
-        expect(cmApiClient.removeStream.calledOnce).to.be.equal(true);
-        expect(cmApiClient.removeStream.firstCall.args[0]).to.be.equal(stream);
+        expect(streams.remove.calledOnce).to.be.equal(true);
+        expect(streams.remove.firstCall.args[0]).to.be.equal(stream);
       });
     });
   })

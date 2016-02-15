@@ -8,14 +8,9 @@ var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
 var JanusError = require('../../../../lib/janus/error');
 var Stream = require('../../../../lib/stream');
-var Streams = require('../../../../lib/streams');
-var Channel = require('../../../../lib/channel');
-var CmApiClient = require('../../../../lib/cm-api-client');
-var JanusHttpClient = require('../../../../lib/janus/http-client');
-var serviceLocator = require('../../../../lib/service-locator');
 
 describe('Video plugin', function() {
-  var plugin, session, connection, cmApiClient, httpClient, streams;
+  var plugin, session, connection;
 
   this.timeout(2000);
 
@@ -23,21 +18,12 @@ describe('Video plugin', function() {
     connection = new Connection('connection-id');
     session = new Session(connection, 'session-id', 'session-data');
     plugin = new PluginVideo('id', 'type', session);
-    cmApiClient = sinon.createStubInstance(CmApiClient);
-    serviceLocator.register('cm-api-client', cmApiClient);
-    httpClient = sinon.createStubInstance(JanusHttpClient);
-    serviceLocator.register('http-client', httpClient);
-    streams = sinon.createStubInstance(Streams);
-    serviceLocator.register('streams', streams);
+    sinon.stub(plugin, 'publish');
+    sinon.stub(plugin, 'subscribe');
+    sinon.stub(plugin, 'removeStream');
 
     connection.session = session;
     session.plugins[plugin.id] = plugin;
-  });
-
-  afterEach(function() {
-    serviceLocator.unregister('cm-api-client');
-    serviceLocator.unregister('http-client');
-    serviceLocator.unregister('streams');
   });
 
   it('when processes invalid message', function(done) {
@@ -112,10 +98,7 @@ describe('Video plugin', function() {
             }
           });
         };
-        cmApiClient.publish.restore();
-        sinon.stub(cmApiClient, 'publish', function() {
-          return Promise.resolve();
-        });
+        plugin.publish.returns(Promise.resolve());
       });
 
       it('should set stream with channel', function(done) {
@@ -130,34 +113,21 @@ describe('Video plugin', function() {
 
       it('should publish', function(done) {
         executeTransactionCallback().finally(function() {
-          expect(cmApiClient.publish.calledOnce).to.be.equal(true);
-          expect(cmApiClient.publish.firstCall.args[0]).to.be.equal(plugin.stream);
+          expect(plugin.publish.calledOnce).to.be.equal(true);
           done();
-        });
-      });
-
-      context('on successful publish', function() {
-        it('should add stream to streams', function(done) {
-          executeTransactionCallback().finally(function() {
-            done();
-          });
         });
       });
 
       context('on unsuccessful publish', function() {
         beforeEach(function() {
-          cmApiClient.publish.restore();
-          sinon.stub(cmApiClient, 'publish', function() {
-            return Promise.reject(new JanusError.Error('Cannot publish'));
-          });
+          plugin.publish.returns(Promise.reject(new JanusError.Error('Cannot publish')));
         });
 
-        it('should detach and should reject', function(done) {
+        it('should reject', function(done) {
           executeTransactionCallback().then(function() {
             done(new Error('Should not resolve'));
           }, function(error) {
-            expect(httpClient.detach.callCount).to.be.equal(1);
-            expect(error.message).to.include('error: Cannot publish');
+            expect(error.message).to.include('Cannot publish');
             done();
           });
         });
@@ -166,9 +136,7 @@ describe('Video plugin', function() {
   });
 
   it('when processes "watch" message', function() {
-    var onWatchStub = sinon.stub(plugin, 'onWatch', function() {
-      return Promise.resolve();
-    });
+    var onWatchStub = sinon.stub(plugin, 'onWatch', Promise.resolve);
     var watchRequest = {
       janus: 'message',
       body: {request: 'watch'},
@@ -236,9 +204,7 @@ describe('Video plugin', function() {
   });
 
   it('when processes "switch" message', function() {
-    var onSwitchStub = sinon.stub(plugin, 'onSwitch', function() {
-      return Promise.resolve();
-    });
+    var onSwitchStub = sinon.stub(plugin, 'onSwitch', Promise.resolve);
     var switchRequest = {
       janus: 'message',
       body: {request: 'switch'},
@@ -251,10 +217,8 @@ describe('Video plugin', function() {
   });
 
   it('switch stream', function(done) {
-    cmApiClient.subscribe.restore();
-    sinon.stub(cmApiClient, 'subscribe', function() {
-      return Promise.resolve();
-    });
+    plugin.removeStream.returns(Promise.resolve());
+    plugin.subscribe.returns(Promise.resolve());
 
     var switchRequest = {
       janus: 'message',
@@ -287,20 +251,14 @@ describe('Video plugin', function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
         assert.equal(plugin.stream.channel.name, 'channel-name');
         assert.equal(plugin.stream.channel.id, 'channel-uid');
-        expect(cmApiClient.subscribe.calledOnce).to.be.equal(true);
-        expect(cmApiClient.subscribe.firstCall.args[0]).to.be.equal(plugin.stream);
-        expect(streams.add.withArgs(plugin.stream).calledOnce).to.be.equal(true);
+        expect(plugin.removeStream.calledOnce).to.be.equal(true);
+        expect(plugin.subscribe.calledOnce).to.be.equal(true);
         done();
       });
     });
   });
 
   it('switch stream fail', function(done) {
-    cmApiClient.subscribe.restore();
-    sinon.stub(cmApiClient, 'subscribe', function() {
-      return Promise.resolve();
-    });
-    streams.has.returns(true);
 
     var switchRequest = {
       janus: 'message',
@@ -319,25 +277,17 @@ describe('Video plugin', function() {
       transaction: switchRequest.transaction
     };
 
-    var previousChannel = new Channel('channel-id', 'channel-name', 'channel-data');
-    var previousStream = new Stream('stream-id', previousChannel, plugin);
-    plugin.stream = previousStream;
     plugin.processMessage(switchRequest).then(function() {
       connection.transactions.execute(switchRequest.transaction, switchResponse).then(function() {
-        expect(cmApiClient.removeStream.calledWith(previousStream)).to.be.equal(true);
-        expect(streams.remove.calledWith(previousStream)).to.be.equal(true);
-        expect(plugin.stream).to.be.equal(null);
-        expect(cmApiClient.subscribe.called).to.be.equal(false);
-        expect(streams.add.called).to.be.equal(false);
+        expect(plugin.removeStream.called).to.be.equal(false);
+        expect(plugin.subscribe.called).to.be.equal(false);
         done();
       });
     });
   });
 
   it('when processes "stopped" message.', function() {
-    var onStoppedStub = sinon.stub(plugin, 'onStopped', function() {
-      return Promise.resolve();
-    });
+    var onStoppedStub = sinon.stub(plugin, 'onStopped', Promise.resolve);
     var stoppedRequest = {
       janus: 'event',
       plugindata: {
@@ -356,7 +306,6 @@ describe('Video plugin', function() {
   });
 
   it('stop mountpoint', function(done) {
-    streams.has.returns(true);
     var stoppedRequest = {
       janus: 'event',
       plugindata: {
@@ -368,12 +317,10 @@ describe('Video plugin', function() {
         }
       }
     };
-    var channel = {};
-    var stream = {channel: channel};
-    plugin.stream = stream;
-    plugin.channel = channel;
+
+    plugin.removeStream.returns(Promise.resolve());
     plugin.processMessage(stoppedRequest).then(function() {
-      expect(streams.remove.calledWith(stream)).to.be.equal(true);
+      expect(plugin.removeStream.calledOnce).to.be.equal(true);
       done();
     });
   });
