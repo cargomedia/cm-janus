@@ -89,6 +89,7 @@ describe('AbstractJob', function() {
 
   context('timeout cancel', function() {
     var job, jobRunTime = 2000;
+    this.timeout(jobRunTime + 100);
 
     beforeEach(function() {
       job = new AbstractJob();
@@ -97,20 +98,14 @@ describe('AbstractJob', function() {
       };
     });
 
-    it('charges timeout cancellation', function() {
-      sinon.spy(job, '_setTimeoutCancel');
-      job.run();
-      assert.isTrue(job._setTimeoutCancel.calledOnce);
+    it('run job ok within the timeout', function(done) {
+      job._maxRunningTime = jobRunTime * 2;
+      job.run().then(done);
     });
 
-    it('cancel overran jobs', function(done) {
-      sinon.spy(job, 'cancel');
-      sinon.stub(job, 'getName', function() {
-        return ''
-      });
+    it('reject overran jobs', function(done) {
       job._maxRunningTime = jobRunTime / 2;
-      job.run().finally(function() {
-        assert.isTrue(job.cancel.calledOnce);
+      job.run().catch(Promise.TimeoutError, function() {
         done();
       });
     });
