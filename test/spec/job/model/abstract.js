@@ -15,7 +15,8 @@ describe('AbstractJob', function() {
     beforeEach(function() {
       job = new AbstractJob();
       job._run = function() {
-        return new Promise(function(resolve, reject) {});
+        return new Promise(function(resolve, reject) {
+        });
       };
       job.run();
     });
@@ -86,6 +87,30 @@ describe('AbstractJob', function() {
         assert.equal(output.trim(), workingDirectory);
         done();
       })
+    });
+  });
+
+  context('timeout cancel', function() {
+    var job, jobRunTime = 2000;
+    this.timeout(jobRunTime + 100);
+
+    beforeEach(function() {
+      job = new AbstractJob();
+      job._run = function() {
+        return Promise.delay(jobRunTime);
+      };
+    });
+
+    it('run job ok within the timeout', function(done) {
+      job._maxRunningTime = jobRunTime * 2;
+      job.run().then(done);
+    });
+
+    it('reject overran jobs', function(done) {
+      job._maxRunningTime = jobRunTime / 2;
+      job.run().catch(Promise.TimeoutError, function() {
+        done();
+      });
     });
   });
 });
