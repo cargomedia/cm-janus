@@ -169,7 +169,7 @@ describe('JanusConnection', function() {
 
   context('when is removed', function() {
 
-    context.only('when session exists', function() {
+    context('when session exists', function() {
       var sessionId = 'session-id';
       beforeEach(function() {
         var session = sinon.createStubInstance(Session);
