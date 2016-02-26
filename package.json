@@ -21,7 +21,7 @@
     "test-codecov": "$(npm bin)/istanbul cover $(npm bin)/_mocha -- -R spec && cat ./coverage/coverage.json | $(npm bin)/codecov"
   },
   "dependencies": {
-    "async": "^1.5.2",
+    "async": "~1.5.2",
     "bluebird": "~3.0.0",
     "body-parser": "^1.14.1",
     "child-process-promise": "^1.1.0",
