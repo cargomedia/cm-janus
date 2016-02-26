@@ -29,7 +29,7 @@ describe('JanusConnection', function() {
   });
 
   it('should have empty session', function() {
-    expect(connection.session).to.be.equal(null);
+    expect(connection._sessions).to.be.empty;
   });
 
   it('should have empty transactions collection', function() {
@@ -80,9 +80,12 @@ describe('JanusConnection', function() {
           id: 'session-id'
         }
       });
-      expect(connection.session).to.be.instanceof(Session);
-      expect(connection.session.id).to.be.equal('session-id');
-      expect(connection.session.data).to.be.equal('token');
+
+      expect(connection.hasSession('session-id')).to.be.true;
+      var session = connection.getSession('session-id');
+      expect(session).to.be.instanceof(Session);
+      expect(session.id).to.be.equal('session-id');
+      expect(session.data).to.be.equal('token');
     });
   });
 
@@ -90,11 +93,13 @@ describe('JanusConnection', function() {
     beforeEach(function() {
       var message = {
         janus: 'destroy',
-        sessionId: 'session-id'
+        session_id: 'session-id'
       };
       sinon.spy(connection.transactions, 'add');
-      connection.session = sinon.createStubInstance(Session);
-      connection.session.onRemove.returns(Promise.resolve());
+      var session = sinon.createStubInstance(Session);
+      session.id = message.session_id;
+      connection.addSession(session);
+      session.onRemove.returns(Promise.resolve());
       connection.processMessage(message);
     });
 
@@ -113,7 +118,7 @@ describe('JanusConnection', function() {
       });
 
       it('should remove session', function() {
-        expect(connection.session).to.be.equal(null);
+        expect(connection._sessions).to.be.empty;
       });
     });
   });
@@ -122,17 +127,19 @@ describe('JanusConnection', function() {
     beforeEach(function(done) {
       var message = {
         janus: 'timeout',
-        sessionId: 'session-id'
+        session_id: 'session-id'
       };
-      connection.session = sinon.createStubInstance(Session);
-      connection.session.onRemove.returns(Promise.resolve());
+      var session = sinon.createStubInstance(Session);
+      session.id = message.session_id;
+      connection.addSession(session);
+      session.onRemove.returns(Promise.resolve());
       connection.processMessage(message).then(function() {
         done()
       });
     });
 
     it('should remove session', function() {
-      expect(connection.session).to.be.equal(null);
+      expect(connection._sessions).to.be.empty;
     });
   });
 
@@ -143,11 +150,12 @@ describe('JanusConnection', function() {
     };
 
     it('should proxy message to session', function() {
-      connection.session = new Session(connection, 'session-id');
-      sinon.stub(connection.session, 'processMessage').returns(Promise.resolve());
+      var session = new Session(connection, 'session-id');
+      connection.addSession(session);
+      sinon.stub(session, 'processMessage').returns(Promise.resolve());
 
       connection.processMessage(message);
-      assert(connection.session.processMessage.withArgs(message).calledOnce);
+      assert(connection.getSession(session.id).processMessage.withArgs(message).calledOnce);
     });
 
     it('should reject on non-existing session', function(done) {
@@ -162,20 +170,24 @@ describe('JanusConnection', function() {
   context('when is removed', function() {
 
     context('when session exists', function() {
+      var sessionId = 'session-id';
       beforeEach(function() {
-        connection.session = sinon.createStubInstance(Session);
-        connection.session.onRemove.returns(Promise.resolve());
+        var session = sinon.createStubInstance(Session);
+        session.id = sessionId;
+        connection.addSession(session);
+        connection.getSession(sessionId).onRemove.returns(Promise.resolve());
       });
 
       it('should trigger session onRemove', function() {
-        var session = connection.session;
+        var session = connection.getSession(sessionId);
         connection.onRemove();
         assert(session.onRemove.calledOnce)
       });
 
       it('should clear session', function() {
         connection.onRemove().then(function() {
-          expect(connection.session).to.be.equal(null);
+          expect(connection.getSession(sessionId)).to.be.undefined;
+          expect(connection._sessions).to.be.empty;
         });
       });
     });
