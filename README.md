@@ -28,6 +28,7 @@ bin/cm-janus
 ```
 cm-janus is based on single configuration file written in yaml format. Default config is present under [`bin/config.yaml`](bin/config.yaml).
 You can provide different config file using `-c` option (e.g. `bin/cm-janus -c /path/to/my/config/yaml`). New config will completely overwrite old one. Old one won't be used for defaults.
+By default cm-janus runs for all roles (server, jobs). This can be limited by passing `-r` argument (e.g. `bin/cm-janus -r server,jobs`).
 
 Config format:
 

@@ -1,13 +1,22 @@
 #!/usr/bin/env node
 var minimist = require('minimist');
+var _ = require('underscore');
 var Config = require('../lib/config');
 var Application = require('../lib/index.js');
 
 var argv = minimist(process.argv.slice(2));
 var configPath = argv.c || __dirname + '/config.yaml';
-var config = Config.createFromFile(configPath).asHash();
+var availableRoles = ['server', 'jobs'];
+var roles = availableRoles;
+if (argv.r) {
+  roles = argv.r.split(',');
+  var invalidRoles = _.difference(roles, availableRoles);
+  if (invalidRoles.length) {
+    throw new Error('Invalid roles: ' + invalidRoles);
+  }
+}
 
-var application = new Application(config);
+var config = Config.createFromFile(configPath).asHash();
+var application = new Application(config, roles);
 application.registerServices();
 application.start();
-
