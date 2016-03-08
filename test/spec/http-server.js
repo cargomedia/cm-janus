@@ -77,14 +77,14 @@ describe('HttpServer', function() {
       });
 
       context('on valid stream', function() {
-        var janusHttpClient;
+        var janusHttpClient, stream;
 
         before(function() {
           janusHttpClient = new JanusHttpClient();
           serviceLocator.register('http-client', janusHttpClient);
-          var plugin = 'plugin';
+          var plugin = {};
           var channel = {name: 'channel-name', data: 'channel-data'};
-          var stream = new Stream('stream-id', channel, plugin);
+          stream = new Stream('stream-id', channel, plugin);
           sinon.stub(streams, 'find').returns(stream);
         });
 
@@ -92,31 +92,60 @@ describe('HttpServer', function() {
           serviceLocator.unregister('http-client');
         });
 
-        it('should return error on failure close', function(done) {
-          sinon.stub(janusHttpClient, 'detach', function() {
-            return Promise.reject(new Error('Cannot close'));
-          });
-          authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
-            assert(janusHttpClient.detach.withArgs('plugin').calledOnce);
-            expect(response).to.have.property('error', 'Stream stop failed');
-            done();
-          }, done);
-        });
-
-        it('should return success on successful close', function(done) {
-          sinon.stub(janusHttpClient, 'detach', function() {
-            return Promise.resolve();
-          });
-          authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
-            assert(janusHttpClient.detach.withArgs('plugin').calledOnce);
-            expect(response).to.have.property('success', 'Stream stopped');
-            done();
-          }, done);
-        });
-
         afterEach(function() {
           janusHttpClient.detach.restore();
-        })
+        });
+
+        context('on success', function() {
+
+          beforeEach(function() {
+            sinon.stub(janusHttpClient, 'detach', function() {
+              return Promise.resolve();
+            });
+          });
+
+          it('should return success on successful close', function(done) {
+            authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
+              assert(janusHttpClient.detach.withArgs(stream.plugin).calledOnce);
+              expect(response).to.have.property('success', 'Stream stopped');
+              done();
+            }, done);
+          });
+        });
+
+        context('on failure', function() {
+
+          beforeEach(function() {
+            sinon.stub(janusHttpClient, 'detach', function() {
+              return Promise.reject(new Error('Cannot close'));
+            });
+          });
+
+          after(function() {
+            delete stream.plugin.onRemove;
+          });
+
+          it('should remove stream by force', function(done) {
+            stream.plugin.onRemove = Promise.resolve;
+
+            authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
+              assert(janusHttpClient.detach.withArgs(stream.plugin).calledOnce);
+              expect(response).to.have.property('error', 'Stream stop failed. Stream was removed by force.');
+              done();
+            }, done);
+          });
+
+          it('fails otherwise', function(done) {
+            stream.plugin.onRemove = function() {
+              return Promise.reject(new Error());
+            };
+
+            authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
+              expect(response).to.have.property('error', 'Stream stop failed. Stream was not removed.');
+              done();
+            }, done);
+          });
+        });
       });
     });
 
