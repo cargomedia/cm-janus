@@ -32,6 +32,7 @@
     "log4js": "^0.6.29",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
+    "nested-error-stacks": "^1.0.2",
     "node-uuid": "^1.4.3",
     "request-promise": "^1.0.2",
     "rimraf": "^2.4.4",
