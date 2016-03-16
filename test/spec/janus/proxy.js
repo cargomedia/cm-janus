@@ -40,7 +40,7 @@ describe('JanusProxy', function() {
       janusServer.on('connection', function() {
         done();
       });
-      new WebSocket('ws://localhost:' + proxy.port);
+      new WebSocket('ws://localhost:' + proxy.port + '/origin');
     });
   });
 
