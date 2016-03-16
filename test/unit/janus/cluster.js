@@ -5,7 +5,7 @@ var Promise = require('bluebird');
 require('../../helpers/globals');
 var JanusCluster = require('../../../lib/janus/cluster');
 
-describe.only('JanusCluster unit tests', function() {
+describe('JanusCluster unit tests', function() {
 
   this.timeout(1000);
 
