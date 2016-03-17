@@ -26,6 +26,7 @@
     "body-parser": "^1.14.1",
     "child-process-promise": "^1.1.0",
     "express": "^4.13.3",
+    "fluent-logger": "^1.1.0",
     "inotify": "^1.4.0",
     "js-yaml": "^3.4.3",
     "jsonschema": "^1.0.2",
