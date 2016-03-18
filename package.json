@@ -37,7 +37,7 @@
     "node-uuid": "^1.4.3",
     "request-promise": "^1.0.2",
     "rimraf": "^2.4.4",
-    "sprintf": "^0.1.5",
+    "sprintf-js": "^1.0.3",
     "tmp": "^0.0.28",
     "underscore": "^1.8.3",
     "ws": "~0.8.0"
