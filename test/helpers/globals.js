@@ -4,6 +4,7 @@ process.on("unhandledRejection", function(reason) {
 
 var path = require('path');
 var log4js = require('log4js');
+require('../../lib/log4js-json-layout');
 var serviceLocator = require('../../lib/service-locator');
 var logFilePath = path.resolve(path.dirname(__dirname), '../log/test.log');
 log4js.configure({
@@ -15,8 +16,7 @@ log4js.configure({
         "type": "file",
         "filename": logFilePath,
         "layout": {
-          "type": "pattern",
-          "pattern": "%d %p - %m"
+          "type": "json"
         }
       }
     }
