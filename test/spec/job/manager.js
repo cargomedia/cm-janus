@@ -118,4 +118,25 @@ describe('JobManager', function() {
     });
   });
 
+  it.only('audio job bla bla', function(done) {
+    this.timeout(100000);
+    var AudioJob = require('../../../lib/job/model/audioroom-recording');
+    createLocalTmpDir().then(function(tmpDirPath) {
+      var manager = new JobManager(tmpDirPath, tempJobsDir, [new JobHandler(AudioJob, {})]);
+      manager.start();
+      createJobFile(tmpDirPath, {
+        plugin: AudioJob.getPlugin(),
+        event: AudioJob.getEvent(),
+        data: {
+          uid: '1',
+          audio: '/Users/vogdb/workspace/work/cm-janus/delete/sample.wav'
+        }
+      });
+      setTimeout(function(){
+        console.log('\n  JOB PROCESSING WAS NOT INTERRUPTED BY AN INVALID FILE\n');
+        done();
+      }, 5000);
+    });
+  });
+
 });
