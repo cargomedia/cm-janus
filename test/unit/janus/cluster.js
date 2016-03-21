@@ -65,7 +65,7 @@ describe('JanusCluster unit tests', function() {
 
   it('getEdgeAddress()', function(done) {
     sinon.stub(janusCluster, '_request', function(action) {
-      assert.equal(action, '/get-edge-address');
+      assert.equal(action, '/rtpbroadcast/edge-server');
       done();
     });
     janusCluster.getEdgeAddress();
