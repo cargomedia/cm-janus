@@ -1,7 +1,8 @@
 var assert = require('chai').assert;
+var sinon = require('sinon');
+var Promise = require('bluebird');
 require('../helpers/globals');
 var CmApplication = require('../../lib/cm-application');
-var sinon = require('sinon');
 
 describe('CmApplication', function() {
 
@@ -40,11 +41,16 @@ describe('CmApplication', function() {
 
   });
 
-  it('importMediaStreamArchive', function() {
+  it('importMediaStreamArchive', function(done) {
     var cmApplication = new CmApplication('applicationRootPath');
     var runCommand = sinon.stub(cmApplication, 'runCommand');
     runCommand.returns(Promise.resolve());
-    assert.instanceOf(cmApplication.importMediaStreamArchive('streamChannelId', 'archive'), Promise);
-    assert(runCommand.withArgs('media-streams', 'import-archive', ['streamChannelId', 'archive']).calledOnce);
+    var importMediaStream = cmApplication.importMediaStreamArchive('streamChannelId', __filename);
+    importMediaStream
+      .then(function() {
+        assert(runCommand.withArgs('media-streams', 'import-archive', ['streamChannelId', __filename]).calledOnce);
+        done();
+      })
+      .catch(done);
   });
 });
