@@ -2,6 +2,7 @@ process.on("unhandledRejection", function(reason) {
   throw reason;
 });
 
+require('../../lib/global');
 var path = require('path');
 var log4js = require('log4js');
 var serviceLocator = require('../../lib/service-locator');
@@ -15,8 +16,7 @@ log4js.configure({
         "type": "file",
         "filename": logFilePath,
         "layout": {
-          "type": "pattern",
-          "pattern": "%d %p - %m"
+          "type": "json"
         }
       }
     }
