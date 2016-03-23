@@ -1,5 +1,6 @@
 var assert = require('chai').assert;
 var sinon = require('sinon');
+var fs = require('fs');
 var Promise = require('bluebird');
 require('../helpers/globals');
 var CmApplication = require('../../lib/cm-application');
@@ -41,16 +42,47 @@ describe('CmApplication', function() {
 
   });
 
-  it('importMediaStreamArchive', function(done) {
-    var cmApplication = new CmApplication('applicationRootPath');
-    var runCommand = sinon.stub(cmApplication, 'runCommand');
-    runCommand.returns(Promise.resolve());
-    var importMediaStream = cmApplication.importMediaStreamArchive('streamChannelId', __filename);
-    importMediaStream
-      .then(function() {
-        assert(runCommand.withArgs('media-streams', 'import-archive', ['streamChannelId', __filename]).calledOnce);
-        done();
-      })
-      .catch(done);
+  context('importMediaStreamArchive', function() {
+    var cmApplication, runCommand;
+    beforeEach(function() {
+      cmApplication = new CmApplication('applicationRootPath');
+      runCommand = sinon.stub(cmApplication, 'runCommand');
+      runCommand.returns(Promise.resolve());
+    });
+
+    it('imports existing files', function(done) {
+      var importMediaStream = cmApplication.importMediaStreamArchive('streamChannelId', __filename);
+      importMediaStream
+        .then(function() {
+          assert(runCommand.withArgs('media-streams', 'import-archive', ['streamChannelId', __filename]).calledOnce);
+          done();
+        })
+        .catch(done);
+    });
+
+    it('does not import not existing files', function(done) {
+      var importMediaStream = cmApplication.importMediaStreamArchive('streamChannelId', 'I do not exist');
+      importMediaStream
+        .then(function() {
+          assert.isFalse(runCommand.called);
+          done();
+        })
+        .catch(done);
+    });
+
+    it('does not import empty files', function(done) {
+      var filepath = './empty-archive';
+      fs.writeFileSync(filepath, '');
+      var importMediaStream = cmApplication.importMediaStreamArchive('streamChannelId', filepath);
+      importMediaStream
+        .finally(function() {
+          fs.unlinkSync(filepath);
+        })
+        .then(function() {
+          assert.isFalse(runCommand.called);
+          done();
+        })
+        .catch(done)
+    });
   });
 });
