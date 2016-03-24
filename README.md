@@ -64,6 +64,32 @@ jobManager:
 
 By default cm-janus runs for all roles (server, jobs). This can be limited by passing `-r` argument (e.g. `bin/cm-janus -r server,jobs`).
 
+## Http API
+cm-janus provides HTTP API. Its connection details are specified in `httpServer` part of config.
+
+### /stopStream
+Stops stream.
+ - params:
+    - streamId {String}. required. Id of stream to stop.
+ - method: POST.
+ - Response: `{success: 'Stream stopped'}` or `{error: '<reason>'}`.
+ - Example curl request:
+
+    ```
+    curl -H "Server-Key:yourSecretKey" -X POST -d "streamId=12312" http://localhost:8888/stopStream
+    ```
+
+### /status.
+Gets status of all current streams.
+ - params: None.
+ - method: GET.
+ - Response: Array of serialized streams. Example: `[{id: <StreamId>, channelName: <ChannelName>}]`.
+ - Example curl request:
+
+    ```
+    curl -H "Server-Key:yourSecretKey" http://localhost:8888/status
+    ```
+
 ## Testing
 cm-janus uses [node-inotify](https://github.com/c4milo/node-inotify) that works only in GNU/Linux. To run tests on any other platform you need to setup a virtual Linux environment. For Vagrant users there is a prepared vagrant file.
  - So start vagrant `vagrant up`
