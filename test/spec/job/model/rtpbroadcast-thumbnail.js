@@ -2,6 +2,7 @@ var sinon = require('sinon');
 var fs = require('fs');
 var assert = require('chai').assert;
 var Promise = require('bluebird');
+require('../../../helpers/globals');
 var serviceLocator = require('../../../../lib/service-locator');
 var RtpbroadcastThumbnailJob = require('../../../../lib/job/model/rtpbroadcast-thumbnail');
 var CmApplication = require('../../../../lib/cm-application');
@@ -54,7 +55,7 @@ describe('RtpbroadcastThumbnailJob', function() {
           }
         };
       });
-      job.run().then(done);
+      job.run().catch(done).finally(done);
     });
 
     it('should extract png thumbnail from video file', function() {
