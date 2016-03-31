@@ -2,6 +2,7 @@ var sinon = require('sinon');
 var fs = require('fs');
 var assert = require('chai').assert;
 var Promise = require('bluebird');
+require('../../../helpers/globals');
 var serviceLocator = require('../../../../lib/service-locator');
 var AudioroomRecordingJob = require('../../../../lib/job/model/audioroom-recording');
 var CmApplication = require('../../../../lib/cm-application');
@@ -56,7 +57,7 @@ describe('AudioroomRecordingJob', function() {
           }
         };
       });
-      job.run().then(done);
+      job.run().catch(done).finally(done);
     });
 
     it('should convert audio into mpeg file', function() {
