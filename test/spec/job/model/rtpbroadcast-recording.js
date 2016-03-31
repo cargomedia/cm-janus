@@ -2,6 +2,7 @@ var sinon = require('sinon');
 var fs = require('fs');
 var assert = require('chai').assert;
 var Promise = require('bluebird');
+require('../../../helpers/globals');
 var serviceLocator = require('../../../../lib/service-locator');
 var RtpbroadcastRecordingJob = require('../../../../lib/job/model/rtpbroadcast-recording');
 var CmApplication = require('../../../../lib/cm-application');
@@ -57,7 +58,7 @@ describe('RtpbroadcastRecordingJob', function() {
           }
         };
       });
-      job.run().then(done);
+      job.run().catch(done).finally(done);
     });
 
     it('should merge video and audio file into mpeg file', function() {
