@@ -79,7 +79,7 @@ Stops stream.
     curl -H "Server-Key:yourSecretKey" -X POST -d "streamId=12312" http://localhost:8888/stopStream
     ```
 
-### /status.
+### /status
 Gets status of all current streams.
  - params: None.
  - method: GET.
