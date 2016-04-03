@@ -64,12 +64,12 @@ describe('CmApiClient unit tests', function() {
 
     it('works with completely failed request', function(done) {
       var requestPromiseMock = sinon.stub(cmApiClient, '_requestPromise', function() {
-        return Promise.reject(new Error('request failed'));
+        return Promise.reject({options: {method: '', uri: '', body: {method: '', params: ''}}});
       });
 
       cmApiClient._request(action, sentData).catch(function(err) {
         assert.instanceOf(err, Error);
-        assert.strictEqual(err.message, 'cm-api error: request failed');
+        assert.include(err.message, 'cm-api error:');
         assert.isTrue(requestPromiseMock.calledOnce);
         done();
       });
