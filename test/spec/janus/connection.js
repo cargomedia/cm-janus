@@ -18,6 +18,7 @@ describe('JanusConnection', function() {
 
   beforeEach(function() {
     browserConnection = sinon.createStubInstance(Connection);
+    browserConnection.getUrlObject.returns({hash: {}});
     janusConnection = sinon.createStubInstance(Connection);
     connection = new JanusConnection('connection-id', browserConnection, janusConnection);
   });
