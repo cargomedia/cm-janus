@@ -66,7 +66,7 @@ describe('PluginAbstract', function() {
       var logger = serviceLocator.get('logger');
       sinon.spy(logger, 'info');
       plugin.onRemove();
-      expect(logger.info.withArgs('Removed plugin', plugin.serialize()).calledOnce).to.be.equal(true);
+      expect(logger.info.withArgs('Removed plugin', plugin.getContext()).calledOnce).to.be.equal(true);
       logger.info.restore();
     });
   })
