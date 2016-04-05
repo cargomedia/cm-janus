@@ -11,13 +11,15 @@ var JanusConnection = require('../../../lib/janus/connection');
 var PluginRegistry = require('../../../lib/janus/plugin-registry');
 var PluginAbstract = require('../../../lib/janus/plugin/abstract');
 var Session = require('../../../lib/janus/session');
+var Context = require('../../../lib/context');
 
 describe('Session', function() {
-  var session, connection;
+  var session, connection, sessionContext;
 
   beforeEach(function() {
     connection = new JanusConnection();
-    session = new Session(connection, 'session-id', 'session-data');
+    sessionContext = new Context();
+    session = new Session(connection, 'session-id', 'session-data', sessionContext);
     session.pluginRegistry = sinon.createStubInstance(PluginRegistry);
   });
 
@@ -25,6 +27,7 @@ describe('Session', function() {
     expect(session.connection).to.be.equal(connection);
     expect(session.id).to.be.equal('session-id');
     expect(session.data).to.be.equal('session-data');
+    expect(session.context).to.be.equal(sessionContext);
   });
 
   it('should have empty plugins collection', function() {
