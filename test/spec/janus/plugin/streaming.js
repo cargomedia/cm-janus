@@ -32,8 +32,7 @@ describe('PluginStreaming', function() {
 
     beforeEach(function() {
       var channel = {name: 'channel-name', data: 'channel-data'};
-      var stream = new Stream('stream-id', channel);
-      plugin.stream = new Stream('stream-id', 'channel-name', 'channel-data', plugin);
+      plugin.stream = new Stream('stream-id', channel, plugin);
       processWebrtcupMessage = function() {
         return plugin.processMessage({
           janus: 'webrtcup'

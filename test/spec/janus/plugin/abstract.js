@@ -4,20 +4,23 @@ var sinon = require('sinon');
 require('../../../helpers/globals');
 var PluginAbstract = require('../../../../lib/janus/plugin/abstract');
 var Session = require('../../../../lib/janus/session');
+var Context = require('../../../../lib/context');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('PluginAbstract', function() {
-  var plugin, session;
+  var plugin, session, pluginContext;
 
   before(function() {
     session = sinon.createStubInstance(Session);
-    plugin = new PluginAbstract('plugin-id', 'type', session);
+    pluginContext = new Context();
+    plugin = new PluginAbstract('plugin-id', 'type', session, pluginContext);
   });
 
-  it('should store id, type and session', function() {
+  it('should store id, type, session and context', function() {
     expect(plugin.id).to.be.equal('plugin-id');
     expect(plugin.type).to.be.equal('type');
     expect(plugin.session).to.be.equal(session);
+    expect(plugin.context).to.be.equal(pluginContext);
   });
 
   context('when processing message', function() {

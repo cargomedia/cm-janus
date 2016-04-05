@@ -1,6 +1,8 @@
 var assert = require('chai').assert;
+var sinon = require('sinon');
 var util = require('util');
 require('../helpers/globals');
+var Context = require('../../lib/context');
 var PluginAbstract = require('../../lib/janus/plugin/abstract');
 var PluginRegistry = require('../../lib/janus/plugin-registry');
 
@@ -14,18 +16,20 @@ describe('Plugin registry', function() {
     util.inherits(CorrectPlugin, PluginAbstract);
     var registry = new PluginRegistry([CorrectPlugin]);
     var pluginId = 'id';
-    var plugin = registry.instantiatePlugin(pluginId, CorrectPlugin.TYPE, null);
+    var plugin = registry.instantiatePlugin(pluginId, CorrectPlugin.TYPE, null, new Context());
     assert.instanceOf(plugin, CorrectPlugin);
     assert.equal(plugin.id, 'id');
     assert.equal(plugin.type, CorrectPlugin.TYPE);
+    assert.deepEqual(plugin.context.toHash(), {plugin: plugin.id});
 
     registry = new PluginRegistry();
     registry.registerPlugin(CorrectPlugin);
     pluginId = 'id2';
-    plugin = registry.instantiatePlugin(pluginId, CorrectPlugin.TYPE, null);
+    plugin = registry.instantiatePlugin(pluginId, CorrectPlugin.TYPE, null, new Context());
     assert.instanceOf(plugin, CorrectPlugin);
     assert.equal(plugin.id, pluginId);
     assert.equal(plugin.type, CorrectPlugin.TYPE);
+    assert.deepEqual(plugin.context.toHash(), {plugin: plugin.id});
   });
 
   it('Does not register invalid plugins', function() {

@@ -11,21 +11,24 @@ var JanusConnection = require('../../../lib/janus/connection');
 var Connection = require('../../../lib/connection');
 var Transactions = require('../../../lib/janus/transactions');
 var Session = require('../../../lib/janus/session');
+var Context = require('../../../lib/context');
 
 
 describe('JanusConnection', function() {
-  var connection, browserConnection, janusConnection;
+  var connection, browserConnection, janusConnection, connectionContext;
 
   beforeEach(function() {
     browserConnection = sinon.createStubInstance(Connection);
     janusConnection = sinon.createStubInstance(Connection);
-    connection = new JanusConnection('connection-id', browserConnection, janusConnection);
+    connectionContext = new Context();
+    connection = new JanusConnection('connection-id', browserConnection, janusConnection, connectionContext);
   });
 
   it('should store id and janus, browser connections', function() {
     expect(connection.id).to.be.equal('connection-id');
     expect(connection.browserConnection).to.be.equal(browserConnection);
     expect(connection.janusConnection).to.be.equal(janusConnection);
+    expect(connection.context).to.be.equal(connectionContext);
   });
 
   it('should have empty session', function() {
