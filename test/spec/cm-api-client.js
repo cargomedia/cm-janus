@@ -1,11 +1,24 @@
 var assert = require('chai').assert;
+var sinon = require('sinon');
 var nock = require('nock');
 require('../helpers/globals');
 var Stream = require('../../lib/stream');
+var Channel = require('../../lib/channel');
+var PluginAbstract = require('../../lib/janus/plugin/abstract');
+var Session = require('../../lib/janus/session');
 
 var CmApiClient = require('../../lib/cm-api-client');
 
 describe('CmApiClient spec tests', function() {
+
+  var stream;
+
+  beforeEach(function() {
+    var session = new Session(null, 'sessionId', 'sessionData');
+    var plugin = new PluginAbstract('pluginId', 'pluginType', session);
+    var channel = new Channel('channelMediaId', 'channelKey', 'channelData');
+    stream = new Stream('streamKey', channel, plugin);
+  });
 
   this.timeout(2000);
 
@@ -25,9 +38,6 @@ describe('CmApiClient spec tests', function() {
     var url = 'http://localhost:8080';
     var action = 'publish';
     var apiKey = 'test';
-    var plugin = {session: {data: 'sessionData'}};
-    var channel = {id: 'channelMediaId', name: 'channelKey', data: 'channelData'};
-    var stream = new Stream('streamKey', channel, plugin);
     var params = [stream];
 
     var httpParams = ['sessionData', 'channelKey', 'channelMediaId', 'channelData', 'streamKey', stream.start.getTime() / 1000];
@@ -45,9 +55,6 @@ describe('CmApiClient spec tests', function() {
     var url = 'http://localhost:8080';
     var action = 'subscribe';
     var apiKey = 'test';
-    var plugin = {session: {data: 'sessionData'}};
-    var channel = {id: 'channelMediaId', name: 'channelKey', data: 'channelData'};
-    var stream = new Stream('streamKey', channel, plugin);
     var params = [stream];
     var httpParams = ['sessionData', 'channelKey', 'channelMediaId', 'channelData', 'streamKey', stream.start.getTime() / 1000];
 
@@ -64,10 +71,8 @@ describe('CmApiClient spec tests', function() {
     var url = 'http://localhost:8080';
     var action = 'removeStream';
     var apiKey = 'test';
-    var channel = {name: 'streamChannelKey', data: 'channelData'};
-    var stream = new Stream('streamKey', channel);
     var params = [stream];
-    var httpParams = ['streamChannelKey', 'streamKey'];
+    var httpParams = ['channelKey', 'streamKey'];
 
     mockRequest(url, action, apiKey, httpParams);
 
