@@ -61,6 +61,7 @@ describe('PluginStreaming', function() {
     context('on unsuccessful subscribe', function() {
       beforeEach(function() {
         streams.addSubscribe.restore();
+        httpClient.detach.returns(Promise.resolve());
         sinon.stub(streams, 'addSubscribe', function() {
           return Promise.reject(new JanusError.Error('Cannot subscribe'));
         });
