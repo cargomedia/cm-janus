@@ -90,6 +90,21 @@ Gets status of all current streams.
     curl -H "Server-Key:yourSecretKey" http://localhost:8888/status
     ```
 
+## Logging
+cm-janus reports about events using log4js logging system. It logs into console (output) and file (set in config.yaml).
+Log entries are encoded in JSON an contain various fields. Default timestamp, level, message and additional ones passed with Context.
+
+### Context
+Context usually contains event's additional information about corresponding resources e.g. `plugin`, `session`, `connection`.
+There is a possibility to assign additional values from external services via WebSocket url. There is special `?context` param which should contain json-encoded key-values which will be assigned into Connection's context object.
+E.g.
+```
+ws://cm-janus:8188?context={"key":"value"}
+```
+
+
+
+
 ## Testing
 cm-janus uses [node-inotify](https://github.com/c4milo/node-inotify) that works only in GNU/Linux. To run tests on any other platform you need to setup a virtual Linux environment. For Vagrant users there is a prepared vagrant file.
  - So start vagrant `vagrant up`

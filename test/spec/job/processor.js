@@ -2,6 +2,7 @@ var assert = require('chai').assert;
 var sinon = require('sinon');
 require('../../helpers/globals');
 var path = require('path');
+var util = require('util');
 var Promise = require('bluebird');
 var rimraf = require('rimraf');
 var mkdirp = require('mkdirp');
@@ -10,7 +11,15 @@ var AbstractJob = require('../../../lib/job/model/abstract');
 
 describe('JobProcessor', function() {
 
-  var tempJobsDir = path.join(__dirname, '/tmp');
+  var JobClass, tempJobsDir = path.join(__dirname, '/tmp');
+
+  before(function() {
+    JobClass = function() {
+      AbstractJob.prototype.constructor.apply(this, arguments);
+    };
+    util.inherits(JobClass, AbstractJob);
+    sinon.stub(JobClass.prototype, 'getName').returns('job-name');
+  });
 
   beforeEach(function() {
     mkdirp.sync(tempJobsDir);
@@ -21,7 +30,7 @@ describe('JobProcessor', function() {
   });
 
   it('runs job when processes it', function(done) {
-    var job = new AbstractJob('id', {}, {});
+    var job = new JobClass('id', {}, {});
     sinon.stub(job, '_run', function() {
       return Promise.resolve('success');
     });
@@ -36,7 +45,7 @@ describe('JobProcessor', function() {
   });
 
   it('always retries to process a failed job', function(done) {
-    var job = new AbstractJob('id', {}, {});
+    var job = new JobClass('id', {}, {});
     var retryLimit = 3;
     var retryNumber = 0;
     sinon.stub(job, '_run', function() {
@@ -58,11 +67,11 @@ describe('JobProcessor', function() {
   });
 
   it('processes a low load independently', function(done) {
-    var job1 = new AbstractJob('id', {}, {});
+    var job1 = new JobClass('id', {}, {});
     sinon.stub(job1, '_run', function() {
       return Promise.delay(300, 'value1');
     });
-    var job2 = new AbstractJob('id', {}, {});
+    var job2 = new JobClass('id', {}, {});
     sinon.stub(job2, '_run', function() {
       return Promise.delay(300, 'value2');
     });
@@ -79,11 +88,11 @@ describe('JobProcessor', function() {
   });
 
   it('processes a high load in a queue', function(done) {
-    var job1 = new AbstractJob('id', {}, {});
+    var job1 = new JobClass('id', {}, {});
     sinon.stub(job1, '_run', function() {
       return Promise.delay(300);
     });
-    var job2 = new AbstractJob('id', {}, {});
+    var job2 = new JobClass('id', {}, {});
     sinon.stub(job2, '_run', function() {
       return Promise.delay(300);
     });
@@ -102,7 +111,7 @@ describe('JobProcessor', function() {
   });
 
   it('stops correctly', function(done) {
-    var job = new AbstractJob('id', {}, {});
+    var job = new JobClass('id', {}, {});
     sinon.stub(job, '_run', function() {
       return Promise.delay(3000);
     });

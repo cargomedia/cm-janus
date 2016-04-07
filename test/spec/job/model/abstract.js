@@ -4,16 +4,28 @@ var mkdirp = require('mkdirp');
 var tmpName = require('tmp').tmpNameSync;
 var assert = require('chai').assert;
 var Promise = require('bluebird');
+var util = require('util');
+require('../../../helpers/globals');
 var AbstractJob = require('../../../../lib/job/model/abstract');
 
-
 describe('AbstractJob', function() {
+  var JobClass;
+
+  before(function() {
+    JobClass = function() {
+      AbstractJob.prototype.constructor.apply(this, arguments);
+    };
+    util.inherits(JobClass, AbstractJob);
+    sinon.stub(JobClass.prototype, 'getName').returns('job-name');
+  });
+
+
   context('on cancel', function() {
 
     var job;
 
     beforeEach(function() {
-      job = new AbstractJob();
+      job = new JobClass();
       job._run = function() {
         return new Promise(function(resolve, reject) {
         });
@@ -42,7 +54,7 @@ describe('AbstractJob', function() {
       var workingDirectory = tmpName();
       mkdirp.sync(workingDirectory);
 
-      job = new AbstractJob();
+      job = new JobClass();
       job.setWorkingDirectory(workingDirectory);
     });
 
@@ -77,7 +89,7 @@ describe('AbstractJob', function() {
       workingDirectory = tmpName();
       mkdirp.sync(workingDirectory);
 
-      var job = new AbstractJob();
+      var job = new JobClass();
       job.setWorkingDirectory(workingDirectory);
       jobPromise = job._runJobScript('pwd');
     });
@@ -95,7 +107,7 @@ describe('AbstractJob', function() {
     this.timeout(jobRunTime + 100);
 
     beforeEach(function() {
-      job = new AbstractJob();
+      job = new JobClass();
       job._run = function() {
         return Promise.delay(jobRunTime);
       };

@@ -18,7 +18,7 @@ describe('JanusConnection', function() {
 
   beforeEach(function() {
     browserConnection = sinon.createStubInstance(Connection);
-    browserConnection.getUrlObject.returns({hash: {}});
+    browserConnection.getUrlObject.returns({query: {}});
     janusConnection = sinon.createStubInstance(Connection);
     connection = new JanusConnection('connection-id', browserConnection, janusConnection);
   });
@@ -193,4 +193,26 @@ describe('JanusConnection', function() {
       });
     });
   });
+
+  context('context', function() {
+
+    it('should contain connection id', function() {
+      expect(connection.getContext().fields.connectionId).to.be.equal('connection-id');
+    });
+
+    context('when connection query context present', function() {
+      beforeEach(function() {
+        browserConnection.getUrlObject.returns({
+          query: {
+            context: JSON.stringify({user: 'user-id'})
+          }
+        });
+      });
+
+      it('should contain connection', function() {
+        expect(connection.getContext().fields.user).to.be.equal('user-id');
+      });
+    });
+  });
+
 });
