@@ -9,6 +9,8 @@ var requestPromise = require('request-promise');
 var Promise = require('bluebird');
 
 var HttpServer = require('../../lib/http-server');
+var PluginAbstract = require('../../lib/janus/plugin/abstract');
+var Channel = require('../../lib/channel');
 var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
 var serviceLocator = require('../../lib/service-locator');
@@ -82,8 +84,8 @@ describe('HttpServer', function() {
         before(function() {
           janusHttpClient = new JanusHttpClient();
           serviceLocator.register('http-client', janusHttpClient);
-          var plugin = {};
-          var channel = {name: 'channel-name', data: 'channel-data'};
+          var plugin = new PluginAbstract(null, null, null);
+          var channel = new Channel('channel-id', 'channel-name', 'channel-data');
           stream = new Stream('stream-id', channel, plugin);
           sinon.stub(streams, 'find').returns(stream);
         });
@@ -122,11 +124,11 @@ describe('HttpServer', function() {
           });
 
           after(function() {
-            delete stream.plugin.onRemove;
+            delete stream.plugin.removeStream;
           });
 
           it('should remove stream by force', function(done) {
-            stream.plugin.onRemove = Promise.resolve;
+            stream.plugin.removeStream = Promise.resolve;
 
             authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
               assert(janusHttpClient.detach.withArgs(stream.plugin).calledOnce);
@@ -136,7 +138,7 @@ describe('HttpServer', function() {
           });
 
           it('fails otherwise', function(done) {
-            stream.plugin.onRemove = function() {
+            stream.plugin.removeStream = function() {
               return Promise.reject(new Error());
             };
 
