@@ -95,8 +95,8 @@ cm-janus reports about events using log4js logging system. It logs into console 
 Log entries are encoded in JSON an contain various fields. Default timestamp, level, message and additional ones passed with Context.
 
 ### Context
-Context is usually contains information of corresponding resources e.g. `plugin`, `session`, `connection`.
-There is possibility to assign certain values from other service into Connection context. It's possible by passing `?context` WebSocket url query param with json-encoded values.
+Context usually contains event's additional information about corresponding resources e.g. `plugin`, `session`, `connection`.
+There is a possibility to assign additional values from external services via WebSocket url. There is special `?context` param which should contain json-encoded key-values which will be assigned into Connection's context object.
 E.g.
 ```
 ws://cm-janus:8188?context={"key":"value"}
