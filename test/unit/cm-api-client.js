@@ -93,6 +93,21 @@ describe('CmApiClient unit tests', function() {
       });
       requestPromiseMock.restore();
     });
+
+    it('fails for unexpected format request', function(done) {
+      var requestPromiseMock = sinon.stub(cmApiClient, '_requestPromise', function() {
+        return Promise.resolve('');
+      });
+
+      cmApiClient._request(action, sentData).catch(function(err) {
+        assert.instanceOf(err, Error);
+        assert.include(err.message, 'cm-api error:');
+        assert.isTrue(requestPromiseMock.calledOnce);
+        done();
+      });
+      requestPromiseMock.restore();
+    });
+
   });
 
   describe('publish()', function() {
