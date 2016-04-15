@@ -197,7 +197,7 @@ describe('JanusConnection', function() {
   context('context', function() {
 
     it('should contain connection id', function() {
-      expect(connection.getContext().fields.connectionId).to.be.equal('connection-id');
+      expect(connection.getContext().fields.janus.connectionId).to.be.equal('connection-id');
     });
 
     context('when connection query context present', function() {
