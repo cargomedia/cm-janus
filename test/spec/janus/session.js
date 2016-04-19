@@ -92,7 +92,7 @@ describe('Session', function() {
         sender: 'plugin-id',
         token: 'token'
       };
-      sinon.stub(session, '_removePlugin');
+      sinon.stub(session, '_removePlugin', Promise.resolve);
       session.processMessage(message);
     });
 
