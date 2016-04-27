@@ -42,7 +42,7 @@
     "sprintf-js": "^1.0.3",
     "tmp": "^0.0.28",
     "underscore": "^1.8.3",
-    "ws": "~0.8.0"
+    "ws": "~1.1.0"
   },
   "devDependencies": {
     "chai": "~2.1.2",
