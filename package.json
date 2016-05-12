@@ -1,7 +1,7 @@
 {
   "name": "cm-janus",
   "description": "",
-  "version": "0.6.5",
+  "version": "0.8.4",
   "author": "Cargomedia",
   "license": "MIT",
   "main": "",
@@ -25,6 +25,7 @@
     "bluebird": "~3.0.0",
     "body-parser": "^1.14.1",
     "child-process-promise": "^1.1.0",
+    "deep-extend": "^0.4.1",
     "express": "^4.13.3",
     "inotify": "^1.4.0",
     "is-plain-object": "^2.0.1",
@@ -41,7 +42,7 @@
     "sprintf-js": "^1.0.3",
     "tmp": "^0.0.28",
     "underscore": "^1.8.3",
-    "ws": "~0.8.0"
+    "ws": "~1.1.0"
   },
   "devDependencies": {
     "chai": "~2.1.2",

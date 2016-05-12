@@ -4,6 +4,7 @@ var sinon = require('sinon');
 require('../../../helpers/globals');
 var PluginAbstract = require('../../../../lib/janus/plugin/abstract');
 var Session = require('../../../../lib/janus/session');
+var Context = require('../../../../lib/context');
 var serviceLocator = require('../../../../lib/service-locator');
 
 describe('PluginAbstract', function() {
@@ -11,6 +12,7 @@ describe('PluginAbstract', function() {
 
   before(function() {
     session = sinon.createStubInstance(Session);
+    session.getContext.returns(new Context());
     plugin = new PluginAbstract('plugin-id', 'type', session);
   });
 
@@ -66,7 +68,7 @@ describe('PluginAbstract', function() {
       var logger = serviceLocator.get('logger');
       sinon.spy(logger, 'info');
       plugin.onRemove();
-      expect(logger.info.withArgs('Removed plugin', {plugin: plugin}).calledOnce).to.be.equal(true);
+      expect(logger.info.withArgs('Removed plugin', plugin.getContext()).calledOnce).to.be.equal(true);
       logger.info.restore();
     });
   })

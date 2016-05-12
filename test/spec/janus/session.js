@@ -32,7 +32,7 @@ describe('Session', function() {
   });
 
   context('when processes "attach" message', function() {
-    var message;
+    var message, plugin;
     beforeEach(function() {
       message = {
         janus: 'attach',
@@ -40,7 +40,8 @@ describe('Session', function() {
         token: 'token'
       };
       sinon.spy(connection.transactions, 'add');
-      session.pluginRegistry.instantiatePlugin.returns('plugin-instance');
+      plugin = sinon.createStubInstance(PluginAbstract);
+      session.pluginRegistry.instantiatePlugin.returns(plugin);
     });
 
     context('with illegal plugin', function() {
@@ -79,7 +80,7 @@ describe('Session', function() {
         assert(session.pluginRegistry.instantiatePlugin.withArgs('plugin-id', 'plugin-type', session).calledOnce);
         expect(_.size(session.plugins)).to.be.equal(1);
         expect(session.plugins).to.have.property('plugin-id');
-        expect(session.plugins['plugin-id']).to.be.equal('plugin-instance');
+        expect(session.plugins['plugin-id']).to.be.equal(plugin);
       });
     });
   });
@@ -91,7 +92,7 @@ describe('Session', function() {
         sender: 'plugin-id',
         token: 'token'
       };
-      sinon.stub(session, '_removePlugin');
+      sinon.stub(session, '_removePlugin', Promise.resolve);
       session.processMessage(message);
     });
 

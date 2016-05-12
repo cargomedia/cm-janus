@@ -52,6 +52,7 @@ describe('JanusProxy', function() {
       fromClientConnection.send = sinon.stub();
       fromClientConnection.isOpened = sinon.stub();
       fromClientConnection.close = sinon.stub();
+      fromClientConnection.getUrlObject = sinon.stub().returns({query: {}});
       toJanusConnection = new EventEmitter();
       toJanusConnection.send = sinon.stub();
       toJanusConnection.isOpened = sinon.stub();
