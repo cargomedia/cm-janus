@@ -29,13 +29,6 @@ describe('Video plugin', function() {
   it('when processes invalid message', function(done) {
     var invalidRequestPromises = [];
 
-    var listRequest = {
-      janus: 'message',
-      body: {request: 'list'},
-      transaction: 'transaction-id'
-    };
-    invalidRequestPromises.push(plugin.processMessage(listRequest));
-
     var destroyRequest = {
       janus: 'destroy',
       transaction: 'transaction-id'

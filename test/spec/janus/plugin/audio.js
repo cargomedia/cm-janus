@@ -26,7 +26,7 @@ describe('Audio plugin', function() {
 
   it('when processes invalid message', function(done) {
     var invalidRequestPromises = [];
-    var invalidRequestActions = ['list', 'exists', 'resetdecoder', 'listparticipants'];
+    var invalidRequestActions = ['exists', 'resetdecoder', 'listparticipants'];
 
     invalidRequestActions.forEach(function(action) {
       var invalidRequest = {
