@@ -2,6 +2,7 @@ var assert = require('chai').assert;
 var sinon = require('sinon');
 var _ = require('underscore');
 require('../helpers/globals');
+var Channel = require('../../lib/channel');
 var Stream = require('../../lib/stream');
 var Streams = require('../../lib/streams');
 var CmApiClient = require('../../lib/cm-api-client');
@@ -129,6 +130,20 @@ describe('streams', function() {
     streams.list[stream.id] = stream;
     assert.strictEqual(streams.find('foo'), stream);
     assert.strictEqual(streams.find('bar'), null);
+  });
+
+  it('findByChannel', function() {
+    var streams = new Streams();
+    var stream = sinon.createStubInstance(Stream);
+    var channel1 = new Channel('id1', 'name1', '');
+    var channel2 = new Channel('id2', 'name2', '');
+    var channel1copy = new Channel('id1', 'name1', 'hello');
+    stream.channel = channel1;
+    streams._add(stream);
+
+    assert.sameMembers(streams.findByChannel(channel1), [stream]);
+    assert.lengthOf(streams.findByChannel(channel2), 0);
+    assert.deepEqual(streams.findByChannel(channel1copy), [stream]);
   });
 
   it('_add', function() {
