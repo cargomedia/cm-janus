@@ -3,11 +3,14 @@ var expect = require('chai').expect;
 var sinon = require('sinon');
 var Promise = require('bluebird');
 require('../../../helpers/globals');
+var serviceLocator = require('../../../../lib/service-locator');
 var Connection = require('../../../../lib/janus/connection');
 var Session = require('../../../../lib/janus/session');
 var PluginVideo = require('../../../../lib/janus/plugin/video');
 var JanusError = require('../../../../lib/janus/error');
 var Stream = require('../../../../lib/stream');
+var Streams = require('../../../../lib/streams');
+var Channel = require('../../../../lib/channel');
 
 describe('Video plugin', function() {
   var plugin, session, connection;
@@ -315,6 +318,58 @@ describe('Video plugin', function() {
     plugin.processMessage(stoppedRequest).then(function() {
       expect(plugin.removeStream.calledOnce).to.be.equal(true);
       done();
+    });
+  });
+
+  context('removes streams with the same channel on removeStream', function() {
+    var stubHttpClient;
+
+    before(function() {
+      stubHttpClient = {
+        detach: sinon.spy(function() {
+          return Promise.resolve();
+        })
+      };
+      serviceLocator.register('http-client', stubHttpClient);
+
+      var stubCmApiClient = {
+        removeStream: Promise.resolve,
+        subscribe: Promise.resolve,
+        publish: Promise.resolve
+      };
+      serviceLocator.register('cm-api-client', stubCmApiClient);
+
+      serviceLocator.register('streams', new Streams());
+    });
+
+    after(function() {
+      serviceLocator.unregister('http-client');
+      serviceLocator.unregister('streams');
+      serviceLocator.unregister('cm-api-client');
+    });
+
+    it('', function(done) {
+      var stream1Publish = Stream.generate(new Channel('id1', 'name1', ''), plugin);
+      var stream2 = Stream.generate(new Channel('id2', 'name2', ''), plugin);
+      var subscribePlugin = new PluginVideo('', '', session);
+      var stream1Subscribe = Stream.generate(new Channel('id1', 'name1', ''), subscribePlugin);
+      var streams = serviceLocator.get('streams');
+      streams.addSubscribe(stream2);
+      streams.addSubscribe(stream1Subscribe);
+
+      plugin.publish.restore();
+      plugin.removeStream.restore();
+
+      plugin.stream = stream1Publish;
+      plugin.publish()
+        .then(function() {
+          return plugin.removeStream();
+        })
+        .then(function() {
+          assert.equal(stubHttpClient.detach.callCount, 1);
+          assert.isTrue(stubHttpClient.detach.withArgs(subscribePlugin).calledOnce);
+          done();
+        });
     });
   });
 
