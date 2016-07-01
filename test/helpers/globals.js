@@ -23,4 +23,5 @@ log4js.configure({
     }
   ]
 });
+serviceLocator.reset();
 serviceLocator.register('logger', new Logger(log4js.getLogger()));
