@@ -132,7 +132,7 @@ describe('streams', function() {
     assert.strictEqual(streams.find('bar'), null);
   });
 
-  it('findByChannel', function() {
+  it('findAllByChannel', function() {
     var streams = new Streams();
     var stream = sinon.createStubInstance(Stream);
     var channel1 = new Channel('id1', 'name1', '');
@@ -141,9 +141,9 @@ describe('streams', function() {
     stream.channel = channel1;
     streams._add(stream);
 
-    assert.sameMembers(streams.findByChannel(channel1), [stream]);
-    assert.lengthOf(streams.findByChannel(channel2), 0);
-    assert.deepEqual(streams.findByChannel(channel1copy), [stream]);
+    assert.sameMembers(streams.findAllByChannel(channel1), [stream]);
+    assert.lengthOf(streams.findAllByChannel(channel2), 0);
+    assert.deepEqual(streams.findAllByChannel(channel1copy), [stream]);
   });
 
   it('_add', function() {
