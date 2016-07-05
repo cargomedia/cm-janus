@@ -322,16 +322,7 @@ describe('Video plugin', function() {
   });
 
   context('removes streams with the same channel on removeStream', function() {
-    var stubHttpClient;
-
     before(function() {
-      stubHttpClient = {
-        detach: sinon.spy(function() {
-          return Promise.resolve();
-        })
-      };
-      serviceLocator.register('http-client', stubHttpClient);
-
       var stubCmApiClient = {
         removeStream: Promise.resolve,
         subscribe: Promise.resolve,
@@ -352,6 +343,7 @@ describe('Video plugin', function() {
       var stream1Publish = Stream.generate(new Channel('id1', 'name1', ''), plugin);
       var stream2 = Stream.generate(new Channel('id2', 'name2', ''), plugin);
       var subscribePlugin = new PluginVideo('', '', session);
+      sinon.stub(subscribePlugin, 'removeStream', Promise.resolve);
       var stream1Subscribe = Stream.generate(new Channel('id1', 'name1', ''), subscribePlugin);
       var streams = serviceLocator.get('streams');
       streams.addSubscribe(stream2);
@@ -366,8 +358,7 @@ describe('Video plugin', function() {
           return plugin.removeStream();
         })
         .then(function() {
-          assert.equal(stubHttpClient.detach.callCount, 1);
-          assert.isTrue(stubHttpClient.detach.withArgs(subscribePlugin).calledOnce);
+          assert.equal(subscribePlugin.removeStream.callCount, 1);
           done();
         });
     });
