@@ -44,7 +44,7 @@ janus:
   webSocketAddress: 'ws://198.23.87.26:8188/janus' # janus-gateway webSocket address
   httpAddress: 'http://198.23.87.26:8188/janus' # janus-gateway http address
 cmApi:
-  baseUrl: 'http://www.cm.dev/rpc/null' # cm-application address
+  baseUrl: 'http://www.cm.dev/rpc' # cm-application address
   apiKey: '123fish' # token for authentication, sent with each http request
 cmApplication:
   path: '/home/cm' # path to local cm application
