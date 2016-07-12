@@ -132,7 +132,7 @@ describe('HttpServer', function() {
 
             authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
               assert(janusHttpClient.detach.withArgs(stream.plugin).calledOnce);
-              expect(response).to.have.property('error', 'Stream stop failed. Stream was removed by force.');
+              expect(response).to.have.property('success', 'Stream stopped');
               done();
             }, done);
           });
