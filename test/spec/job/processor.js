@@ -57,7 +57,7 @@ describe('JobProcessor', function() {
       }
     });
 
-    var processor = new JobProcessor(tempJobsDir, null, 50);
+    var processor = new JobProcessor(tempJobsDir, 50);
     processor.start();
     processor.processUntilSuccessful(job).then(function(result) {
       assert.equal(retryNumber, retryLimit);
@@ -76,7 +76,7 @@ describe('JobProcessor', function() {
       return Promise.delay(300, 'value2');
     });
 
-    var processor = new JobProcessor(tempJobsDir, 2);
+    var processor = new JobProcessor(tempJobsDir, null, 2);
     processor.start();
     Promise.all([processor.process(job1), processor.process(job2)])
       .timeout(300 + 50)
@@ -97,7 +97,7 @@ describe('JobProcessor', function() {
       return Promise.delay(300);
     });
 
-    var processor = new JobProcessor(tempJobsDir, 1);
+    var processor = new JobProcessor(tempJobsDir, null, 1);
     processor.start();
     var jobPromise1 = processor.process(job1);
     var jobPromise2 = processor.process(job2);
