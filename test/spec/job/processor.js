@@ -105,7 +105,7 @@ describe('JobProcessor', function() {
       .timeout(300 + 50)
       .catch(Promise.TimeoutError, function() {
         assert.isTrue(jobPromise1.isFulfilled());
-        assert.isTrue(jobPromise2.isCancelled());
+        assert.isTrue(jobPromise2.isPending());
         done();
       });
   });
