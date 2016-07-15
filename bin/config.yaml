@@ -14,6 +14,7 @@ cmApplication:
   path: '/home/cm' # path to local cm application
 jobManager:
   jobsPath: '/tmp/jobs' # place where job definitions are stored
+  jobRetryDelay: 60000 # delay to restart failed jobs
   tempFilesPath: '/tmp/jobs/temp-files/' # jobs handlers' temp files
   handlersConfiguration:
     'janus.plugin.cm.audioroom:archive-finished':
