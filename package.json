@@ -1,7 +1,7 @@
 {
   "name": "cm-janus",
   "description": "",
-  "version": "0.8.12",
+  "version": "0.8.13",
   "author": "Cargomedia",
   "license": "MIT",
   "main": "",
@@ -25,7 +25,7 @@
     "bluebird": "~3.0.0",
     "body-parser": "^1.14.1",
     "child-process-promise": "^1.1.0",
-    "deep-extend": "vogdb/node-deep-extend",
+    "deep-extend": "git+https://git@github.com/vogdb/node-deep-extend.git",
     "express": "^4.13.3",
     "inotify": "^1.4.0",
     "is-plain-object": "^2.0.1",
