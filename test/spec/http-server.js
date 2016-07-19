@@ -73,9 +73,9 @@ describe('HttpServer', function() {
         serviceLocator.unregister('streams');
       });
 
-      it('should return error on invalid stream id', function(done) {
+      it('should return success on invalid stream id', function(done) {
         var response = authenticatedRequest('POST', 'stopStream', {streamId: 'invalid-stream-id'});
-        expect(response).to.eventually.have.property('error', 'Unknown stream: invalid-stream-id').and.eventually.notify(done)
+        expect(response).to.eventually.have.property('success', 'Stream stopped').and.eventually.notify(done)
       });
 
       context('on valid stream', function() {
@@ -132,7 +132,7 @@ describe('HttpServer', function() {
 
             authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
               assert(janusHttpClient.detach.withArgs(stream.plugin).calledOnce);
-              expect(response).to.have.property('error', 'Stream stop failed. Stream was removed by force.');
+              expect(response).to.have.property('success', 'Stream stopped');
               done();
             }, done);
           });
