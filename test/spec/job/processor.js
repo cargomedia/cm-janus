@@ -57,7 +57,7 @@ describe('JobProcessor', function() {
       }
     });
 
-    var processor = new JobProcessor(tempJobsDir, 50);
+    var processor = new JobProcessor(tempJobsDir, 50 * .001);
     processor.start();
     processor.processUntilSuccessful(job).then(function(result) {
       assert.equal(retryNumber, retryLimit);
