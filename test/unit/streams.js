@@ -109,14 +109,14 @@ describe('streams', function() {
     }).catch(done);
   });
 
-  it('removeAll', function(done) {
+  it('unregisterAll', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_removeAll');
     sinon.stub(cmApiClient, 'removeAllStreams', function() {
       return Promise.resolve();
     });
 
-    streams.removeAll().then(function() {
+    streams.unregisterAll().then(function() {
       assert.equal(cmApiClient.removeAllStreams.calledOnce, true);
       assert.equal(streams._removeAll.calledOnce, true);
       done();

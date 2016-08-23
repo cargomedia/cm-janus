@@ -31,7 +31,7 @@ describe('JanusProxy', function() {
   context('when started', function() {
 
     beforeEach(function(done) {
-      sinon.stub(streams, 'removeAll', Promise.resolve);
+      sinon.stub(streams, 'unregisterAll', Promise.resolve);
       proxy.start().then(done, done);
     });
 
