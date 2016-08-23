@@ -94,29 +94,38 @@ describe('streams', function() {
     });
   });
 
-  it('remove', function(done) {
+  it('unregister', function(done) {
     var streams = new Streams();
-    sinon.stub(streams, '_remove');
+    sinon.stub(streams, 'remove');
     sinon.stub(cmApiClient, 'removeStream', function() {
       return Promise.resolve();
     });
 
     var stream = sinon.createStubInstance(Stream);
-    streams.remove(stream).then(function() {
+    streams.unregister(stream).then(function() {
       assert.equal(cmApiClient.removeStream.withArgs(stream).calledOnce, true);
-      assert.equal(streams._remove.calledOnce, true);
+      assert.equal(streams.remove.calledOnce, true);
       done();
     }).catch(done);
   });
 
-  it('removeAll', function(done) {
+  it('remove', function() {
+    var streams = new Streams();
+    sinon.stub(streams, '_remove');
+
+    var stream = sinon.createStubInstance(Stream);
+    streams.remove(stream);
+    assert.equal(streams._remove.withArgs(stream).calledOnce, true);
+  });
+
+  it('unregisterAll', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_removeAll');
     sinon.stub(cmApiClient, 'removeAllStreams', function() {
       return Promise.resolve();
     });
 
-    streams.removeAll().then(function() {
+    streams.unregisterAll().then(function() {
       assert.equal(cmApiClient.removeAllStreams.calledOnce, true);
       assert.equal(streams._removeAll.calledOnce, true);
       done();
