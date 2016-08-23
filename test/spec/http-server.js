@@ -127,7 +127,7 @@ describe('HttpServer', function() {
             delete stream.plugin.removeStream;
           });
 
-          it('should remove stream by force', function(done) {
+          it('should stop stream by force', function(done) {
             stream.plugin.removeStream = Promise.resolve;
 
             authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
@@ -143,7 +143,7 @@ describe('HttpServer', function() {
             };
 
             authenticatedRequest('POST', 'stopStream', {streamId: 'stream-id'}).then(function(response) {
-              expect(response).to.have.property('error', 'Stream stop failed. Stream was not removed.');
+              expect(response).to.have.property('error', 'Stream stop failed. Stream was not stopped.');
               done();
             }, done);
           });

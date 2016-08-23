@@ -112,7 +112,7 @@ describe('PluginStreaming', function() {
     beforeEach(function() {
       stream = new Stream('stream-id', 'channel', plugin);
       plugin.stream = stream;
-      streams.remove.returns(Promise.resolve());
+      streams.unregister.returns(Promise.resolve());
     });
     context('when removes stream', function() {
       beforeEach(function(done) {
@@ -123,9 +123,9 @@ describe('PluginStreaming', function() {
         expect(plugin.stream).to.be.equal(null);
       });
 
-      it('should remove stream from streams', function() {
-        expect(streams.remove.calledOnce).to.be.equal(true);
-        expect(streams.remove.firstCall.args[0]).to.be.equal(stream);
+      it('should unregister stream from streams', function() {
+        expect(streams.unregister.calledOnce).to.be.equal(true);
+        expect(streams.unregister.firstCall.args[0]).to.be.equal(stream);
       });
     });
   })

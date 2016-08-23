@@ -94,7 +94,7 @@ describe('streams', function() {
     });
   });
 
-  it('remove', function(done) {
+  it('unregister', function(done) {
     var streams = new Streams();
     sinon.stub(streams, '_remove');
     sinon.stub(cmApiClient, 'removeStream', function() {
@@ -102,7 +102,7 @@ describe('streams', function() {
     });
 
     var stream = sinon.createStubInstance(Stream);
-    streams.remove(stream).then(function() {
+    streams.unregister(stream).then(function() {
       assert.equal(cmApiClient.removeStream.withArgs(stream).calledOnce, true);
       assert.equal(streams._remove.calledOnce, true);
       done();
