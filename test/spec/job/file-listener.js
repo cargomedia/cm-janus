@@ -10,6 +10,7 @@ var FileListener = require('../../../lib/job/file-listener');
 describe('FileListener', function() {
 
   var tmpDirPath = path.join(__dirname, '/tmp');
+  var tmp1DirPath = path.join(__dirname, '/tmp1');
 
   function randomString() {
     return Math.random().toString(36).substring(2, 10);
@@ -21,12 +22,18 @@ describe('FileListener', function() {
     return filepath;
   }
 
+  function moveFile(srcpath, destpath) {
+    fs.rename(srcpath, destpath);
+  }
+
   beforeEach(function() {
     mkdirp.sync(tmpDirPath);
+    mkdirp.sync(tmp1DirPath);
   });
 
   afterEach(function() {
     rimraf.sync(tmpDirPath);
+    rimraf.sync(tmp1DirPath);
   });
 
   it('emits events for existing files', function(done) {
@@ -59,6 +66,22 @@ describe('FileListener', function() {
     });
 
     newfilePath = createTmpFile(tmpDirPath, {});
+  });
+
+  it('emits event for a file moved into directory', function(done) {
+    var tmpfilePath;
+    var newfilePath = path.join(tmpDirPath, randomString() + '.json');
+    var fileListener = new FileListener(tmpDirPath);
+    fileListener.start();
+
+    fileListener.on('file', function(filepath) {
+      assert.equal(newfilePath, filepath);
+      fileListener.stop();
+      done();
+    });
+
+    tmpfilePath = createTmpFile(tmp1DirPath, {});
+    moveFile(tmpfilePath, newfilePath);
   });
 
 });
