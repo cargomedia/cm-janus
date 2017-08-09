@@ -1,3 +1,8 @@
+UNMAINTAINED
+============
+This project is not maintained anymore.
+If you want to take over contact us at tech@cargomedia.ch.
+
 cm-janus [![Build Status](https://travis-ci.org/cargomedia/cm-janus.svg?branch=master)](https://travis-ci.org/cargomedia/cm-janus) [![codecov.io](https://codecov.io/github/cargomedia/cm-janus/coverage.svg?branch=master)](https://codecov.io/github/cargomedia/cm-janus?branch=master)
 ========
 
